@@ -1,0 +1,46 @@
+h2 {
+  font-family: Helvetica, Arial, sans-serif;
+  font-weight: bold;
+  font-size: 20px;
+}
+
+hr{
+  border-style: solid;
+  border-width: 1px;
+  border-color: black;
+}
+
+body{
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 15px;
+}
+
+.accordion {
+  background-color: white;
+  color: #444;
+  cursor: pointer;
+  padding: 18px;
+  width: 100%;
+  border: none;
+  text-align: left;
+  outline: none;
+  font-family: Helvetica, Arial, sans-serif;
+  font-weight: bold;
+  font-size: 30px;
+  transition: 0.4s;
+}
+
+.accordion:hover {
+  background-color: #ffe6e6;
+}
+
+.active{
+  background-color: white;
+}
+
+.panel {
+  padding: 0 18px;
+  display: none;
+  background-color: white;
+  overflow: hidden;
+}
