@@ -1,0 +1,12 @@
+body{
+
+}
+
+.wrapper{
+  display: grid;;
+  grid-template: 1fr,1fr;
+}
+
+.box1{
+  
+}

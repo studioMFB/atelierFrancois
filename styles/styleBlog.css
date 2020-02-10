@@ -1,0 +1,47 @@
+.accordion {
+  padding-top: 12px;
+  padding-bottom:12px;
+  background-color: white;
+  color: black;
+  cursor: pointer;
+  width: 100%;
+  border: none;
+  text-align: left;
+  outline: none;
+  font-family: Helvetica, Arial, sans-serif;
+  font-weight:500;
+  font-size: 22px;
+  transition: 0.4s;
+}
+
+.title{
+  padding-left: 19px;
+  float: left;
+}
+.date{
+  float: right;
+  padding-right:21px;
+}
+
+.accordion:hover {
+  padding-left: 1px;
+  padding-right:1px;
+  background-color: #ffe6e6;
+  color:white;
+}
+
+.active{
+  background-color: white;
+}
+
+.panel {
+  padding-top:20px;
+  padding-left: 400px;
+  padding-right: 160px;
+  display: none;
+  background-color: white;
+  overflow: hidden;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 18px;
+  font-weight: 300;
+}
