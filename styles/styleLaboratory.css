@@ -4,12 +4,12 @@
   padding-right: 40px;
   padding-bottom: 10px;
   display: grid;
-  grid-template-columns:repeat(2,1fr);
-  grid-template-rows:repeat(2,1fr);
+  grid-template-columns:repeat(3,1fr);
+  grid-template-rows:repeat(4,1fr);
   grid-gap: 5em;
   /*grid-auto-rows:100px;*/
-  grid-auto-row: minmax(100px, auto);
-  justify-item: start;
+  grid-auto-row: minmax(auto, auto);
+  /*justify-item: start;*/
   align-items: stretch;
 }
 
@@ -19,18 +19,19 @@ img{
 }
 
 #waterRipple{
+
   overflow: auto;
   position: absolute;
 }
 
 .box1{
-  height: 410px;
-  width: 650px;
-  box-shadow: 9px 9px 30px 5px #FFCBC1;
+  height: 408px;
+  width: 648px;
+  box-shadow: 11px 11px 30px -5px #4169E1;
 }
 
 .box2{
   height:300px;
   width: 500px;
-  box-shadow: 9px 9px 30px -2px #4169E1;
+  box-shadow: 9px 9px 30px 5px #FFCBC1;
 }
