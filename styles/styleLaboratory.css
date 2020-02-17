@@ -14,13 +14,18 @@
 }
 
 img{
-  height: 300px;
-  width: 500px;
+  height: 200px;
+  width: 300px;
+}
+
+#waterRipple{
+  overflow: auto;
+  position: absolute;
 }
 
 .box1{
-  height:300px;
-  width: 500px;
+  height: 410px;
+  width: 650px;
   box-shadow: 9px 9px 30px 5px #FFCBC1;
 }
 
