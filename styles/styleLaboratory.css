@@ -18,8 +18,9 @@ img{
   width: 300px;
 }
 
-#waterRipple{
-
+#popUpBoxe{
+  height: 410px;
+  width: 650px;
   overflow: auto;
   position: absolute;
 }
@@ -31,7 +32,7 @@ img{
 }
 
 .box2{
-  height:300px;
-  width: 500px;
+  height: 408px;
+  width: 648px;
   box-shadow: 9px 9px 30px 5px #FFCBC1;
 }
