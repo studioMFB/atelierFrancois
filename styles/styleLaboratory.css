@@ -14,18 +14,19 @@
 }
 
 img{
+  cursor: pointer;
   height: 200px;
   width: 300px;
 }
 
-#popUpBoxe{
+#popUpBoxe1{
   height: 0px;
   width: 0px;
   overflow: auto;
   position: absolute;
 }
 
-#popUpBoxe1{
+#popUpBoxe2{
   height: 0px;
   width: 0px;
   overflow: auto;
@@ -37,7 +38,6 @@ img{
   width: 648px;
   box-shadow: 11px 11px 30px -5px #4169E1;
 }
-
 .box2{
   height: 408px;
   width: 648px;
