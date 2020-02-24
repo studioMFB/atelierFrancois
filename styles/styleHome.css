@@ -1,6 +1,16 @@
 .welcome {
      color: #1c87c9;
-     font-size: 800px;
+     font-size: 400px;
      font-weight: bold;
      font-family: monospace;
+     position: relative;
+     animation-name: scroll;
+     animation-duration: 10s;
+     animation-direction: alternate;
+     animation-iteration-count: infinite;
+     }
+
+     @keyframes scroll {
+       0%   {color:blue; left:500px; top:0px;}
+       100% {color:pink; left:-500px; top:0px;}
      }
