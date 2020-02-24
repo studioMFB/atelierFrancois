@@ -1,7 +1,26 @@
+body{
+  animation-name: background;
+  animation-duration: 10s;
+  animation-fill-mode: forwards;
+}
 .welcome {
-  padding-top:1px;
-     color: #1c87c9;
-     font-size: 800px;
+  font-size: 400px;
      font-weight: bold;
      font-family: monospace;
      }
+          a:link{
+            position: relative;
+            animation-name: scroll;
+            animation-duration: 10s;
+            animation-fill-mode: forwards;
+            text-decoration: none;
+          }
+
+          @keyframes scroll {
+            0%   {color:pink; left:500px;}
+            100% {color:white; left:-500px;}
+          }
+             @keyframes background {
+               0%   {background-color:white;}
+               100% {background-color:pink;}
+             }
