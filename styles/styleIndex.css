@@ -18,7 +18,7 @@ body{
 
           @keyframes scroll {
             0%   {color:pink; left:500px;}
-            100% {color:white; left:-500px;}
+            100% {color:white; left:-600px;}
           }
              @keyframes background {
                0%   {background-color:white;}
