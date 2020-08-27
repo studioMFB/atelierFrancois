@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>laboratory</title>
+     <link rel="stylesheet" type="text/css" href="styles/styleTopMenu.css" media="screen"/>
+     <link rel="stylesheet" type="text/css" href="styles/styleLaboratory.css" media="screen"/>
+     <link rel="stylesheet" type="text/css" href="styles/stylePopUpBoxe.css" media="screen"/>
+  </head>
+  <body>
+
+    <div class="navbar">atelier Francois
+      <div class="pageTitle">LABORATORY
+      </div>
+      <div class="menuTitles">
+        <a href="home.html">Home</a>
+        <a href="blog.html">Blog</a>
+        <a href="project.html">Project</a>
+        <a href="laboratory.html">Laboratory</a>
+        <a href="about.html">About</a>
+    </div>
+  </div>
+    </div>
+
+<div class="pageDescription">
+  <hr>
+  <h1>
+  Some bits and bobs of this and that.
+</h1>
+<hr>
+</div>
+
+<div class="wrapper">
+
+  <button onClick="openPopup();"><img src="images/pool.jpg"></img></button>
+  <div id="popup1" class="popup">
+    <div class="box1">
+<img object class= "popupImg"><object type="text/html" data="http://atelierfrancois.co.uk/waterRipple.html"
+     height="410px" width="650px" style="overflow:auto">
+      </object>
+    </div>
+    <div class="cancel" onclick="closePopup();">x</div>
+</div>
+
+<button onClick="openPopup();"><img src="images/eyesFollow.jpg"></img></button>
+<div id="popup2" class="popup">
+  <div class="box2">
+<img object class= "popupImg"><object type="text/html" data="http://atelierfrancois.co.uk/eyesFollow.html"
+   height="410px" width="650px" style="overflow:auto">
+    </object>
+  </div>
+  <div class="cancel" onclick="closePopup();">x</div>
+</div>
+
+</div>
+
+<script src="scripts/scriptPopUpBoxe.js"></script>
+
+
+</body>
+</html>

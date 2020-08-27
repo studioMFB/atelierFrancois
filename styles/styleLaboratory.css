@@ -12,34 +12,25 @@
   /*justify-item: start;*/
   /*align-items: stretch;*/
 }
-
 img{
-  cursor: pointer;
+  cursor:pointer;
   height: 200px;
   width: 300px;
 }
-
-#popUpBoxe1{
-  height: 0px;
-  width: 0px;
-  overflow: auto;
-  position: absolute;
-}
-
-#popUpBoxe2{
-  height: 0px;
-  width: 0px;
-  overflow: auto;
-  position: absolute;
-}
-
-.box1{
+#box{
   height: 408px;
   width: 648px;
+}
+.popupImg{
+  height: 0px;
+  width: 0px;
+  overflow: auto;
+  position: absolute;
+}
+
+#box.box1{
   box-shadow: 11px 11px 30px -5px #4169E1;
 }
-.box2{
-  height: 408px;
-  width: 648px;
+#box.box2{
   box-shadow: 9px 9px 30px 5px #FFCBC1;
 }

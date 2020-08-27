@@ -1,26 +1,52 @@
-body{
-  animation-name: background;
-  animation-duration: 10s;
-  animation-fill-mode: forwards;
+body {
+    animation-name: bodyBackground;
+    animation-duration: 10s;
+    animation-fill-mode: forwards;
 }
-.welcome {
-  font-size: 500px;
-     font-weight: bold;
-     font-family: monospace;
-     }
-          a:link{
-            position: relative;
-            animation-name: scroll;
-            animation-duration: 10s;
-            animation-fill-mode: forwards;
-            text-decoration: none;
-          }
 
-          @keyframes scroll {
-            0%   {color:pink; left:500px;}
-            100% {color:white; left:-700px;}
-          }
-             @keyframes background {
-               0%   {background-color:white;}
-               100% {background-color:pink;}
-             }
+.welcome {
+    font-size: 200px;
+    color: white;
+    font-weight: bold;
+    font-family: monospace;
+}
+
+/*
+#greetingMessage {
+    font-size: 500px;
+    font-weight: bold;
+    font-family: monospace;
+}
+*/
+
+a:link {
+    animation-name: scrollGreeting;
+    position: relative;
+    animation-duration: 10s;
+    animation-fill-mode: forwards;
+    text-decoration: none;
+}
+
+/* greeting message anim */
+@keyframes scrollGreeting {
+    0% {
+        color: pink;
+        left: 500px;
+    }
+
+    100% {
+        color: white;
+        left: 10px;
+    }
+}
+
+/* body anim */
+@keyframes bodyBackground {
+    0% {
+        background-color: white;
+    }
+
+    100% {
+        background-color: pink;
+    }
+}
