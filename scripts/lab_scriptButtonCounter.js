@@ -22,7 +22,7 @@ function Counter(name, count) {
     */
 }
 
-var counter1 = new Counter('I count how many time you click me!', 0);
+var counter1 = new Counter('I count how many times you click me!', 0);
 
 var counter1Name = document.getElementById('butCounterName');
 counter1Name.textContent = counter1.name;
