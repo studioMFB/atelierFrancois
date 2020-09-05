@@ -2,10 +2,9 @@ body{
     text-align: center;
     font-family: monospace;
     font-size: 20px;
-    background-color: white;
 }
 
-div {
+#background {
     background-color: white;
 }
 
