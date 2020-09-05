@@ -44,5 +44,6 @@ counter1Counter.onclick = function() {
 
 var reset = document.getElementById('butreset');
 reset.onclick = function() {
+    counter1.count = 0;
 counter1Txt.textContent = '00';
 }
