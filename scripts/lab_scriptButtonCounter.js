@@ -11,7 +11,7 @@ butCount.onclick = function(){
 */
 
 
-function Counter(name, count){
+function Counter(name, count) {
     this.name = name;
     this.count = count;
     /*
@@ -30,15 +30,19 @@ counter1Name.textContent = counter1.name;
 var counter1Counter = document.getElementById('butCounter');
 var counter1Txt = document.getElementById('butCounterTxt');
 
-counter1Counter.onclick = function(){
-      counter1.count++;
+counter1Counter.onclick = function() {
+    counter1.count++;
 
-      if (counter1.count < 10){
-          var addZeroDigit = '0';
-          addZeroDigit += counter1.count;
-          counter1Txt.textContent = addZeroDigit;
-      }
-      else{
-  counter1Txt.textContent = counter1.count;
+    if (counter1.count < 10) {
+        var addZeroDigit = '0';
+        addZeroDigit += counter1.count;
+        counter1Txt.textContent = addZeroDigit;
+    } else {
+        counter1Txt.textContent = counter1.count;
+    }
 }
+
+var reset = document.getElementById('butreset');
+reset.onclick = function() {
+counter1Txt.textContent = '00';
 }
