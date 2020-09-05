@@ -9,6 +9,8 @@ butCount.onclick = function(){
     butCountTxt.innerHTML = count;
 }
 */
+
+
 function Counter(name, count){
     this.name = name;
     this.count = count;
@@ -29,6 +31,14 @@ var counter1Counter = document.getElementById('butCounter');
 var counter1Txt = document.getElementById('butCounterTxt');
 
 counter1Counter.onclick = function(){
-  counter1.count++;
-  counter1Txt.innerHTML = counter1.count;
+      counter1.count++;
+
+      if (counter1.count < 10){
+          var addZeroDigit = '0';
+          addZeroDigit += counter1.count;
+          counter1Txt.textContent = addZeroDigit;
+      }
+      else{
+  counter1Txt.textContent = counter1.count;
+}
 }
