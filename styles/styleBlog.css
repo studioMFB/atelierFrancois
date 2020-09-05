@@ -1,47 +1,70 @@
-.accordion {
-  padding-top: 12px;
-  padding-bottom:12px;
-  background-color: white;
-  color: black;
-  cursor: pointer;
-  width: 100%;
-  border: none;
-  text-align: left;
-  outline: none;
-  font-family: Helvetica, Arial, sans-serif;
-  font-weight:500;
-  font-size: 22px;
-  transition: 0.4s;
+img {
+    width: 600px;
+    height: auto;
 }
 
-.title{
-  padding-left: 19px;
-  float: left;
+p {
+    width: 600px;
+    color: #404040;
+    font-family: 'Roboto', sans-serif;
+    line-height: 1.6;
 }
-.date{
-  float: right;
-  padding-right:21px;
+
+a, a:active {
+    color: pink;
+    text-decoration: none;
+}
+
+a:hover {
+    color: yellow;
+    text-decoration: none;
+}
+
+.accordion {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    background-color: white;
+    color: black;
+    cursor: pointer;
+    width: 100%;
+    border: none;
+    text-align: left;
+    outline: none;
+    font-family: Helvetica, Arial, sans-serif;
+    font-weight: 500;
+    font-size: 22px;
+    transition: 0.4s;
+}
+
+.title {
+    padding-left: 19px;
+    float: left;
+}
+
+.date {
+    float: right;
+    padding-right: 21px;
 }
 
 .accordion:hover {
-  padding-left: 1px;
-  padding-right:1px;
-  background-color: #ffe6e6;
-  color:white;
+    padding-left: 1px;
+    padding-right: 1px;
+    background-color: #ffe6e6;
+    color: white;
 }
 
-.active{
-  background-color: white;
+.active {
+    background-color: white;
 }
 
 .panel {
-  padding-top:20px;
-  padding-left: 400px;
-  padding-right: 160px;
-  display: none;
-  background-color: white;
-  overflow: hidden;
-  font-family: Helvetica, Arial, sans-serif;
-  font-size: 18px;
-  font-weight: 300;
+    padding-top: 20px;
+    padding-left: 400px;
+    padding-right: 160px;
+    display: none;
+    background-color: white;
+    overflow: hidden;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 18px;
+    font-weight: 300;
 }
