@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>laboratory</title>
+     <link rel="stylesheet" type="text/css" href="styles/styleTopMenu.css" media="screen"/>
+     <link rel="stylesheet" type="text/css" href="styles/styleLaboratory.css" media="screen"/>
+     <link rel="stylesheet" type="text/css" href="styles/stylePopUpBoxe.css" media="screen"/>
+  </head>
+  <body>
+
+    <div class="navbar">atelier Francois
+      <div class="pageTitle">LABORATORY
+      </div>
+      <div class="menuTitles">
+        <a href="home.html">Home</a>
+        <a href="blog.html">Blog</a>
+        <a href="project.html">Project</a>
+        <a href="laboratory.html">Laboratory</a>
+        <a href="about.html">About</a>
+    </div>
+  </div>
+    </div>
+
+<div class="pageDescription">
+  <hr>
+  <h1>
+  Some bits and bobs of this and that.
+</h1>
+<hr>
+</div>
+
+<div class="wrapper">
+
+  <button id="1" onClick="openPopup(this.id);"><img src="images/pool.jpg"></img></button>
+  <div id="box1" class="popup">
+    <!-- <div class="box1"> -->
+<!-- <img object class= "popupImg"> --> <object class= "popupBox" type="text/html" data="https://atelierfrancois.co.uk/lab_waterRipple.html">
+    <!-- <height="410px" width="650px" style="overflow:auto"> -->
+      </object>
+  <!-- </div> -->
+    <div class="cancel" onclick="closePopup(this.id);">x</div>
+</div>
+
+<button id="2" onClick="openPopup(this.id);"><img src="images/eyesFollow.jpg"></img></button>
+<div id="box2" class="popup">
+<object class= "popupBox" type="text/html" data="https://atelierfrancois.co.uk/lab_eyesFollow.html">
+    </object>
+  <div class="cancel" onclick="closePopup(this.id);">x</div>
+</div>
+
+<button id="3" onClick="openPopup(this.id);"><img src="images/buttonCounter.jpg"></img></button>
+<div id="box3" class="popup">
+<object class= "popupBox" type="text/html" data="https://atelierfrancois.co.uk/lab_buttonCounter.html">
+    </object>
+  <div class="cancel" onclick="closePopup(this.id);">x</div>
+</div>
+
+<button id="4" onClick="openPopup(this.id);"><img src="images/planetParticles.jpg"></img></button>
+<div id="box4" class="popup">
+<object class= "popupBox" type="text/html" data="https://atelierFrancois.co.uk/lab_movingDots.html">
+    </object>
+  <div class="cancel" onclick="closePopup(this.id);">x</div>
+</div>
+
+</div>
+
+<script src="scripts/scriptPopUpBoxe.js"></script>
+
+</body>
+</html>
