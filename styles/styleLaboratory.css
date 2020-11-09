@@ -36,8 +36,8 @@ img {
     height: 30px;
     padding-top: 7px;
     padding-left: 75px;
-    font-family: sans-serif;
-    font-size:20px;
+    font-family: 'Roboto', sans-serif;
+    font-size:19px;
     color: #FFFFFF;
-    background-color: pink;
+    background-color: #345789;
 }
