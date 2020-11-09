@@ -1,9 +1,8 @@
 class Player {
-//class Player extends Entity {
-        constructor(pContext, pRootSceneGraphNode, pPosition, pRotation) { 
+    constructor(pContext, pRootSceneGraphNode, pPosition, pRotation) {
 
-        this.mContext = pContext;  
-        this.setPosition(pPosition);    
+        this.mContext = pContext;
+        this.setPosition(pPosition);
         this.setRotation(pRotation);
 
         this.setRootSceneGraphNode(pRootSceneGraphNode);
@@ -31,54 +30,24 @@ class Player {
     setRotation(pRotation) {
         this.mRotation = pRotation;
     }
-
-    // TRY VERSION WITH RENDER VISITOR
     initialiseSceneGraph() {
         var rootSceneGraphNode, translationMatrix, translationSceneGraphNode,
         rotationSceneGraphNode, rotationMatrix, object;
-        
+
         rootSceneGraphNode = this.getRootSceneGraphNode();
 
         translationMatrix = Matrix.createTranslation(this.getPosition());
         this.mTranslationSceneGraphNode = new SceneGraphNode(translationMatrix);
         rootSceneGraphNode.addChild(this.mTranslationSceneGraphNode);
-        
+
         rotationMatrix = Matrix.createRotation(this.getRotation());
         this.mRotationSceneGraphNode = new SceneGraphNode(rotationMatrix);
         this.mTranslationSceneGraphNode.addChild(this.mRotationSceneGraphNode);
 
         //pFillColour, pStrokeColour, pLineThickness, pLineJoin, pVectors, pNumSegments, pRadius, pCenterX, pCenterY
-        //object = new Polygon( "red", "#FFFFFF", 9, "round", null, 3 , 20, 0, 0);
         object = new Polygon(null, "#FFFFFF", 1, null, null, 3 , 20, 0, 0);
         this.mRotationSceneGraphNode.addChild(object);
-        //this.mTranslationSceneGraphNode.addChild(object);
-        //rootSceneGraphNode.addChild(object);
     }
-
-    // WORKING VERSION WITHOUT RENDER VISITOR
-    /*
-    initialiseSceneGraph() {
-        var rootSceneGraphNode, translationMatrix, translationSceneGraphNode,
-        rotationSceneGraphNode, rotationMatrix, object;
-        
-        rootSceneGraphNode = this.getRootSceneGraphNode();
-
-        translationMatrix = Matrix.createTranslation(this.getPosition());
-        this.mTranslationSceneGraphNode = new SceneGraphNode(translationMatrix);
-        rootSceneGraphNode.addChild(this.mTranslationSceneGraphNode);
-        
-        rotationMatrix = Matrix.createRotation(this.getRotation());
-        this.mRotationSceneGraphNode = new SceneGraphNode(rotationMatrix);
-        this.mTranslationSceneGraphNode.addChild(this.mRotationSceneGraphNode);
-
-        //pFillColour, pStrokeColour, pLineThickness, pLineJoin, pVectors, pNumSegments, pRadius, pCenterX, pCenterY
-        //object = new Polygon( "red", "#FFFFFF", 9, "round", null, 3 , 20, 0, 0);
-        object = new Polygon(null, "#FFFFFF", 1, null, null, 3 , 20, 0, 0);
-        this.mRotationSceneGraphNode.addChild(object);
-        //this.mTranslationSceneGraphNode.addChild(object);
-        //rootSceneGraphNode.addChild(object);
-    }
-    */
 
     draw() {
     }
