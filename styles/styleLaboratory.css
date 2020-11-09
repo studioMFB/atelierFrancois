@@ -32,12 +32,13 @@ img {
 #box5_Text {
     margin-top: 415px;
     margin-left: 9px;
-    width: 574px;
-    height: 30px;
+    width: 628.5px;
+    height: 60px;
     padding-top: 7px;
-    padding-left: 75px;
-    font-family: 'Roboto', sans-serif;
-    font-size:19px;
+    padding-left: 20px;
+    line-height: 25px;
+    font-family:monospace;
+    font-size:18px;
     color: #FFFFFF;
     background-color: #345789;
 }
