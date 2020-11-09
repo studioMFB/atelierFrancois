@@ -5,8 +5,8 @@ function onLoad() {
     var lastTime = Date.now();
     var rightPressed = false;
     var leftPressed = false;
-    var upPressed = false;
-    var downPressed = false;
+    //var upPressed = false;
+    //var downPressed = false;
 
     function initialiseContext() {
         canvas = document.getElementById('mainCanvas');
@@ -62,47 +62,52 @@ function onLoad() {
     }
 
     function moveUpdate() {
-
-        if(upPressed) {
-            player.moveUp();
-        }
-        else if(downPressed) {
-            player.moveDown();
-        }
-        else if(leftPressed) {
+        if(leftPressed) {
             player.moveLeft();
         }
         else if(rightPressed) {
             player.moveRight();
         }
+        /*
+        else if(upPressed) {
+            player.moveUp();
+        }
+        else if(downPressed) {
+            player.moveDown();
+        }
+        */
     }
     function keyDownHandler(e) {
-        if(e.key == "up" || e.key == "ArrowUp") {
-            upPressed = true;
-        }
-        else if(e.key == "down" || e.key == "ArrowDown") {
-            downPressed = true;
-        }
-        else if(e.key == "right" || e.key == "ArrowRight") {
+        if(e.key == "right" || e.key == "ArrowRight") {
             rightPressed = true;
         }
         else if(e.key == "left" || e.key == "ArrowLeft") {
             leftPressed = true;
         }
-    }
-    function keyUpHandler(e) {
-        if(e.key == "up" || e.key == "ArrowUp") {
-            upPressed = false;
+        /*
+        else if(e.key == "up" || e.key == "ArrowUp") {
+            upPressed = true;
         }
         else if(e.key == "down" || e.key == "ArrowDown") {
-            downPressed = false;
+            downPressed = true;
         }
-        else if(e.key == "right" || e.key == "ArrowRight") {
+        */
+    }
+    function keyUpHandler(e) {
+        if(e.key == "right" || e.key == "ArrowRight") {
             rightPressed = false;
         }
         else if(e.key == "left" || e.key == "ArrowLeft") {
             leftPressed = false;
         }
+        /*
+        else if(e.key == "up" || e.key == "ArrowUp") {
+            upPressed = false;
+        }
+        else if(e.key == "down" || e.key == "ArrowDown") {
+            downPressed = false;
+        }
+        */
     }
 
     initialiseContext();
