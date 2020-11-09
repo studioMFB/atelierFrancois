@@ -29,7 +29,7 @@ img {
     overflow: hidden;
     position: absolute;
 }
-#popup5Text {
+#box5_Text {
     margin-top: 415px;
     margin-left: 9px;
     width: 574px;
@@ -41,27 +41,3 @@ img {
     color: #FFFFFF;
     background-color: pink;
 }
-/*
-.popupImg {
-    height: 0px;
-    width: 0px;
-    height: 410px;
-    width: 650px;
-    overflow: auto;
-    position: absolute;
-}
-*/
-
-/*
-#box.popupBox {
-    box-shadow: 11px 11px 30px -5px #4169E1;
-}
-
-#box.box1 {
-    box-shadow: 11px 11px 30px -5px #4169E1;
-}
-
-#box.box2 {
-    box-shadow: 9px 9px 30px 5px #FFCBC1;
-}
-*/
