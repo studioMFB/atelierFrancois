@@ -15,19 +15,17 @@
 
 img {
     cursor: pointer;
-    height: 200px;
     width: 300px;
+    height: 200px;
 }
 
 #box {
-    height: 408px;
     width: 648px;
+    height: 408px;
 }
 .popupBox {
-    height: 0px;
-    width: 0px;
-    height: 410px;
     width: 650px;
+    height: 410px;
     overflow: auto;
     position: absolute;
 }
