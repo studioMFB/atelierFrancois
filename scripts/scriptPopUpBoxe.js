@@ -1,11 +1,11 @@
-var boxId;
+var boxeId;
 
-function openPopup(butId) {
-    boxId = 'box';
-    boxId += butId;
-    document.getElementById(boxId).style.display = 'block';
+function openPopup(buttonId) {
+    boxeId = 'box';
+    boxeId += buttonId;
+    document.getElementById(boxeId).style.display = 'block';
 }
 
-function closePopup(butId) {
-    document.getElementById(boxId).style.display = 'none';
+function closePopup(buttonId) {
+    document.getElementById(boxeId).style.display = 'none';
 }
