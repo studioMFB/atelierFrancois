@@ -29,6 +29,18 @@ img {
     overflow: hidden;
     position: absolute;
 }
+#popup5Text {
+    margin-top: 415px;
+    margin-left: 9px;
+    width: 574px;
+    height: 30px;
+    padding-top: 7px;
+    padding-left: 75px;
+    font-family: sans-serif;
+    font-size:20px;
+    color: #FFFFFF;
+    background-color: pink;
+}
 /*
 .popupImg {
     height: 0px;
