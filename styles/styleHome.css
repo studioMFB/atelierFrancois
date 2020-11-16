@@ -1,6 +1,18 @@
 .blogFeed {
+    /*
     width: 70%;
     height: auto;
     margin: auto;
     padding: 10px;
+    */
+
+    margin-top: 100px;
+    width: 80%;
+    height: 60%;
+    overflow: hidden;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    bottom: 50%;
+    transform: translate(-50%, -50%);
 }
