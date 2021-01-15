@@ -1,5 +1,5 @@
 class TransformNode extends GroupNode {
-    constructor(pLocalMatrix, pTag) {
+    constructor(pTag, pLocalMatrix) {
         super(pTag);
         this.mType = "TransformNode";
         this.mTransform = pLocalMatrix;

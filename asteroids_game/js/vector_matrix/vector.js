@@ -1,38 +1,33 @@
-//var v1, v2;
-//v1 = new Vector(7,2,0);
-//v2 = new Vector(3,4,0);
-//v2.add(v1);
-
 class Vector {
     constructor(pX, pY, pZ) {
-        this.setX(pX); // stores the X coordinate parameter
-        this.setY(pY); // stores the Y coordinate parameter
-        this.setZ(pZ); // stores the Z coordinate parameter
+        this.setX(pX); 
+        this.setY(pY); 
+        this.setZ(pZ); 
     }
     getX() {
-        return this.mX; // mX for member variable
+        return this.mX; 
     }
     setX(pX) {
-        this.mX = pX; // pX for parameter
+        this.mX = pX; 
     }
     getY() {
-        return this.mY; // mY for member variable
+        return this.mY; 
     }
     setY(pY) {
-        this.mY = pY; // pY for parameter
+        this.mY = pY; 
     }
     getZ() {
-        return this.mZ; // mZ for member variable
+        return this.mZ; 
     }
     setZ(pZ) {
-        this.mZ = pZ; // pZ for parameter
+        this.mZ = pZ; 
     }
 
     add(pVector) {
         var x, y, z;
         x = this.getX() + pVector.getX();
         y = this.getY() + pVector.getY();
-        z = this.getZ(); // Only used for Matrix, default value should be 1
+        z = this.getZ(); 
         var addVector = new Vector(x, y, z);
         return addVector;
     }
@@ -41,7 +36,7 @@ class Vector {
         var x, y, z;
         x = this.getX() - pVector.getX();
         y = this.getY() - pVector.getY();
-        z = this.getZ(); // Only used for Matrix, default value should be 1
+        z = this.getZ(); 
         var subVector = new Vector(x, y, z);
         return subVector;
     }
@@ -87,7 +82,7 @@ class Vector {
             limitVector = new Vector(multipliedVector.getX(), multipliedVector.getY(), multipliedVector.getZ());
         }
         else {
-            limitVector = new Vector(this.getX(), this.getY(), this.getZ()); // is there a shorter option?
+            limitVector = new Vector(this.getX(), this.getY(), this.getZ());
         }
         return limitVector;
     }

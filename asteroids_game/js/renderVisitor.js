@@ -7,7 +7,6 @@ class RenderVisitor {
         return this.mStack.pop();
     } 
     peekTransform() {
-        //return this.mStack.peek(this.mStack.length-1);
         return this.mStack[this.mStack.length-1];
     } 
     pushTransform(pTransformMatrix) {
@@ -22,7 +21,7 @@ class RenderVisitor {
             this.mStack.push(newTransformMatrix);
         }
     } 
-
+  
     visit(pNode) {
         switch(pNode.getType()) {
             case "GroupNode":
@@ -53,6 +52,6 @@ class RenderVisitor {
         var currentTransformMatrix;
         currentTransformMatrix = this.peekTransform();
         currentTransformMatrix.setTransform(this.mContext);
-        pNode.GetDrawableObject().draw(this.mContext);
+        pNode.getDrawableObject().draw(this.mContext);
     }
 }

@@ -1,13 +1,13 @@
 class GeometryNode extends SceneGraphNode{
-    constructor(pDrawableObject, pTag){
+    constructor(pTag, pDrawableObject){
         super(pTag);
         this.mType = "GeometryNode";
-        this.SetDrawableObject(pDrawableObject);
+        this.setDrawableObject(pDrawableObject);
     }
-    SetDrawableObject(pDrawableObject) {
+    setDrawableObject(pDrawableObject) {
         this.mDrawableObject = pDrawableObject;
     }
-    GetDrawableObject() {
+    getDrawableObject() {
         return this.mDrawableObject
     }
  }
