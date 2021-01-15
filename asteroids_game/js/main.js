@@ -17,7 +17,7 @@ function onLoad() {
     let score = 0;
     const defaultColour = "white";
     const collisionResponseColour = "red";
- 
+
     function initialiseContext() {
         canvas = document.getElementById('mainCanvas');
 
@@ -54,16 +54,18 @@ function onLoad() {
         //quadTree = new QuadTree("QuadTreeCanvas", new Vector(0, 0, 1),  canvas.width /2, canvas.height /2, rootSceneGraphNode);
         //rootSceneGraphNode.addChild(quadTree.getRootSceneGraphNode());
 
-        // PLAYER SPACESHIP 
+        // PLAYER SPACESHIP
         player = new Player(canvas, "Player", new Vector(0, 0, 1), (Math.PI *2), 1000, new Vector(500, 500, 1), new Vector(100, 100, 1));
         rootSceneGraphNode.addChild(player.getRootSceneGraphNode());
         //quadTree.insert(player);
         updatableObjects.push(player);
 
         // STAR
+        /*
         star = new Star(canvas, "Star", new Vector(-220, 160, 1), Math.PI /3, 4, new Vector(90, 90, 1), new Vector(2, 2, 1));
         rootSceneGraphNode.addChild(star.getRootSceneGraphNode());
         updatableObjects.push(star);
+        */
 
         // ASTEROIDS - OBSTACLE
         vectorsObject = [new Vector(-11, 0, 1), new Vector(0, -50, 1), new Vector(30, -80, 1), new Vector(70, -50, 1), new Vector(50, -30, 1), new Vector(70, 10, 1), new Vector(10, 21, 1)];
@@ -75,7 +77,7 @@ function onLoad() {
         asteroid = new Asteroid(canvas, "Asteroid2", new Vector(-200, 50, 1), 1, 100, new Vector(5, 5, 1), new Vector(10, 10, 1), new Vector(0.5, 0.5, 1), vectorsObject, "right");
         rootSceneGraphNode.addChild(asteroid.getRootSceneGraphNode());
         updatableAsteroids.push(asteroid);
-        
+
         // WALL - OBSTACLE
         wall = new Wall(canvas, "WallTop", new Vector(-200, -200, 1), null, 2, new Vector(2, 2, 1), new Vector(1, 1, 1), new Vector(0, 0, 1));
         rootSceneGraphNode.addChild(wall.getRootSceneGraphNode());
@@ -124,8 +126,8 @@ function onLoad() {
                 radius = 15;
                 maxRadius = 30;
             }
-            let x = Math.floor(Math.random() * maxRandomValueX); 
-            let y = Math.floor(Math.random() * maxRandomValueY); 
+            let x = Math.floor(Math.random() * maxRandomValueX);
+            let y = Math.floor(Math.random() * maxRandomValueY);
             let bubbleTag = "Bubble"+i;
             bubble = new Bubble(canvas, bubbleTag, new Vector(x, y, 1), rotation, 5, new Vector(5, 5, 1), new Vector(1, 1, 1), new Vector(0, 0, 1), new Vector(1, 1, 1), radius, maxRadius);
             rootSceneGraphNode.addChild(bubble.getRootSceneGraphNode());
@@ -140,7 +142,7 @@ function onLoad() {
         originMatrix.setTransform(context);
         return originMatrix;
     }
-   
+
     function gameLoop() {
         let thisTime, deltaTime;
 
@@ -158,7 +160,7 @@ function onLoad() {
     function update(pDeltaTime) {
         let i, j, w;
         let miniBubble;
-    
+
         collisionHitTimer -= pDeltaTime;
 
         if(updateMissile) {
@@ -166,7 +168,7 @@ function onLoad() {
                 for(w =  0; w < updatableWalls.length; w++) {
                     // Missiles (circle) vs Walls (line segment)
                     if(GameManager.segmentCircleCollisionDetection(updatableWalls[w], player.getMissiles()[i])) {
-                        GameManager.segmentCircleCollisionResponse(player.getMissiles()[i]);                
+                        GameManager.segmentCircleCollisionResponse(player.getMissiles()[i]);
                     }
                 }
                 for(j = 0; j < updatableBubbles.length; j++) {
@@ -192,7 +194,7 @@ function onLoad() {
                             miniBubble.getObject().getDrawableObject().setStrokeColour(defaultColour);
                             rootSceneGraphNode.addChild(miniBubble.getRootSceneGraphNode());
                             updatableBubbles.push(miniBubble);
-                
+
                             updatableBubbles[j].setIsMiniBubble(true);
                             miniBubble.setIsMiniBubble(true);
                             miniBubbleTimer = 0.3;
@@ -208,7 +210,7 @@ function onLoad() {
                 // Update Missiles
                 player.getMissiles()[i].update(pDeltaTime);
                 if( player.getMissiles()[i].getIsMissileOutOfEnergy()) {
-                    player.getMissiles()[i].setIsMissileOutOfEnergy(false); 
+                    player.getMissiles()[i].setIsMissileOutOfEnergy(false);
                     player.spliceArrayObjectsAt(i);
                 }
             }
@@ -242,7 +244,7 @@ function onLoad() {
         }
         //
         for(i = 0; i < updatableAsteroids.length; i++) {
-            // Asteroid's boundary box (square) vs Player's boundary box (circle) 
+            // Asteroid's boundary box (square) vs Player's boundary box (circle)
             if(GameManager.circlesCollisionDetection(updatableAsteroids[i], player)) {
                 GameManager.circlesCollisionResponse(updatableAsteroids[i], player);
                 updatableAsteroids[i].getObject().getDrawableObject().setStrokeColour(collisionResponseColour);
@@ -254,7 +256,7 @@ function onLoad() {
             if (collisionHitTimer <= 0) {
                 player.getObject().getDrawableObject().setStrokeColour(defaultColour);
                 collisionHitTimer = 0.6;
-            }  
+            }
         }
         //
         // Asteroid's boundary box (square) vs Asteroid's boundary box (square)
@@ -263,7 +265,7 @@ function onLoad() {
         }
         //
         for(w =  0; w < updatableWalls.length; w++) {
-            // Wall (line segment) vs Player's boundary box (circle) 
+            // Wall (line segment) vs Player's boundary box (circle)
             if(GameManager.segmentCircleCollisionDetection(updatableWalls[w], player)) {
                 GameManager.segmentCircleCollisionResponse(player);
                 updatableWalls[w].getObject().getDrawableObject().setStrokeColour(collisionResponseColour);
@@ -293,12 +295,12 @@ function onLoad() {
 
     function shootingMissile() {
         if(player.getCanShoot() &&  player.getMissiles().length < player.getMissileMaxStockAllowed()) {
-    
+
             missile = new Missile(canvas, "Missile", player.getPosition(), player.getRotation(), 1, new Vector(90, 90, 1), new Vector(10, 10, 1) );
             rootSceneGraphNode.addChild(missile.getRootSceneGraphNode());
             //quadTree.insert(missile);
             player.pushArrayObject(missile);
-            
+
             updateMissile = true;
         }
     }
@@ -306,10 +308,10 @@ function onLoad() {
     function keyDownHandler(event) {
         if(event.key == "up" || event.key == "ArrowUp" || event.key == 19) {
             player.setIsUpPressed(true);
-        } 
+        }
         else if(event.key == "left" || event.key == "ArrowLeft" || event.key == 21) {
             player.setIsLeftPressed(true);
-        } 
+        }
         else if(event.key == "right" || event.key == "ArrowRight" || event.key == 22) {
             player.setIsRightPressed(true);
         }
@@ -321,11 +323,11 @@ function onLoad() {
             if(!debbugingMode){
                 Entity.setIsDPressed(false);
                 debbugingMode = true;
-           }   
+           }
            else if (debbugingMode){
                 Entity.setIsDPressed(false);
                 debbugingMode = false;
-           }  
+           }
        }
     }
     function keyUpHandler(event) {
@@ -344,7 +346,7 @@ function onLoad() {
        if(event.key == "d" || event.key == "KeyD" || event.key == 68) {
            if(debbugingMode){
                 Entity.setIsDPressed(true);
-           }   
+           }
        }
     }
 
