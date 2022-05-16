@@ -1,8 +1,8 @@
 .wrapper {
-    /* padding-top: 15px;
-    padding-left: 80px;
+    padding-top: 15px;
+    padding-left: 40px;
     padding-right: 40px;
-    padding-bottom: 10px; */
+    padding-bottom: 10px; 
     /* display: grid; */
     /* grid-template-columns: repeat(3, 299px); */
     /* grid-template-rows: repeat(3, 199px); */
@@ -11,4 +11,9 @@
     /*grid-auto-row: minmax(auto, auto);*/
     /*justify-item: start;*/
     /*align-items: stretch;*/
+}
+
+#canvas{
+    width: 1800px;
+    height: 800px;
 }
