@@ -1,0 +1,32 @@
+{
+    "liveServer.settings.port": 5504,
+    "cSpell.words": [
+        "AABB",
+        "accum",
+        "Boids",
+        "COHES",
+        "collidable",
+        "Consolas",
+        "cwolves",
+        "Framrate",
+        "lerp",
+        "linewidth",
+        "monospace",
+        "neighboured",
+        "Neighbours",
+        "normalise",
+        "OBBLBM",
+        "OBBRBM",
+        "OBTLFM",
+        "OBTRFM",
+        "octre",
+        "Octree",
+        "Phong",
+        "Raycaster",
+        "scrollbars",
+        "SEPAR",
+        "slerp"
+    ],
+    "liveServer.settings.multiRootWorkspaceName": "harmonic_sculpture",
+    "jest.jestCommandLine": "\"jestrunner.jestCommand\": \"npm run test\""
+}

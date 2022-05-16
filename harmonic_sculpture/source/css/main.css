@@ -1,0 +1,119 @@
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  overflow: hidden;
+  /* Hide scrollbars */
+  background: #040016;
+}
+
+/* #mainCanvas{
+  width: 800px;
+  height: 400px;
+  background-color: #040016;
+} */
+
+#framerateCounter{
+  color: white;
+  position: fixed;
+  margin-left: 100px;
+}
+
+/* #player {
+  width: 0;
+  height: 0;
+  bottom: 0px;
+  left: 0px;
+  margin-top: 0px;
+} */
+
+#playPauseButton {
+  bottom: 450px;
+  left: 50px;
+  font-size: 50px;
+  cursor: pointer;
+  color: white;
+  background-color: white;
+}
+
+#playButton {
+  width: 0;
+  height: 0;
+  border-top: 25px solid transparent;
+  border-left: 50px solid white;
+  border-bottom: 25px solid transparent;
+  position: fixed;
+  margin-top: 35px;
+  margin-left: 20px;
+  cursor: pointer;
+}
+
+#pauseButton {
+  height: 47px;
+  width: 90px;
+  border-style: solid;
+  border-width: 10px;
+  border-color: white;
+
+  border-style: double;
+  border-width: 0px 30px 0px 30px;
+
+  border-width: 0px 0px 0px 30px;
+  border-color: white;
+
+  position: fixed;
+  margin-top: 35px;
+  margin-left: 20px;
+  cursor: pointer;
+}
+
+#playlist {
+  position: fixed;
+  color: white;
+  background: #020008;
+  line-height: 150%;
+  padding: 10px;
+  margin-top: 100px;
+  cursor: pointer;
+}
+
+#btnSave{
+  position: fixed;
+  margin-top: 400px;
+  margin-left: 20px;
+  cursor: pointer;
+}
+
+
+/* .slidersContainer {
+    width: 100%;
+  }
+  
+  .slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 25px;
+    background: #d3d3d3;
+    outline: none;
+    opacity: 0.7;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+  }
+  
+  .slider:hover {
+    opacity: 1;
+  }
+  
+  .slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 25px;
+    height: 25px;
+    background: #04AA6D;
+    cursor: pointer;
+  }
+  
+  .slider::-moz-range-thumb {
+    width: 25px;
+    height: 25px;
+    background: #04AA6D;
+    cursor: pointer;
+  } */
