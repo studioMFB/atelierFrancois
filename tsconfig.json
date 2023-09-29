@@ -31,7 +31,7 @@
         "./*"
       ]
     },
-    "module": "esnext",
+    "module": "ESNext",
     "target": "es5",
     "allowJs": false,
     "noImplicitAny": false,

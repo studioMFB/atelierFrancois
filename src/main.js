@@ -1,5 +1,5 @@
-import { createApp } from "./../node_modules/vue";
-import App from "./App.vue";
+// import { createApp } from "./../node_modules/vue";
+// import App from "./App.vue";
 import {ModelViewer} from "./components/modelViewer/ModelViewer";
 
 
@@ -13,6 +13,6 @@ async function run() {
 }
 
 
-createApp(App).mount('#App');
+// createApp(App).mount('#App');
 
 run();
