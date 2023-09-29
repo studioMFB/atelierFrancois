@@ -1,5 +1,5 @@
 import './assets/main.css';
-import { Vector3 } from "three";
+import { Vector3 } from "./../node_modules/three/src/Three";
 import { createApp } from 'vue';
 import App from './App.vue';
 import {ModelViewer} from './components/modelViewer/ModelViewer.ts';
