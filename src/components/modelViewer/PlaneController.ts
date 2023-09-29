@@ -25,7 +25,9 @@ export class PlaneController extends Mesh {
     this.geometry = new PlaneGeometry(this.dim.x, this.dim.y, this.seg.x, this.seg.y);
     this.geometry.rotateX( - Math.PI / 2 );
 
-    this.mesh = new Mesh( this.geometry, new MeshBasicMaterial( { visible: false } ) );
+    this.material = new MeshBasicMaterial( {visible: false } );
+
+    this.mesh = new Mesh( this.geometry, this.material);
 
     // scene.add( plane );
     // objects.push( plane );

@@ -9,7 +9,7 @@
     },
   ],
   "include": [
-    "src/components/main.tsx"
+    "src/components/main.ts"
   ],
   "exclude": [
     "node_modules"
