@@ -15,7 +15,7 @@ const DIVIDE_SCALAR = 1.9;
 const MULTIPLY_SCALAR = 1.9;
 const ADD_SCALAR = 1.5;
 
-export default class ModelViewer {
+export class ModelViewer {
 
     private sceneController: SceneController;
     private scene: THREE.Scene;
