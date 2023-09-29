@@ -3,8 +3,6 @@ import { BoxGeometry, Float32BufferAttribute, MeshStandardMaterial, TextureLoade
 
 export class Terrain extends Mesh {
 
-  name: string;
-
   dim:Vector3;
   seg:Vector3;
   pos:Vector3;

@@ -3,8 +3,6 @@ import { BoxGeometry, Mesh, Vector3, MeshBasicMaterial, Color } from "three";
 
 export class TerrainGhost extends Mesh {
 
-  name: string;
-
   dim:Vector3;
   seg:Vector3;
   pos:Vector3;

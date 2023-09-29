@@ -44,6 +44,7 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "downlevelIteration": true,
-    "allowImportingTsExtensions": true, 
+    "allowImportingTsExtensions": true,
+    "allowSyntheticDefaultImports": true,
   }
 }

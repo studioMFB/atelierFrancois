@@ -1,16 +1,16 @@
 
 import * as THREE from 'three';
-import { DragControls } from 'three/addons/controls/DragControls.js';
-import { ControlsController } from './ControlsController';
-import { CameraController } from "./CameraController";
-import { LightController } from "./LightController";
-import { LoopCOntroller } from "./LoopController";
-import { SceneController } from "./SceneController";
-import { Resizer } from "./Resizer";
-import { GridController } from './GridControlller';
-import { PlaneController } from './PlaneController';
-import { Terrain } from './Terrain';
-import { TerrainGhost } from './TerrainGhost';
+// import { DragControls } from 'three/addons/controls/DragControls.js';
+import { ControlsController } from './ControlsController.ts';
+import { CameraController } from "./CameraController.ts";
+import { LightController } from "./LightController.ts";
+import { LoopCOntroller } from "./LoopController.ts";
+import { SceneController } from "./SceneController.ts";
+import { Resizer } from "./Resizer.ts";
+import { GridController } from './GridControlller.ts';
+import { PlaneController } from './PlaneController.ts';
+import { Terrain } from './Terrain.ts';
+import { TerrainGhost } from './TerrainGhost.ts';
 
 const GRID_SIZE = 20;
 const GRID_DIVISION = 20;
@@ -19,7 +19,7 @@ const GRID_CELL_MID_SIZE = GRID_CELL_SIZE *.5;
 
 const TERRAIN_SIZE = new THREE.Vector3(2, 2, 2);
 
-export default class ModelViewer {
+export class ModelViewer {
 
     private sceneController: SceneController;
     private scene: THREE.Scene;
@@ -120,21 +120,22 @@ export default class ModelViewer {
 
 
         // Add Space + click to drag
-        const dragControls = new DragControls(this.meshArray, this.camera, this.renderer.domElement);
+        // const dragControls = new DragControls(this.meshArray, this.camera, this.renderer.domElement);
         // add event listener to highlight dragged objects
-        dragControls.addEventListener("dragstart", (e: any) => {
+        // dragControls.addEventListener("dragstart", (e: any) => {
             // e.object.mesh.material.emissive.set(0xaaaaaa);
-        });
-        dragControls.addEventListener('dragend', (e: any) => {
+        // });
+        // dragControls.addEventListener('dragend', (e: any) => {
             // e.object.mesh.material.emissive.set(0x000000);
             // e.object.material.emissive.set(0x000000);
-            e.object.position.y = 1;
+
+            // e.object.position.y = 1;
 
             // if(e.object.position.x < -(GRID_SIZE*.5)) e.object.position.x = -(GRID_SIZE*.5);
             // if(e.object.position.x > (GRID_SIZE*.5)) e.object.position.x = (GRID_SIZE*.5);
             // if(e.object.position.z < -(GRID_SIZE*.5)) e.object.position.z = -(GRID_SIZE*.5);
             // if(e.object.position.z > (GRID_SIZE*.5)) e.object.position.z = (GRID_SIZE*.5);
-        });
+        // });
     }
 
     render() {

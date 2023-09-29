@@ -7,6 +7,22 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "module": "ESNext",
+    "target": "es5",
+    "allowJs": false,
+    "noImplicitAny": false,
+    "strict": false,
+    "noEmit": true,
+    "moduleResolution": "node",
+    "inlineSourceMap": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "isolatedModules": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "downlevelIteration": true,
+    "allowImportingTsExtensions": true,
+    "allowSyntheticDefaultImports": true,
   }
 }

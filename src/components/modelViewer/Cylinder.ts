@@ -1,6 +1,6 @@
 
 import * as THREE from 'three';
-import type { LoopCOntroller } from './LoopController';
+import type { LoopCOntroller } from './LoopController.ts';
 
 
 

@@ -1,6 +1,4 @@
-
 import { Clock, Scene, PerspectiveCamera, WebGLRenderer} from "three";
-import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 
 
 export class LoopCOntroller {
@@ -11,17 +9,13 @@ export class LoopCOntroller {
   renderer: WebGLRenderer;
   updatables: any[];
 
-  // composer: EffectComposer;
 
-
-  constructor(camera: PerspectiveCamera, scene: Scene, renderer: WebGLRenderer, composer?: EffectComposer) {
+  constructor(camera: PerspectiveCamera, scene: Scene, renderer: WebGLRenderer) {
     this.clock = new Clock();
     this.camera = camera;
     this.scene = scene;
     this.renderer = renderer;
     this.updatables = [];
-
-    // this.composer = composer
   }
 
   public addToUpdate(object: any){
@@ -32,23 +26,7 @@ export class LoopCOntroller {
     this.renderer.setAnimationLoop(() => {
       this.tick();
 
-      // requestAnimationFrame(render);
-    
-      // this.renderer.autoClear = false;
-      // this.renderer.clear();
-      
-      // this.camera.layers.set(1);
-      // this.composer.render();
-      
-      // this.renderer.clearDepth();
-      // this.camera.layers.set(0);
-      // this.renderer.render(this.scene, this.camera);
-
-      // render a frame
       this.renderer.render(this.scene, this.camera);
-
-      // console.log("SCENE ", this.scene);
-
     });
   }
 

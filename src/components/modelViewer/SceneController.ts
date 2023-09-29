@@ -1,4 +1,3 @@
-
 import { Color, Scene, Fog, Mesh} from "three";
 
 

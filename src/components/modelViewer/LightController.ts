@@ -1,5 +1,4 @@
-import {Color, DirectionalLight, PointLight, AmbientLight, type ColorRepresentation } from "three";
-import type { LoopCOntroller } from "./LoopController";
+import {DirectionalLight, AmbientLight, type ColorRepresentation } from "three";
 
 
 export class LightController {
