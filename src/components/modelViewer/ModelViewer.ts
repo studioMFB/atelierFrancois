@@ -1,66 +1,72 @@
 
 import * as THREE from 'three';
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import { Loop } from "./Loop";
-import { Resizer } from "./Resizer";
-import { CameraController } from "./CameraController";
-import { ControlsController } from './ControlsController';
-import { Light } from "./Light";
-import SceneView from "./SceneView";
-
-
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
-import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
-import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { FXAAShader } from 'three/addons/shaders/FXAAShader.js';
+import { ControlsController } from './ControlsController';
+import { CameraController } from "./CameraController";
+import { LightController } from "./LightController";
+import { LoopCOntroller } from "./LoopController";
+import {SceneController} from "./SceneController";
+import { Resizer } from "./Resizer";
+import { GridController } from './GridControlller';
+// import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+// import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+// import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+// import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 export default class ModelViewer {
 
-    scene: THREE.Scene;
-    loop: Loop;
-    renderer: THREE.WebGLRenderer;
+    private sceneController: SceneController;
+    private scene: THREE.Scene;
 
-    cameraController: CameraController;
-    camera: THREE.PerspectiveCamera;
+    private loopController: LoopCOntroller;
 
-    controlsController: ControlsController;
+    private renderer: THREE.WebGLRenderer;
 
-    composer: EffectComposer;
+    private cameraController: CameraController;
+    private camera: THREE.PerspectiveCamera;
+
+    private controlsController: ControlsController;
+
+    gridController: GridController;
+
+    // private composer: EffectComposer;
 
 
     constructor(container: HTMLElement) {
-        this.scene = new SceneView().init(new THREE.Color('#17181b'));
+        this.sceneController = new SceneController();
+        this.scene = this.sceneController.init(new THREE.Color('#17181b'));
+
         this.renderer = new THREE.WebGLRenderer({ antialias: true });
         container.appendChild(this.renderer.domElement);
 
-        this.cameraController = new CameraController();
-        this.cameraController.init();
-        this.camera = this.cameraController.getCamera();
+        this.cameraController = new CameraController(new THREE.Vector3(0, 15, 15));
+        this.camera = this.cameraController.init();
 
         this.controlsController = new ControlsController(this.camera, container)
         this.controlsController.init();
 
         const resizer = new Resizer(this.camera, this.renderer);
 
-        const light = new Light();
+        const lightController = new LightController();
+        lightController.init(this.scene, new THREE.Color(0xffffff), new THREE.Color(0x52f78a));
 
-        light.init(this.scene, new THREE.Color(0xffffff), new THREE.Color(0x52f78a));
+        // this.composer = new EffectComposer(this.renderer);
 
-        this.composer = new EffectComposer(this.renderer);
+        this.loopController = new LoopCOntroller(this.camera, this.scene, this.renderer);
 
-        this.loop = new Loop(this.camera, this.scene, this.renderer, this.composer);
+        this.gridController = new GridController( 20, 20);
+        this.gridController.init(this.scene);
 
-        this.initLoop();
+        this.init();
     }
 
-    private initLoop(): void {
+    private init(): void {
         // Add To render loop
-        this.loop.addToUpdate(this.controlsController);
-        this.loop.addToUpdate(this.cameraController);
-
+        this.addObject(this.controlsController);
+        this.addObject(this.cameraController);
 
         const renderScene = new RenderPass(this.scene, this.camera);
         const effectFXAA = new ShaderPass(FXAAShader);
@@ -72,11 +78,10 @@ export default class ModelViewer {
         bloomPass.radius = 0.55;
         bloomPass.renderToScreen = true;
 
-        this.composer.setSize(window.innerWidth, window.innerHeight);
-
-        this.composer.addPass(renderScene);
-        this.composer.addPass(effectFXAA);
-        this.composer.addPass(bloomPass);
+        // this.composer.setSize(window.innerWidth, window.innerHeight);
+        // this.composer.addPass(renderScene);
+        // this.composer.addPass(effectFXAA);
+        // this.composer.addPass(bloomPass);
     }
 
     // render() {
@@ -84,11 +89,24 @@ export default class ModelViewer {
     // }
 
     start() {
-        this.loop.start();
+        this.loopController.start();
     }
 
     stop() {
-        this.loop.stop();
+        this.loopController.stop();
+    }
+
+    addObject(object: any){
+        if(!object){
+            console.log("Object is null or undifined and will not be added to the scene!");
+            return;
+        }
+        
+        if(object.mesh){
+            this.sceneController.addMesh(object.mesh);
+        }
+        
+        this.loopController.addToUpdate(object);
     }
 
 }

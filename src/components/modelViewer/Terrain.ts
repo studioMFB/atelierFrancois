@@ -1,18 +1,27 @@
-import { BoxGeometry, Float32BufferAttribute, MeshStandardMaterial, Color, Vector4, TextureLoader, Mesh, DoubleSide } from "three";
+import { BoxGeometry, Float32BufferAttribute, MeshStandardMaterial, TextureLoader, Mesh, DoubleSide, Vector3 } from "three";
 
 
 export class Terrain extends Mesh {
 
-  mesh?: THREE.Mesh;
+  name: string;
 
-  constructor(scene: THREE.Scene, width: number, height: number, depth: number, segW: number, segD: number) {
+  dim:Vector3;
+  seg:Vector3;
+  pos:Vector3;
+  
+  mesh?: Mesh;
+
+  constructor(name:string, dim: Vector3, seg: Vector3, pos: Vector3) {
     super()
+    
+    this.name = name;
 
-    this.mesh = this.init(width, height, depth, segW, segD);
-    scene.add(this.mesh);
+    this.dim = dim;
+    this.seg = seg;
+    this.pos = pos;
   }
 
-  init(width: number, height: number, depth: number, segW: number, segD: number): Mesh {
+  initMesh(): void {
     const texLoader = new TextureLoader();
     const aoMap = texLoader.load(new URL('./../../assets/textures/Mountains01/MOUNTAINS-01_AO.png', import.meta.url).toString());
     const bMap = texLoader.load(new URL('./../../assets/textures/Mountains01/MOUNTAINS-01_HEIGHT.png', import.meta.url).toString());
@@ -20,7 +29,7 @@ export class Terrain extends Mesh {
     const dMap = texLoader.load(new URL('./../../assets/textures/Mountains01/MOUNTAINS-01_DEPTH.png', import.meta.url).toString());
     const difMap = texLoader.load(new URL('./../../assets/textures/Mountains01/MOUNTAINS-01_DIFFUSE1.png', import.meta.url).toString());
 
-    this.geometry = new BoxGeometry(width, height, depth, segW, 1, segD);
+    this.geometry = new BoxGeometry(this.dim.x, this.dim.y, this.dim.z, this.seg.x, this.seg.y, this.seg.z);
     const pos = this.geometry.attributes.position;
     const nor = this.geometry.attributes.normal;
     const enableDisplacement = [];
@@ -32,8 +41,8 @@ export class Terrain extends Mesh {
       );
 
       //re-compute UV (for displacement)
-      const u = (pos.getX(i) + width * 0.5) / width;
-      const v = 1 - (pos.getZ(i) + depth * 0.5) / depth;
+      const u = (pos.getX(i) + this.dim.x * 0.5) / this.dim.x;
+      const v = 1 - (pos.getZ(i) + this.dim.z * 0.5) / this.dim.z;
       this.geometry.attributes.uv.setXY(i, u, v);
     }
 
@@ -140,7 +149,10 @@ export class Terrain extends Mesh {
       );
     }
 
-    return new Mesh(this.geometry, this.material);
+    this.mesh = new Mesh(this.geometry, this.material);
+
+    this.mesh.name = this.name;
+    this.mesh.position.set(this.pos.x, this.pos.y, this.pos.z);
   }
 
   tick(delta: any): void {
@@ -149,5 +161,3 @@ export class Terrain extends Mesh {
   }
 
 }
-
-// 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

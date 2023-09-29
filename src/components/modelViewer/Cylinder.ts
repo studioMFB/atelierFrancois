@@ -1,6 +1,6 @@
 
 import * as THREE from 'three';
-import type { Loop } from './Loop';
+import type { LoopCOntroller } from './LoopController';
 
 
 
@@ -9,11 +9,11 @@ export default class Cylinder {
     geom?: THREE.CylinderGeometry;
     mesh?: THREE.Mesh;
 
-    constructor(loop: Loop, scene: THREE.Scene) {
+    constructor(loop: LoopCOntroller, scene: THREE.Scene) {
         this.init(loop, scene);
     }
 
-    private init(loop: Loop, scene: THREE.Scene): void {
+    private init(loop: LoopCOntroller, scene: THREE.Scene): void {
         this.geom = new THREE.CylinderGeometry(.4, .4, .02, 100, 1);
 
         const loader = new THREE.TextureLoader();
