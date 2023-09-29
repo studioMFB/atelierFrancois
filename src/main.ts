@@ -1,9 +1,9 @@
 import './assets/main.css';
 // import { Vector3 } from "three/src/Three.js";
 import { Vector3 } from "three";
-import { createApp } from 'vue';
-import App from './App.vue';
-import {ModelViewer} from './components/modelViewer/ModelViewer';
+import { createApp } from "vue";
+import App from "./App.vue";
+import {ModelViewer} from "./components/modelViewer/ModelViewer";
 // import router from './router.vue';
 import { Terrain } from "./components/modelViewer/Terrain";
 
