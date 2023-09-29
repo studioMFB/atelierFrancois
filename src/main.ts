@@ -1,16 +1,17 @@
 import './assets/main.css';
-import { Vector3 } from "./../node_modules/three/src/Three";
+// import { Vector3 } from "three/src/Three.js";
+import { Vector3 } from "three";
 import { createApp } from 'vue';
 import App from './App.vue';
-import {ModelViewer} from './components/modelViewer/ModelViewer.ts';
+import {ModelViewer} from './components/modelViewer/ModelViewer';
 // import router from './router.vue';
-import { Terrain } from "./components/modelViewer/Terrain.ts";
+import { Terrain } from "./components/modelViewer/Terrain";
 
 
 async function run() {
     console.log("RUN");
     
-    const container = document.getElementById("App");
+    const container = document.getElementById("App") as HTMLElement;
     const modelViewer = new ModelViewer(container);
     
     const terrain01 = new Terrain("T01", new Vector3(2, .5, 2), new Vector3(50, 1, 50), new Vector3(1,0,0));
