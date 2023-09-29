@@ -1,6 +1,6 @@
 // import { createApp } from "./../node_modules/vue";
 // import App from "./App.vue";
-import {ModelViewer} from "./components/modelViewer/ModelViewer";
+import ModelViewer from "./components/modelViewer/ModelViewer.ts";
 
 
 async function run() {
