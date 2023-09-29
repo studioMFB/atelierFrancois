@@ -12,11 +12,12 @@ import { PlaneController } from './PlaneController';
 import { Terrain } from './Terrain';
 import { TerrainGhost } from './TerrainGhost';
 
-const DIVIDE_SCALAR = 2;
-const MULTIPLY_SCALAR = 2;
-const ADD_SCALAR = 1.4;
+const GRID_SIZE = 20;
+const GRID_DIVISION = 20;
+const GRID_CELL_SIZE = 2;
+const GRID_CELL_MID_SIZE = GRID_CELL_SIZE *.5;
 
-const TERRAIN_SIZE = new THREE.Vector3(2, .5, 2);
+const TERRAIN_SIZE = new THREE.Vector3(2, 2, 2);
 
 export class ModelViewer {
 
@@ -44,6 +45,12 @@ export class ModelViewer {
     private isShiftDown: boolean;
 
     private meshArray: THREE.Mesh[];
+
+
+    // offset = new THREE.Vector3();
+    // intersection = new THREE.Vector3();
+    // worldPosition = new THREE.Vector3();
+    // inverseMatrix = new THREE.Matrix4();
 
 
     constructor(container: HTMLElement) {
@@ -77,18 +84,18 @@ export class ModelViewer {
         this.loopController = new LoopCOntroller(this.camera, this.scene, this.renderer);
 
         // Grid //
-        this.gridController = new GridController(20, 20);
+        this.gridController = new GridController(GRID_SIZE, GRID_DIVISION);
         this.gridController.init(this.scene);
         this.raycaster = new THREE.Raycaster();
         this.pointer = new THREE.Vector2();
 
         // Plane // 
-        this.planeController = new PlaneController("T-Plane", new THREE.Vector2(20, 20), new THREE.Vector2(1, 1), new THREE.Vector3(0, 0, 0));
+        this.planeController = new PlaneController("T-Plane", new THREE.Vector2(GRID_SIZE, GRID_SIZE), new THREE.Vector2(1, 1), new THREE.Vector3(0, 0, 0));
         this.planeController.initMesh();
         this.addObject(this.planeController);
 
         // Ghost Terrain //
-        this.terrainGhost = new TerrainGhost("T-Ghost", TERRAIN_SIZE, new THREE.Vector3(50, 1, 50), new THREE.Vector3(1, 0, 0));
+        this.terrainGhost = new TerrainGhost("T-Ghost", TERRAIN_SIZE, new THREE.Vector3(50, 1, 50), new THREE.Vector3(0, 0, 0));
         this.terrainGhost.initMesh(new THREE.Color(0xff0000), .5);
         // this.addObject(this.terrainGhost);
         if (this.terrainGhost.mesh) {
@@ -113,15 +120,21 @@ export class ModelViewer {
 
 
         // Add Space + click to drag
-        const controls = new DragControls(this.meshArray, this.camera, this.renderer.domElement);
+        const dragControls = new DragControls(this.meshArray, this.camera, this.renderer.domElement);
         // add event listener to highlight dragged objects
-        // controls.addEventListener("dragstart", (e: any) => {
-        //     // e.object.mesh.material.emissive.set(0xaaaaaa);
-        // });
-        // controls.addEventListener('dragend', (e: any) => {
-        //     // e.object.mesh.material.emissive.set(0x000000);
-        //     // e.object.material.emissive.set(0x000000);
-        // });
+        dragControls.addEventListener("dragstart", (e: any) => {
+            // e.object.mesh.material.emissive.set(0xaaaaaa);
+        });
+        dragControls.addEventListener('dragend', (e: any) => {
+            // e.object.mesh.material.emissive.set(0x000000);
+            // e.object.material.emissive.set(0x000000);
+            e.object.position.y = 1;
+
+            // if(e.object.position.x < -(GRID_SIZE*.5)) e.object.position.x = -(GRID_SIZE*.5);
+            // if(e.object.position.x > (GRID_SIZE*.5)) e.object.position.x = (GRID_SIZE*.5);
+            // if(e.object.position.z < -(GRID_SIZE*.5)) e.object.position.z = -(GRID_SIZE*.5);
+            // if(e.object.position.z > (GRID_SIZE*.5)) e.object.position.z = (GRID_SIZE*.5);
+        });
     }
 
     render() {
@@ -156,18 +169,27 @@ export class ModelViewer {
         this.raycaster.setFromCamera(this.pointer, this.camera);
         const intersects = this.raycaster.intersectObjects(this.meshArray, false);
 
+        
         if (intersects && intersects.length > 0) {
-
+            
             const intersect = intersects[0];
-
+            
             if (this.terrainGhost && this.terrainGhost.mesh && intersect && intersect.face) {
                 // const x = Math.round(intersect.point.x / this.gridController.size) * this.gridController.size;
                 // const y = Math.round(intersect.point.y / this.gridController.size) * this.gridController.size;
                 // const z = Math.round(intersect.point.z / this.gridController.size) * this.gridController.size;
                 // this.terrainGhost.mesh.position.copy(new THREE.Vector3(x,y,z)).add(intersect.face.normal);
-
+                
                 this.terrainGhost.mesh.position.copy(intersect.point).add(intersect.face.normal);
-                this.terrainGhost.mesh.position.divideScalar(DIVIDE_SCALAR).floor().multiplyScalar(MULTIPLY_SCALAR).addScalar(ADD_SCALAR);
+                this.terrainGhost.mesh.position.y = 0;
+                this.terrainGhost.mesh.position.divideScalar(GRID_CELL_SIZE).floor().multiplyScalar(GRID_CELL_SIZE).addScalar(GRID_CELL_MID_SIZE);
+                   
+                
+                // this.intersection = intersect.point;
+                // this.inverseMatrix.copy(this.terrainGhost.mesh.matrixWorld).invert();
+                // this.worldPosition = this.worldPosition.setFromMatrixPosition( this.terrainGhost.mesh.matrixWorld );
+                // this.terrainGhost.mesh.position.copy(this.intersection.sub(this.offset).applyMatrix4(this.inverseMatrix));
+                // this.offset.copy(this.intersection).sub(this.worldPosition.setFromMatrixPosition(this.terrainGhost.mesh.matrixWorld));
             }
 
             this.render();
@@ -194,7 +216,7 @@ export class ModelViewer {
             } else {
 
                 // create Terrain
-                const terrain = new Terrain("T01", TERRAIN_SIZE, new THREE.Vector3(50, 1, 50), new THREE.Vector3(1, 0, 0));
+                const terrain = new Terrain("T01", TERRAIN_SIZE, new THREE.Vector3(50, 1, 50), new THREE.Vector3(0, 0, 0));
                 terrain.initMesh();
 
                 if (terrain.mesh && intersect && intersect.face) {
@@ -204,7 +226,13 @@ export class ModelViewer {
                     // terrain.mesh.position.copy(new THREE.Vector3(x,y,z)).add(intersect.face.normal);
 
                     terrain.mesh.position.copy(intersect.point).add(intersect.face.normal);
-                    terrain.mesh.position.divideScalar(DIVIDE_SCALAR).floor().multiplyScalar(MULTIPLY_SCALAR).addScalar(ADD_SCALAR);
+                    terrain.mesh.position.y = 0;
+                    terrain.mesh.position.divideScalar(GRID_CELL_SIZE).floor().multiplyScalar(GRID_CELL_SIZE).addScalar(GRID_CELL_MID_SIZE);
+
+                    // this.intersection = intersect.point;
+                    // this.inverseMatrix.copy(terrain.mesh.matrixWorld).invert();
+                    // this.worldPosition = this.worldPosition.setFromMatrixPosition( terrain.mesh.matrixWorld );
+                    // this.offset.copy(this.intersection).sub(this.worldPosition.setFromMatrixPosition(terrain.mesh.matrixWorld));
                 }
 
                 this.addObject(terrain);
