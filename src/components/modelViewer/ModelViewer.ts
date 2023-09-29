@@ -19,7 +19,7 @@ const GRID_CELL_MID_SIZE = GRID_CELL_SIZE *.5;
 
 const TERRAIN_SIZE = new THREE.Vector3(2, 2, 2);
 
-export class ModelViewer {
+export default class ModelViewer {
 
     private sceneController: SceneController;
     private scene: THREE.Scene;
