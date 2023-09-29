@@ -1,0 +1,50 @@
+{
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    },
+    {
+      "path": "./tsconfig.app.json"
+    },
+  ],
+  "include": [
+    "src/components/main.tsx"
+  ],
+  "exclude": [
+    "node_modules"
+  ],
+  "compilerOptions": {
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "types": [
+      "node",
+    ],
+    "jsx": "react",
+    "jsxFactory": "jsx",
+    "baseUrl": "./src",
+    "paths": {
+      "~/*": [
+        "./*"
+      ]
+    },
+    "module": "esnext",
+    "target": "es5",
+    "allowJs": false,
+    "noImplicitAny": false,
+    "strict": false,
+    "noEmit": true,
+    "moduleResolution": "node",
+    "inlineSourceMap": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "isolatedModules": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "downlevelIteration": true,
+    "allowImportingTsExtensions": true
+  }
+}
