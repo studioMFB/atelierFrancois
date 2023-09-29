@@ -8,6 +8,8 @@ import { Terrain } from "./components/modelViewer/Terrain";
 
 
 async function run() {
+    console.log("RUN");
+    
     const container = document.getElementById("App") as HTMLElement;
     const modelViewer = new ModelViewer(container);
     
