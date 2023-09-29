@@ -1,5 +1,6 @@
 
 import * as THREE from 'three';
+import { DragControls } from 'three/addons/controls/DragControls.js';
 import { ControlsController } from './ControlsController';
 import { CameraController } from "./CameraController";
 import { LightController } from "./LightController";
@@ -11,9 +12,9 @@ import { PlaneController } from './PlaneController';
 import { Terrain } from './Terrain';
 import { TerrainGhost } from './TerrainGhost';
 
-const DIVIDE_SCALAR = 1.9;
-const MULTIPLY_SCALAR = 1.9;
-const ADD_SCALAR = 1.5;
+const DIVIDE_SCALAR = .91;
+const MULTIPLY_SCALAR = DIVIDE_SCALAR;
+const ADD_SCALAR = .2355;
 
 export class ModelViewer {
 
@@ -38,11 +39,14 @@ export class ModelViewer {
 
     private terrainGhost: TerrainGhost;
 
+    private isShiftDown: boolean;
+
     private meshArray: THREE.Mesh[];
 
 
     constructor(container: HTMLElement) {
         this.meshArray = [];
+        this.isShiftDown = false;
 
         // Scene //
         this.sceneController = new SceneController();
@@ -50,8 +54,8 @@ export class ModelViewer {
 
         // Renderer //
         this.renderer = new THREE.WebGLRenderer({ antialias: true });
-        this.renderer.setPixelRatio( window.devicePixelRatio );
-		this.renderer.setSize( window.innerWidth, window.innerHeight );
+        this.renderer.setPixelRatio(window.devicePixelRatio);
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
         container.appendChild(this.renderer.domElement);
 
         // Camera //
@@ -77,14 +81,18 @@ export class ModelViewer {
         this.pointer = new THREE.Vector2();
 
         // Plane // 
-        this.planeController = new PlaneController("T-Plane", new THREE.Vector2(20, 20), new THREE.Vector2(1,1), new THREE.Vector3(0, 0, 0));
+        this.planeController = new PlaneController("T-Plane", new THREE.Vector2(20, 20), new THREE.Vector2(1, 1), new THREE.Vector3(0, 0, 0));
         this.planeController.initMesh();
         this.addObject(this.planeController);
 
         // Ghost Terrain //
-        this.terrainGhost = new TerrainGhost("T-Ghost", new THREE.Vector3(2, .5, 2), new THREE.Vector3(50, 1, 50), new THREE.Vector3(1,0,0));
+        this.terrainGhost = new TerrainGhost("T-Ghost", new THREE.Vector3(2, .5, 2), new THREE.Vector3(50, 1, 50), new THREE.Vector3(1, 0, 0));
         this.terrainGhost.initMesh(new THREE.Color(0xff0000), .5);
-        this.addObject(this.terrainGhost);
+        // this.addObject(this.terrainGhost);
+        if (this.terrainGhost.mesh) {
+            this.sceneController.addMesh(this.terrainGhost.mesh);
+            this.loopController.addToUpdate(this.terrainGhost);
+        }
 
         this.init();
     }
@@ -95,13 +103,27 @@ export class ModelViewer {
         this.addObject(this.cameraController);
 
 
-        document.addEventListener("pointermove", (e: MouseEvent) =>{this.onPointerMove(e)} );
-		document.addEventListener("pointerdown", (e: MouseEvent) => {this.onPointerDown(e)} );
+        document.addEventListener("pointermove", (e: MouseEvent) => { this.onPointerMove(e) });
+        document.addEventListener("pointerdown", (e: MouseEvent) => { this.onPointerDown(e) });
 
+        document.addEventListener('keydown', (e: KeyboardEvent) => { this.onDocumentKeyDown(e) });
+        document.addEventListener('keyup', (e: KeyboardEvent) => { this.onDocumentKeyUp(e) })
+
+
+        // Add Space + click to drag
+        const controls = new DragControls(this.meshArray, this.camera, this.renderer.domElement);
+        // add event listener to highlight dragged objects
+        // controls.addEventListener("dragstart", (e: any) => {
+        //     // e.object.mesh.material.emissive.set(0xaaaaaa);
+        // });
+        // controls.addEventListener('dragend', (e: any) => {
+        //     // e.object.mesh.material.emissive.set(0x000000);
+        //     // e.object.material.emissive.set(0x000000);
+        // });
     }
 
     render() {
-        this.renderer.render( this.scene, this.camera);
+        this.renderer.render(this.scene, this.camera);
     }
 
     start() {
@@ -127,7 +149,7 @@ export class ModelViewer {
     }
 
     onPointerMove(event: MouseEvent) {
-        this.pointer.set((event.clientX / window.innerWidth) * 2 -1, -(event.clientY / window.innerHeight) * 2 +1);
+        this.pointer.set((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window.innerHeight) * 2 + 1);
 
         this.raycaster.setFromCamera(this.pointer, this.camera);
         const intersects = this.raycaster.intersectObjects(this.meshArray, false);
@@ -152,7 +174,7 @@ export class ModelViewer {
     }
 
     onPointerDown(event: MouseEvent) {
-        this.pointer.set((event.clientX / window.innerWidth) * 2 -1, -(event.clientY / window.innerHeight) * 2 +1);
+        this.pointer.set((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window.innerHeight) * 2 + 1);
 
         this.raycaster.setFromCamera(this.pointer, this.camera);
         const intersects = this.raycaster.intersectObjects(this.meshArray, false);
@@ -161,39 +183,53 @@ export class ModelViewer {
 
             const intersect = intersects[0];
 
-            // // delete cube
-            // if (isShiftDown) {
+            // delete Terrain //
+            if (this.isShiftDown) {
+                if (intersect.object && intersect.object !== this.planeController.mesh) {
+                    this.scene.remove(intersect.object);
+                    this.meshArray.splice(this.meshArray.indexOf(intersect.object as THREE.Mesh), 1);
+                }
+            } else {
 
-            //     if (intersect.object !== this.planeController.mesh) {
+                // create Terrain
+                const terrain = new Terrain("T01", new THREE.Vector3(2, .5, 2), new THREE.Vector3(50, 1, 50), new THREE.Vector3(1, 0, 0));
+                terrain.initMesh();
 
-            //         this.scene.remove(intersect.object);
+                if (terrain.mesh && intersect && intersect.face) {
+                    // const x = Math.round(intersect.point.x / this.gridController.size) * this.gridController.size;
+                    // const y = Math.round(intersect.point.y / this.gridController.size) * this.gridController.size;
+                    // const z = Math.round(intersect.point.z / this.gridController.size) * this.gridController.size;
+                    // terrain.mesh.position.copy(new THREE.Vector3(x,y,z)).add(intersect.face.normal);
 
-            //         this.meshArray.splice(this.meshArray.indexOf(intersect.object), 1);
+                    terrain.mesh.position.copy(intersect.point).add(intersect.face.normal);
+                    terrain.mesh.position.divideScalar(DIVIDE_SCALAR).floor().multiplyScalar(MULTIPLY_SCALAR).addScalar(ADD_SCALAR);
+                }
 
-            //     }
-
-            
-            // } else {
-                
-            // create Terrain
-            const terrain = new Terrain("T01", new THREE.Vector3(2, .5, 2), new THREE.Vector3(50, 1, 50), new THREE.Vector3(1, 0, 0));
-            terrain.initMesh();
-
-            if (terrain.mesh && intersect && intersect.face) {
-                // const x = Math.round(intersect.point.x / this.gridController.size) * this.gridController.size;
-                // const y = Math.round(intersect.point.y / this.gridController.size) * this.gridController.size;
-                // const z = Math.round(intersect.point.z / this.gridController.size) * this.gridController.size;
-                // terrain.mesh.position.copy(new THREE.Vector3(x,y,z)).add(intersect.face.normal);
-
-                terrain.mesh.position.copy(intersect.point).add(intersect.face.normal);
-                terrain.mesh.position.divideScalar(DIVIDE_SCALAR).floor().multiplyScalar(MULTIPLY_SCALAR).addScalar(ADD_SCALAR);
+                this.addObject(terrain);
             }
-
-            this.addObject(terrain);
-            // }
 
             this.render();
         }
+    }
+
+    private onDocumentKeyDown(event: KeyboardEvent) {
+
+        switch (event.keyCode) {
+
+            case 16: this.isShiftDown = true; break;
+
+        }
+
+    }
+
+    private onDocumentKeyUp(event: KeyboardEvent) {
+
+        switch (event.keyCode) {
+
+            case 16: this.isShiftDown = false; break;
+
+        }
+
     }
 
 }
