@@ -9,7 +9,7 @@
     },
   ],
   "include": [
-    "src/components/main.ts"
+    "./src/main.js"
   ],
   "exclude": [
     "node_modules"

@@ -12,9 +12,11 @@ import { PlaneController } from './PlaneController';
 import { Terrain } from './Terrain';
 import { TerrainGhost } from './TerrainGhost';
 
-const DIVIDE_SCALAR = .91;
-const MULTIPLY_SCALAR = DIVIDE_SCALAR;
-const ADD_SCALAR = .2355;
+const DIVIDE_SCALAR = 2;
+const MULTIPLY_SCALAR = 2;
+const ADD_SCALAR = 1.4;
+
+const TERRAIN_SIZE = new THREE.Vector3(2, .5, 2);
 
 export class ModelViewer {
 
@@ -86,7 +88,7 @@ export class ModelViewer {
         this.addObject(this.planeController);
 
         // Ghost Terrain //
-        this.terrainGhost = new TerrainGhost("T-Ghost", new THREE.Vector3(2, .5, 2), new THREE.Vector3(50, 1, 50), new THREE.Vector3(1, 0, 0));
+        this.terrainGhost = new TerrainGhost("T-Ghost", TERRAIN_SIZE, new THREE.Vector3(50, 1, 50), new THREE.Vector3(1, 0, 0));
         this.terrainGhost.initMesh(new THREE.Color(0xff0000), .5);
         // this.addObject(this.terrainGhost);
         if (this.terrainGhost.mesh) {
@@ -192,7 +194,7 @@ export class ModelViewer {
             } else {
 
                 // create Terrain
-                const terrain = new Terrain("T01", new THREE.Vector3(2, .5, 2), new THREE.Vector3(50, 1, 50), new THREE.Vector3(1, 0, 0));
+                const terrain = new Terrain("T01", TERRAIN_SIZE, new THREE.Vector3(50, 1, 50), new THREE.Vector3(1, 0, 0));
                 terrain.initMesh();
 
                 if (terrain.mesh && intersect && intersect.face) {
