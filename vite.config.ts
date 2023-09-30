@@ -4,6 +4,7 @@ import vue from '@vitejs/plugin-vue';
 import vueJsx from '@vitejs/plugin-vue-jsx';
 
 const ASSET_URL = process.env.ASSET_URL || '';
+console.log("ASSET URL ", ASSET_URL);
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -18,3 +19,9 @@ export default defineConfig({
     }
   }
 })
+
+module.exports = {
+  publicPath: process.env.NODE_ENV === 'production'
+    ? '/atelierFrancois/'
+    : '/'
+}
