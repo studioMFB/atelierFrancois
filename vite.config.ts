@@ -3,26 +3,20 @@ import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import vueJsx from '@vitejs/plugin-vue-jsx';
 
+
 process.env.NODE_ENV = 'production';
-const ASSET_URL = process.env.ASSET_URL || '';
-console.log("ASSET URL ", ASSET_URL);
+// const ASSET_URL = JSON.stringify(process.env.ASSET_URL) || "";
 
-// export const publicPath = process.env.NODE_ENV === 'production' ? '/atelierFrancois/' : '/';
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
     vue(),
     vueJsx(),
   ],
-  // resolve: {
-  //   alias: {
-  //     '@': fileURLToPath(new URL('./src', import.meta.url))
-  //   }
-  // }
-
-
-  define: { 'process.env': {} },
+  define: {
+    ASSET_URL: JSON.stringify(process.env.ASSET_URL) || "",
+    NODE_ENV: JSON.stringify(process.env.NODE_ENV) || "",
+  },
   resolve: {
       alias: {
           '@': fileURLToPath(new URL('./src', import.meta.url))
@@ -31,7 +25,6 @@ export default defineConfig({
           '.js',
           '.json',
           '.jsx',
-          '.mjs',
           '.ts',
           '.tsx',
           '.vue',
@@ -44,5 +37,5 @@ export default defineConfig({
   },
   // base: './',
   // base: './dist/assets/'
-  base: `${ASSET_URL}/dist/`,
+  base: `${process.env.ASSET_URL}/dist/`,
 });

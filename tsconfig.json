@@ -1,5 +1,7 @@
 {
-  "include": ["dist/assets/", "src/main.ts", "env.d.ts", "src/**/*", "src/**/*.ts", "src/**/*.tsx", "src/**/*.d.ts", "src/**/*.vue"],
+  "include": ["./src"],
+  "files": [],
+  "references": [{ "path": "./tsconfig.node.json" }],
   "exclude": [
     "node_modules"
   ],
