@@ -8,20 +8,43 @@ console.log("ASSET URL ", ASSET_URL);
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: `${ASSET_URL}/dist/`,
   plugins: [
     vue(),
     vueJsx(),
   ],
+  // resolve: {
+  //   alias: {
+  //     '@': fileURLToPath(new URL('./src', import.meta.url))
+  //   }
+  // }
+
+
+  define: { 'process.env': {} },
   resolve: {
-    alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
-    }
-  }
-})
+      alias: {
+          '@': fileURLToPath(new URL('./src', import.meta.url))
+      },
+      extensions: [
+          '.js',
+          '.json',
+          '.jsx',
+          '.mjs',
+          '.ts',
+          '.tsx',
+          '.vue',
+      ],
+  },
+  server: {
+      port: 3000,
+      open: true,
+      cors: true,
+  },
+  base: './',
+  // base: `${ASSET_URL}/dist/`,
+});
 
 module.exports = {
   publicPath: process.env.NODE_ENV === 'production'
-    ? '/dist/'
+    ? '/atelierFrancois/'
     : '/'
 }

@@ -1,14 +1,5 @@
 {
-  "files": [],
-  "references": [
-    {
-      "path": "./tsconfig.node.json"
-    },
-    {
-      "path": "./tsconfig.app.json"
-    },
-  ],
-  "include": ["src/main.ts", "env.d.ts", "src/**/*", "src/**/*.ts", "src/**/*.tsx", "src/**/*.d.ts", "src/router.ts", "src/**/*.vue"],
+  "include": ["src/main.ts", "env.d.ts", "src/**/*", "src/**/*.ts", "src/**/*.tsx", "src/**/*.d.ts", "src/**/*.vue"],
   "exclude": [
     "node_modules"
   ],
@@ -19,8 +10,8 @@
       "esnext"
     ],
     "types": [
-      "vite/client",
       "node",
+      "vite/client",
     ],
     "jsx": "react",
     "jsxFactory": "jsx",
