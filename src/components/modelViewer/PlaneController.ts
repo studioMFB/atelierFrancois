@@ -1,4 +1,4 @@
-import { Mesh, Vector3, MeshBasicMaterial, PlaneGeometry, Vector2 } from "three";
+import { Mesh, Vector3, MeshBasicMaterial, PlaneGeometry, Vector2, Color } from "three";
 
 
 export class PlaneController extends Mesh {
@@ -19,11 +19,14 @@ export class PlaneController extends Mesh {
     this.pos = pos;
   }
 
-  initMesh(): void {
+  initMesh(colour?: Color): void {
     this.geometry = new PlaneGeometry(this.dim.x, this.dim.y, this.seg.x, this.seg.y);
     this.geometry.rotateX( - Math.PI / 2 );
 
-    this.material = new MeshBasicMaterial( {visible: false } );
+    this.material = new MeshBasicMaterial( {
+      color: colour,
+      visible: false
+     } );
 
     this.mesh = new Mesh( this.geometry, this.material);
     this.mesh.name = this.name;

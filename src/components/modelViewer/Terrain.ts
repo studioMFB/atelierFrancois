@@ -56,7 +56,7 @@ export class Terrain extends Mesh {
       bumpMap: bMap,
       bumpScale: .5,
       displacementMap: dMap,
-      displacementScale: .5,
+      displacementScale: 1,
       // displacementBias: -.5,
       map: difMap,
 
@@ -154,8 +154,8 @@ export class Terrain extends Mesh {
   }
 
   tick(delta: any): void {
-    // this.geom?.rotateX(.005);
-    // this.geom?.rotateY(.009);
+    // this.geometry?.rotateX(.005);
+    // this.geometry?.rotateY(.009);
   }
 
 }

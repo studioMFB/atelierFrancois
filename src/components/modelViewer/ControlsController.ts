@@ -13,7 +13,7 @@ export class ControlsController {
     
     init(): OrbitControls {
 
-        this.controls.enabled = false;
+        this.controls.enabled = true;
         this.controls.autoRotate = false;
         this.controls.autoRotateSpeed = 1;
 

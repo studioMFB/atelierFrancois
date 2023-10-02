@@ -13,11 +13,13 @@ import { Terrain } from './Terrain.ts';
 import { TerrainGhost } from './TerrainGhost.ts';
 
 const GRID_SIZE = 20;
-const GRID_DIVISION = 20;
+const GRID_DIVISION = 40;
 const GRID_CELL_SIZE = 2;
 const GRID_CELL_MID_SIZE = GRID_CELL_SIZE *.5;
 
-const TERRAIN_SIZE = new THREE.Vector3(2, 2, 2);
+const TERRAIN_SIZE = new THREE.Vector3(2, .5, 2);
+const GHOST_OFFSET = 0;
+const TERRAIN_OFFSET = .25;
 
 export class ModelViewer {
 
@@ -25,32 +27,23 @@ export class ModelViewer {
     private scene: THREE.Scene;
 
     private loopController: LoopCOntroller;
-
     private renderer: THREE.WebGLRenderer;
+    private controlsController: ControlsController;
 
     private cameraController: CameraController;
     private camera: THREE.PerspectiveCamera;
 
-    private controlsController: ControlsController;
-
     private gridController: GridController;
+    private planeController: PlaneController;
 
     private raycaster: THREE.Raycaster;
     private pointer: THREE.Vector2;
 
-    private planeController: PlaneController;
-
     private terrainGhost: TerrainGhost;
-
-    private isShiftDown: boolean;
 
     private meshArray: THREE.Mesh[];
 
-
-    // offset = new THREE.Vector3();
-    // intersection = new THREE.Vector3();
-    // worldPosition = new THREE.Vector3();
-    // inverseMatrix = new THREE.Matrix4();
+    private isShiftDown: boolean;
 
 
     constructor(container: HTMLElement) {
@@ -97,7 +90,7 @@ export class ModelViewer {
         // Ghost Terrain //
         this.terrainGhost = new TerrainGhost("T-Ghost", TERRAIN_SIZE, new THREE.Vector3(50, 1, 50), new THREE.Vector3(0, 0, 0));
         this.terrainGhost.initMesh(new THREE.Color(0xff0000), .5);
-        // this.addObject(this.terrainGhost);
+        
         if (this.terrainGhost.mesh) {
             this.sceneController.addMesh(this.terrainGhost.mesh);
             this.loopController.addToUpdate(this.terrainGhost);
@@ -111,19 +104,17 @@ export class ModelViewer {
         this.addObject(this.controlsController);
         this.addObject(this.cameraController);
 
-
         document.addEventListener("pointermove", (e: MouseEvent) => { this.onPointerMove(e) });
         document.addEventListener("pointerdown", (e: MouseEvent) => { this.onPointerDown(e) });
 
         document.addEventListener('keydown', (e: KeyboardEvent) => { this.onDocumentKeyDown(e) });
         document.addEventListener('keyup', (e: KeyboardEvent) => { this.onDocumentKeyUp(e) })
 
-
         // Add Space + click to drag
         // const dragControls = new DragControls(this.meshArray, this.camera, this.renderer.domElement);
         // add event listener to highlight dragged objects
         // dragControls.addEventListener("dragstart", (e: any) => {
-            // e.object.mesh.material.emissive.set(0xaaaaaa);
+            // e.object.mesh.material.color.set(0xaaaaaa);
         // });
         // dragControls.addEventListener('dragend', (e: any) => {
             // e.object.mesh.material.emissive.set(0x000000);
@@ -175,22 +166,10 @@ export class ModelViewer {
             
             const intersect = intersects[0];
             
-            if (this.terrainGhost && this.terrainGhost.mesh && intersect && intersect.face) {
-                // const x = Math.round(intersect.point.x / this.gridController.size) * this.gridController.size;
-                // const y = Math.round(intersect.point.y / this.gridController.size) * this.gridController.size;
-                // const z = Math.round(intersect.point.z / this.gridController.size) * this.gridController.size;
-                // this.terrainGhost.mesh.position.copy(new THREE.Vector3(x,y,z)).add(intersect.face.normal);
-                
+            if (this.terrainGhost && this.terrainGhost.mesh && intersect && intersect.face) {                
                 this.terrainGhost.mesh.position.copy(intersect.point).add(intersect.face.normal);
-                this.terrainGhost.mesh.position.y = 0;
                 this.terrainGhost.mesh.position.divideScalar(GRID_CELL_SIZE).floor().multiplyScalar(GRID_CELL_SIZE).addScalar(GRID_CELL_MID_SIZE);
-                   
-                
-                // this.intersection = intersect.point;
-                // this.inverseMatrix.copy(this.terrainGhost.mesh.matrixWorld).invert();
-                // this.worldPosition = this.worldPosition.setFromMatrixPosition( this.terrainGhost.mesh.matrixWorld );
-                // this.terrainGhost.mesh.position.copy(this.intersection.sub(this.offset).applyMatrix4(this.inverseMatrix));
-                // this.offset.copy(this.intersection).sub(this.worldPosition.setFromMatrixPosition(this.terrainGhost.mesh.matrixWorld));
+                this.terrainGhost.mesh.position.y = GHOST_OFFSET;
             }
 
             this.render();
@@ -221,19 +200,9 @@ export class ModelViewer {
                 terrain.initMesh();
 
                 if (terrain.mesh && intersect && intersect.face) {
-                    // const x = Math.round(intersect.point.x / this.gridController.size) * this.gridController.size;
-                    // const y = Math.round(intersect.point.y / this.gridController.size) * this.gridController.size;
-                    // const z = Math.round(intersect.point.z / this.gridController.size) * this.gridController.size;
-                    // terrain.mesh.position.copy(new THREE.Vector3(x,y,z)).add(intersect.face.normal);
-
                     terrain.mesh.position.copy(intersect.point).add(intersect.face.normal);
-                    terrain.mesh.position.y = 0;
                     terrain.mesh.position.divideScalar(GRID_CELL_SIZE).floor().multiplyScalar(GRID_CELL_SIZE).addScalar(GRID_CELL_MID_SIZE);
-
-                    // this.intersection = intersect.point;
-                    // this.inverseMatrix.copy(terrain.mesh.matrixWorld).invert();
-                    // this.worldPosition = this.worldPosition.setFromMatrixPosition( terrain.mesh.matrixWorld );
-                    // this.offset.copy(this.intersection).sub(this.worldPosition.setFromMatrixPosition(terrain.mesh.matrixWorld));
+                    terrain.mesh.position.y = TERRAIN_OFFSET;
                 }
 
                 this.addObject(terrain);
@@ -244,21 +213,15 @@ export class ModelViewer {
     }
 
     private onDocumentKeyDown(event: KeyboardEvent) {
-
         switch (event.keyCode) {
-
             case 16: this.isShiftDown = true; break;
-
         }
 
     }
 
     private onDocumentKeyUp(event: KeyboardEvent) {
-
         switch (event.keyCode) {
-
             case 16: this.isShiftDown = false; break;
-
         }
 
     }
