@@ -3,9 +3,11 @@ import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import vueJsx from '@vitejs/plugin-vue-jsx';
 
-process.env.NODE_ENV = 'production'
+process.env.NODE_ENV = 'production';
 const ASSET_URL = process.env.ASSET_URL || '';
 console.log("ASSET URL ", ASSET_URL);
+
+export const publicPath = process.env.NODE_ENV === 'production' ? '/atelierFrancois/' : '/';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -44,9 +46,3 @@ export default defineConfig({
   base: './dist/assets/'
   // base: `${ASSET_URL}/dist/`,
 });
-
-module.exports = {
-  publicPath: process.env.NODE_ENV === 'production'
-    ? '/atelierFrancois/'
-    : '/'
-}

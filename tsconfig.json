@@ -21,6 +21,7 @@
         "./*"
       ]
     },
+    "outDir": "dist",
     "module": "ESNext",
     "target": "es5",
     "allowJs": false,
@@ -28,7 +29,7 @@
     "strict": false,
     "noEmit": true,
     "moduleResolution": "node",
-    "inlineSourceMap": true,
+    "sourceMap": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "isolatedModules": true,
