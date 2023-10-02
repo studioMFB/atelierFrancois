@@ -5,6 +5,7 @@ npm run build
 git add --all 
 # git commit -a
 git commit -m 'adding dist subtree'
+git pull
 
 # Make GitHub pages a subtree of our master branch.
 #  git subtree push --prefix atelierFrancois https://github.com/studioMFB/atelierFrancois.git master --squash
