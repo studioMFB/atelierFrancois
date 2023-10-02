@@ -1,5 +1,5 @@
 {
-  "include": ["src/main.ts", "env.d.ts", "src/**/*", "src/**/*.ts", "src/**/*.tsx", "src/**/*.d.ts", "src/**/*.vue"],
+  "include": ["dist/assets/", "src/main.ts", "env.d.ts", "src/**/*", "src/**/*.ts", "src/**/*.tsx", "src/**/*.d.ts", "src/**/*.vue"],
   "exclude": [
     "node_modules"
   ],

@@ -40,7 +40,8 @@ export default defineConfig({
       open: true,
       cors: true,
   },
-  base: './',
+  // base: './',
+  base: './dist/assets/'
   // base: `${ASSET_URL}/dist/`,
 });
 
