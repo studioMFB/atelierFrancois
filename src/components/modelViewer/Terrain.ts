@@ -27,6 +27,12 @@ export class Terrain extends Mesh {
     const dMap = texLoader.load(new URL('./../../assets/textures/Mountains01/MOUNTAINS-01_DEPTH.png', import.meta.url).toString());
     const difMap = texLoader.load(new URL('./../../assets/textures/Mountains01/MOUNTAINS-01_DIFFUSE1.png', import.meta.url).toString());
 
+    // const aoMap = texLoader.load(new URL('./../../../dist/assets/textures/Mountains01/MOUNTAINS-01_AO-91b48a00.png', import.meta.url).toString());
+    // const bMap = texLoader.load(new URL('./../../../dis/assets/textures/Mountains01/MOUNTAINS-01_HEIGHT-434367d4.png', import.meta.url).toString());
+    // const nMap = texLoader.load(new URL('./../../../dis/assets/textures/Mountains01/MOUNTAINS-01_NORMAL-55f2cd1b.png', import.meta.url).toString());
+    // const dMap = texLoader.load(new URL('./../../../dis/assets/textures/Mountains01/MOUNTAINS-01_DEPTH-fd977b47.png', import.meta.url).toString());
+    // const difMap = texLoader.load(new URL('./../../../dis/assets/textures/Mountains01/MOUNTAINS-01_DIFFUSE1-0329f90f.png', import.meta.url).toString());
+
     this.geometry = new BoxGeometry(this.dim.x, this.dim.y, this.dim.z, this.seg.x, this.seg.y, this.seg.z);
     const pos = this.geometry.attributes.position;
     const nor = this.geometry.attributes.normal;

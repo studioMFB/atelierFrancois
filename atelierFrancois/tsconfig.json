@@ -15,7 +15,7 @@
     ],
     "jsx": "react",
     "jsxFactory": "jsx",
-    "baseUrl": "./src",
+    "baseUrl": "./dist",
     "paths": {
       "~/*": [
         "./*"
