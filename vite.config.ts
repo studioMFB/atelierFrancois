@@ -43,6 +43,6 @@ export default defineConfig({
       cors: true,
   },
   // base: './',
-  base: './dist/assets/'
-  // base: `${ASSET_URL}/dist/`,
+  // base: './dist/assets/'
+  base: `${ASSET_URL}/dist/`,
 });
