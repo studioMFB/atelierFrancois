@@ -3,6 +3,7 @@ import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import vueJsx from '@vitejs/plugin-vue-jsx';
 
+process.env.NODE_ENV = 'production'
 const ASSET_URL = process.env.ASSET_URL || '';
 console.log("ASSET URL ", ASSET_URL);
 
