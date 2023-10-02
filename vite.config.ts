@@ -7,7 +7,7 @@ process.env.NODE_ENV = 'production';
 const ASSET_URL = process.env.ASSET_URL || '';
 console.log("ASSET URL ", ASSET_URL);
 
-export const publicPath = process.env.NODE_ENV === 'production' ? '/atelierFrancois/' : '/';
+// export const publicPath = process.env.NODE_ENV === 'production' ? '/atelierFrancois/' : '/';
 
 // https://vitejs.dev/config/
 export default defineConfig({
