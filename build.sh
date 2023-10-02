@@ -12,6 +12,7 @@ git pull
  git subtree add --prefix atelierFrancois https://github.com/studioMFB/atelierFrancois.git master
  git subtree pull --prefix atelierFrancois https://github.com/studioMFB/atelierFrancois.git master
  git subtree push --prefix atelierFrancois https://github.com/studioMFB/atelierFrancois.git master
+#  git subtree push --prefix dist origin atelierFrancois
 
 # Stop Terminal closing itself
 $SHELL
