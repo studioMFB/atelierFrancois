@@ -5,7 +5,7 @@
   ],
   "compilerOptions": {
     "composite": true,
-    "module": "commonjs",
+    "module": "ESNext",
     "moduleResolution": "Node",
     "target": "ES6",
     "allowJs": false,

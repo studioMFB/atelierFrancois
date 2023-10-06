@@ -22,7 +22,7 @@
       ]
     },
     "outDir": "dist",
-    "module": "commonjs",
+    "module": "ESNext",
     "target": "ES6",
     "allowJs": false,
     "noImplicitAny": false,

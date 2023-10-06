@@ -1,5 +1,6 @@
 import { BoxGeometry, Float32BufferAttribute, MeshStandardMaterial, TextureLoader, Mesh, DoubleSide, Vector3 } from "three";
-
+// import {type Texture} from "./../../../interfaces/Texture";
+// import * as terrain from "./../../../textures/terrains.json";
 
 export class Terrain extends Mesh {
 
@@ -23,11 +24,13 @@ export class Terrain extends Mesh {
     const texLoader = new TextureLoader();
 
     const location = name + "/" + id;
-    const aoMap = texLoader.load(new URL("./../../../textures/terrains/" + location + "/ao.png", import.meta.url).toString());
-    const bMap = texLoader.load(new URL("./../../../textures/terrains/"+ location +"/bump.png", import.meta.url).toString());
-    const nMap = texLoader.load(new URL("./../../../textures/terrains/"+ location +"/normal.png", import.meta.url).toString());
-    const dMap = texLoader.load(new URL("./../../../textures/terrains/"+ location +"/displacement.png", import.meta.url).toString());
-    const difMap = texLoader.load(new URL("./../../../textures/terrains/"+ location +"/diffuse.png", import.meta.url).toString());
+    // const aoUrl = "./../../../textures/terrains/" + location + "/ao.png";
+    // const t = terrain.terrains[id] as Texture.ITerrainTexture;
+    const aoMap = texLoader.load(new URL(`./../../../textures/terrains/${location}/ao.png`, import.meta.url).toString());
+    const bMap = texLoader.load(new URL(`./../../../textures/terrains/${location}/bump.png`, import.meta.url).pathname);
+    const nMap = texLoader.load(new URL(`./../../../textures/terrains/${location}/normal.png`, import.meta.url).toString());
+    const dMap = texLoader.load(new URL(`./../../../textures/terrains/${location}/displacement.png`, import.meta.url).toString());
+    const difMap = texLoader.load(new URL(`./../../../textures/terrains/${location}/diffuse.png`, import.meta.url).toString());
 
 
     this.geometry = new BoxGeometry(this.dim.x, this.dim.y, this.dim.z, this.seg.x, this.seg.y, this.seg.z);
