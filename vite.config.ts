@@ -36,6 +36,6 @@ export default defineConfig({
       cors: true,
   },
   // base: './',
-  // base: './dist/assets/'
-  base: `${process.env.ASSET_URL}/dist/`,
+  // base: './dist/'
+  base: `/${process.env.ASSET_URL}/dist/`,
 });
