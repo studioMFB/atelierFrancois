@@ -3,15 +3,15 @@ import { BoxGeometry, Float32BufferAttribute, MeshStandardMaterial, TextureLoade
 
 export class Terrain extends Mesh {
 
-  dim:Vector3;
-  seg:Vector3;
-  pos:Vector3;
-  
+  dim: Vector3;
+  seg: Vector3;
+  pos: Vector3;
+
   mesh?: Mesh;
 
-  constructor(name:string, dim: Vector3, seg: Vector3, pos: Vector3) {
+  constructor(name: string, dim: Vector3, seg: Vector3, pos: Vector3) {
     super()
-    
+
     this.name = name;
 
     this.dim = dim;
@@ -19,24 +19,21 @@ export class Terrain extends Mesh {
     this.pos = pos;
   }
 
-  initMesh(): void {
+  initMesh(name: string, id: number): void {
     const texLoader = new TextureLoader();
-    const aoMap = texLoader.load(new URL('./../../assets/textures/Mountains01/MOUNTAINS-01_AO.png', import.meta.url).toString());
-    const bMap = texLoader.load(new URL('./../../assets/textures/Mountains01/MOUNTAINS-01_HEIGHT.png', import.meta.url).toString());
-    const nMap = texLoader.load(new URL('./../../assets/textures/Mountains01/MOUNTAINS-01_NORMAL.png', import.meta.url).toString());
-    const dMap = texLoader.load(new URL('./../../assets/textures/Mountains01/MOUNTAINS-01_DEPTH.png', import.meta.url).toString());
-    const difMap = texLoader.load(new URL('./../../assets/textures/Mountains01/MOUNTAINS-01_DIFFUSE1.png', import.meta.url).toString());
 
-    // const aoMap = texLoader.load(new URL('./../../../dist/assets/textures/Mountains01/MOUNTAINS-01_AO-91b48a00.png', import.meta.url).toString());
-    // const bMap = texLoader.load(new URL('./../../../dis/assets/textures/Mountains01/MOUNTAINS-01_HEIGHT-434367d4.png', import.meta.url).toString());
-    // const nMap = texLoader.load(new URL('./../../../dis/assets/textures/Mountains01/MOUNTAINS-01_NORMAL-55f2cd1b.png', import.meta.url).toString());
-    // const dMap = texLoader.load(new URL('./../../../dis/assets/textures/Mountains01/MOUNTAINS-01_DEPTH-fd977b47.png', import.meta.url).toString());
-    // const difMap = texLoader.load(new URL('./../../../dis/assets/textures/Mountains01/MOUNTAINS-01_DIFFUSE1-0329f90f.png', import.meta.url).toString());
+    const location = name + "/" + id;
+    const aoMap = texLoader.load(new URL("./../../../textures/terrains/" + location + "/ao.png", import.meta.url).toString());
+    const bMap = texLoader.load(new URL("./../../../textures/terrains/"+ location +"/bump.png", import.meta.url).toString());
+    const nMap = texLoader.load(new URL("./../../../textures/terrains/"+ location +"/normal.png", import.meta.url).toString());
+    const dMap = texLoader.load(new URL("./../../../textures/terrains/"+ location +"/displacement.png", import.meta.url).toString());
+    const difMap = texLoader.load(new URL("./../../../textures/terrains/"+ location +"/diffuse01.png", import.meta.url).toString());
+
 
     this.geometry = new BoxGeometry(this.dim.x, this.dim.y, this.dim.z, this.seg.x, this.seg.y, this.seg.z);
     const pos = this.geometry.attributes.position;
     const nor = this.geometry.attributes.normal;
-    const enableDisplacement = [];
+    const enableDisplacement: number[] = [];
 
     for (let i = 0; i < pos.count; i++) {
       enableDisplacement.push(
@@ -57,22 +54,17 @@ export class Terrain extends Mesh {
 
     this.material = new MeshStandardMaterial({
       aoMap: aoMap,
-      // aoMapIntensity: 1,
       normalMap: nMap,
       bumpMap: bMap,
       bumpScale: .5,
       displacementMap: dMap,
-      displacementScale: 1,
-      // displacementBias: -.5,
+      displacementScale: 1.5,
       map: difMap,
 
-      // wireframe: true,
       side: DoubleSide,
     });
 
     this.material.onBeforeCompile = (shader) => {
-      // shader.uniforms.color = {value: new Vector4(0.10, 0.37, 0.12, 1.0)};
-
       shader.vertexShader = `
             attribute vec2 enableDisp;
             varying vec2 vUv; 
@@ -112,8 +104,6 @@ export class Terrain extends Mesh {
       );
       shader.fragmentShader = `
 
-        // uuniform vec4 color;
-
         varying vec2 vUv;
         varying vec3 mNormal;
         varying vec3 vPos;
@@ -134,20 +124,11 @@ export class Terrain extends Mesh {
         precision mediump float;
         #endif
 
-        // To debug.
-        // gl_FragColor = vec4(mNormal.xyz, 1);
-
         vec2 uv = (vUv - .5) * vec2(.6, .6);
         vec3 color = mix(color1, color2, length(uv));
-        // color = vec3(0.01, 0.03, 0.01);
-       
-        // float f = clamp((vPos.y - bbMin.y) / (bbMax.y - bbMin.y), 0., 1.);
-        // vec3 col = mix(color1, color2, f);
-        // col = mix(color3, col, vUv.x);
-  
+         
         if (length(mNormal) < 0.001) {
             gl_FragColor = vec4(color, 1.);  
-            // gl_FragColor = vec4(col, 1.);
           } 
         `
       );
@@ -160,8 +141,6 @@ export class Terrain extends Mesh {
   }
 
   tick(delta: any): void {
-    // this.geometry?.rotateX(.005);
-    // this.geometry?.rotateY(.009);
   }
 
 }

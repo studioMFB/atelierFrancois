@@ -1,0 +1,26 @@
+{
+    "terrainsId": [
+        "01",
+        "02"
+    ],
+    "terrains": {
+        "01": {
+            "id": "01",
+            "name": "mountain",
+            "aoMap": "",
+            "bumpMap": "",
+            "normalMap": "",
+            "displacementMap": "",
+            "diffuseMap": ""
+        },
+        "02": {
+            "id": "02",
+            "name": "mountain",
+            "aoMap": "",
+            "bumpMap": "",
+            "normalMap": "",
+            "displacementMap": "",
+            "diffuseMap": ""
+        }
+    }
+}

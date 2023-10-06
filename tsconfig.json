@@ -1,5 +1,5 @@
 {
-  "include": ["./dist/", "index-9ceeec71.js"],
+  "include": ["./dist/", "index-9ceeec71.js", "./src/textures/terrains.json"],
   "exclude": [
     "node_modules"
   ],
@@ -22,8 +22,8 @@
       ]
     },
     "outDir": "dist",
-    "module": "ESNext",
-    "target": "es5",
+    "module": "commonjs",
+    "target": "ES6",
     "allowJs": false,
     "noImplicitAny": false,
     "strict": false,

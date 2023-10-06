@@ -1,16 +1,16 @@
 
 import * as THREE from 'three';
 // import { DragControls } from 'three/addons/controls/DragControls.js';
-import { ControlsController } from './ControlsController.ts';
-import { CameraController } from "./CameraController.ts";
-import { LightController } from "./LightController.ts";
-import { LoopCOntroller } from "./LoopController.ts";
-import { SceneController } from "./SceneController.ts";
-import { Resizer } from "./Resizer.ts";
-import { GridController } from './GridControlller.ts';
-import { PlaneController } from './PlaneController.ts';
-import { Terrain } from './Terrain.ts';
-import { TerrainGhost } from './TerrainGhost.ts';
+import { ControlsController } from './settings/ControlsController';
+import { CameraController } from "./settings/CameraController";
+import { LightController } from "./settings/LightController";
+import { LoopCOntroller } from "./settings/LoopController";
+import { SceneController } from "./settings/SceneController";
+import { Resizer } from "./settings/Resizer";
+import { GridController } from './settings/GridControlller';
+import { PlaneController } from './resources/PlaneController';
+import { Terrain } from './resources/Terrain';
+import { TerrainGhost } from './resources/TerrainGhost';
 
 const GRID_SIZE = 20;
 const GRID_DIVISION = 40;
@@ -197,7 +197,7 @@ export class ModelViewer {
 
                 // create Terrain
                 const terrain = new Terrain("T01", TERRAIN_SIZE, new THREE.Vector3(50, 1, 50), new THREE.Vector3(0, 0, 0));
-                terrain.initMesh();
+                terrain.initMesh("mountain", 1);
 
                 if (terrain.mesh && intersect && intersect.face) {
                     terrain.mesh.position.copy(intersect.point).add(intersect.face.normal);

@@ -1,4 +1,4 @@
-import { BoxGeometry, Mesh, Vector3, MeshBasicMaterial, Color, PlaneGeometry } from "three";
+import { Mesh, Vector3, MeshBasicMaterial, Color, PlaneGeometry } from "three";
 
 
 export class TerrainGhost extends Mesh {
@@ -20,7 +20,6 @@ export class TerrainGhost extends Mesh {
   }
 
   initMesh(colour: Color, opacity:number): void {
-    // this.geometry  = new BoxGeometry(this.dim.x, this.dim.y, this.dim.z);
     this.geometry  = new PlaneGeometry(this.dim.x, this.dim.z);
     this.geometry.rotateX( - Math.PI / 2 );
 
