@@ -27,7 +27,7 @@ export class Terrain extends Mesh {
     const bMap = texLoader.load(new URL("./../../../textures/terrains/"+ location +"/bump.png", import.meta.url).toString());
     const nMap = texLoader.load(new URL("./../../../textures/terrains/"+ location +"/normal.png", import.meta.url).toString());
     const dMap = texLoader.load(new URL("./../../../textures/terrains/"+ location +"/displacement.png", import.meta.url).toString());
-    const difMap = texLoader.load(new URL("./../../../textures/terrains/"+ location +"/diffuse01.png", import.meta.url).toString());
+    const difMap = texLoader.load(new URL("./../../../textures/terrains/"+ location +"/diffuse.png", import.meta.url).toString());
 
 
     this.geometry = new BoxGeometry(this.dim.x, this.dim.y, this.dim.z, this.seg.x, this.seg.y, this.seg.z);

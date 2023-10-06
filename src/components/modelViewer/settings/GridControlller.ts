@@ -20,6 +20,7 @@ export class GridController {
 
     init(scene: Scene) {
         this.gridHelper = new GridHelper(this.size, this.divisions);
+        // this.gridHelper.material.visible = false;
 
 
         scene.add(this.gridHelper);

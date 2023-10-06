@@ -1,6 +1,5 @@
 
 import * as THREE from 'three';
-// import { DragControls } from 'three/addons/controls/DragControls.js';
 import { ControlsController } from './settings/ControlsController';
 import { CameraController } from "./settings/CameraController";
 import { LightController } from "./settings/LightController";
@@ -11,15 +10,20 @@ import { GridController } from './settings/GridControlller';
 import { PlaneController } from './resources/PlaneController';
 import { Terrain } from './resources/Terrain';
 import { TerrainGhost } from './resources/TerrainGhost';
+import { EventHub } from './../EventHub';
 
 const GRID_SIZE = 20;
 const GRID_DIVISION = 40;
 const GRID_CELL_SIZE = 2;
-const GRID_CELL_MID_SIZE = GRID_CELL_SIZE *.5;
+const GRID_CELL_MID_SIZE = GRID_CELL_SIZE * .5;
 
 const TERRAIN_SIZE = new THREE.Vector3(2, .5, 2);
 const GHOST_OFFSET = 0;
 const TERRAIN_OFFSET = .25;
+
+export let c_event: CustomEvent;
+export const eventHub = EventHub.createEventHub();
+
 
 export class ModelViewer {
 
@@ -90,7 +94,7 @@ export class ModelViewer {
         // Ghost Terrain //
         this.terrainGhost = new TerrainGhost("T-Ghost", TERRAIN_SIZE, new THREE.Vector3(50, 1, 50), new THREE.Vector3(0, 0, 0));
         this.terrainGhost.initMesh(new THREE.Color(0xff0000), .5);
-        
+
         if (this.terrainGhost.mesh) {
             this.sceneController.addMesh(this.terrainGhost.mesh);
             this.loopController.addToUpdate(this.terrainGhost);
@@ -104,29 +108,50 @@ export class ModelViewer {
         this.addObject(this.controlsController);
         this.addObject(this.cameraController);
 
-        document.addEventListener("pointermove", (e: MouseEvent) => { this.onPointerMove(e) });
-        document.addEventListener("pointerdown", (e: MouseEvent) => { this.onPointerDown(e) });
+        // document.addEventListener("pointermove", (e: MouseEvent) => { this.onPointerMove(e) });
+        // document.addEventListener("pointerdown", (e: MouseEvent) => { this.onPointerDown(e) });
 
         document.addEventListener('keydown', (e: KeyboardEvent) => { this.onDocumentKeyDown(e) });
         document.addEventListener('keyup', (e: KeyboardEvent) => { this.onDocumentKeyUp(e) })
+
+        // Custom Event
+        eventHub.on('spawnTerrain', () =>
+            // {
+            document.addEventListener("pointermove", (e: MouseEvent) => {
+                this.onPointerMove(e);
+            })
+            // document.removeEventListener("pointermove", this.onPointerMove)
+            //     this.controlsController.controls.enabled = true;
+            // }
+        );
+
+        // eventHub.on('spawnTerrain', () =>            
+        //         {document.removeEventListener("pointermove", this.onPointerMove)
+        //         this.controlsController.controls.enabled = true;}
+        // );
+
+        // eventHub.on('spawnTerrain', (e: MouseEvent) => this.onPointerMove(e));
+        eventHub.on('dropTerrain', (index:number) => this.onPointerDown(index));
+        // eventHub.on('spawnTerrain', () => console.log('Message event fired'));
+
 
         // Add Space + click to drag
         // const dragControls = new DragControls(this.meshArray, this.camera, this.renderer.domElement);
         // add event listener to highlight dragged objects
         // dragControls.addEventListener("dragstart", (e: any) => {
-            // e.object.mesh.material.color.set(0xaaaaaa);
+        // e.object.mesh.material.color.set(0xaaaaaa);
         // });
         // dragControls.addEventListener('dragend', (e: any) => {
-            // e.object.mesh.material.emissive.set(0x000000);
-            // e.object.material.emissive.set(0x000000);
+        // e.object.mesh.material.emissive.set(0x000000);
+        // e.object.material.emissive.set(0x000000);
 
-            // e.object.position.y = 1;
+        // e.object.position.y = 1;
 
-            // if(e.object.position.x < -(GRID_SIZE*.5)) e.object.position.x = -(GRID_SIZE*.5);
-            // if(e.object.position.x > (GRID_SIZE*.5)) e.object.position.x = (GRID_SIZE*.5);
-            // if(e.object.position.z < -(GRID_SIZE*.5)) e.object.position.z = -(GRID_SIZE*.5);
-            // if(e.object.position.z > (GRID_SIZE*.5)) e.object.position.z = (GRID_SIZE*.5);
-        // });
+        // if(e.object.position.x < -(GRID_SIZE*.5)) e.object.position.x = -(GRID_SIZE*.5);
+        // if(e.object.position.x > (GRID_SIZE*.5)) e.object.position.x = (GRID_SIZE*.5);
+        // if(e.object.position.z < -(GRID_SIZE*.5)) e.object.position.z = -(GRID_SIZE*.5);
+        // if(e.object.position.z > (GRID_SIZE*.5)) e.object.position.z = (GRID_SIZE*.5);
+        // })
     }
 
     render() {
@@ -156,17 +181,19 @@ export class ModelViewer {
     }
 
     onPointerMove(event: MouseEvent) {
+        console.log("OnPointerMove =>");
+        this.controlsController.controls.enabled = false;
+
         this.pointer.set((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window.innerHeight) * 2 + 1);
 
         this.raycaster.setFromCamera(this.pointer, this.camera);
         const intersects = this.raycaster.intersectObjects(this.meshArray, false);
 
-        
         if (intersects && intersects.length > 0) {
-            
+
             const intersect = intersects[0];
-            
-            if (this.terrainGhost && this.terrainGhost.mesh && intersect && intersect.face) {                
+
+            if (this.terrainGhost && this.terrainGhost.mesh && intersect && intersect.face) {
                 this.terrainGhost.mesh.position.copy(intersect.point).add(intersect.face.normal);
                 this.terrainGhost.mesh.position.divideScalar(GRID_CELL_SIZE).floor().multiplyScalar(GRID_CELL_SIZE).addScalar(GRID_CELL_MID_SIZE);
                 this.terrainGhost.mesh.position.y = GHOST_OFFSET;
@@ -174,11 +201,11 @@ export class ModelViewer {
 
             this.render();
         }
-
     }
 
-    onPointerDown(event: MouseEvent) {
-        this.pointer.set((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window.innerHeight) * 2 + 1);
+    onPointerDown(terrainIndex: number) {
+        console.log("OnPointerDown =>");
+        // this.pointer.set((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window.innerHeight) * 2 + 1);
 
         this.raycaster.setFromCamera(this.pointer, this.camera);
         const intersects = this.raycaster.intersectObjects(this.meshArray, false);
@@ -194,10 +221,9 @@ export class ModelViewer {
                     this.meshArray.splice(this.meshArray.indexOf(intersect.object as THREE.Mesh), 1);
                 }
             } else {
-
                 // create Terrain
                 const terrain = new Terrain("T01", TERRAIN_SIZE, new THREE.Vector3(50, 1, 50), new THREE.Vector3(0, 0, 0));
-                terrain.initMesh("mountain", 1);
+                terrain.initMesh("mountain", terrainIndex);
 
                 if (terrain.mesh && intersect && intersect.face) {
                     terrain.mesh.position.copy(intersect.point).add(intersect.face.normal);
@@ -210,6 +236,9 @@ export class ModelViewer {
 
             this.render();
         }
+
+        this.controlsController.controls.enabled = true;
+        document.removeEventListener("pointermove", this.onPointerMove);
     }
 
     private onDocumentKeyDown(event: KeyboardEvent) {

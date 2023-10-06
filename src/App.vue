@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import Menu from './components/Menu.vue';
+import ResourceExplorer from './components/ResourceExplorer.vue';
 </script>
 
 <template>
-    <Menu></Menu>
+    <ResourceExplorer></ResourceExplorer>
 </template>
 
