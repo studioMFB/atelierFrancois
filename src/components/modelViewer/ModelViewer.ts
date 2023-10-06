@@ -84,7 +84,7 @@ export class ModelViewer {
 
         // Plane // 
         this.planeController = new PlaneController("T-Plane", new THREE.Vector2(GRID_SIZE, GRID_SIZE), new THREE.Vector2(1, 1), new THREE.Vector3(0, 0, 0));
-        this.planeController.initMesh();
+        this.planeController.initMesh(false);
         this.addObject(this.planeController);
 
         // Ghost Terrain //

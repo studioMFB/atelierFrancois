@@ -1,1 +1,0 @@
-html{box-sizing:border-box}body{width:100%;height:100%;font-family:Lato,sans-serif;font-size:14px;background-color:#17181b;overflow:hidden}.app{position:fixed;display:grid;grid-template:"main" 90% "menu" 6rem;width:100%;height:100%;top:0;left:0}.modelViewer{grid-area:main;width:100%;height:100%;margin:0 auto;background:#17181b}

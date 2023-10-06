@@ -5,7 +5,7 @@ import vueJsx from '@vitejs/plugin-vue-jsx';
 
 
 process.env.NODE_ENV = 'production';
-// const ASSET_URL = JSON.stringify(process.env.ASSET_URL) || "";
+process.env.ASSET_URL = `/dist/assets/`;
 
 
 export default defineConfig({
@@ -37,5 +37,5 @@ export default defineConfig({
   },
   // base: './',
   // base: './dist/'
-  base: `/${process.env.ASSET_URL}/dist/`,
+  base: `${process.env.ASSET_URL}`,
 });

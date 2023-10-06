@@ -19,13 +19,13 @@ export class PlaneController extends Mesh {
     this.pos = pos;
   }
 
-  initMesh(colour?: Color): void {
+  initMesh(isVisible:boolean, colour?: Color): void {
     this.geometry = new PlaneGeometry(this.dim.x, this.dim.y, this.seg.x, this.seg.y);
     this.geometry.rotateX( - Math.PI / 2 );
 
     this.material = new MeshBasicMaterial( {
-      color: colour,
-      visible: false
+      color: colour || new Color(0xff0000),
+      visible: isVisible
      } );
 
     this.mesh = new Mesh( this.geometry, this.material);
