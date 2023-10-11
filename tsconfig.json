@@ -1,5 +1,5 @@
 {
-  "include": ["./dist/", "index-9ceeec71.js", "./src/textures/terrains.json"],
+  "include": ["src/dist", "./src/components/modelViewer/textures/terrains.json"],
   "exclude": [
     "node_modules"
   ],
@@ -15,13 +15,13 @@
     ],
     "jsx": "react",
     "jsxFactory": "jsx",
-    "baseUrl": "./dist",
+    "baseUrl": "src/dist",
     "paths": {
       "~/*": [
         "./*"
       ]
     },
-    "outDir": "dist",
+    "outDir": "src/dist",
     "module": "ESNext",
     "target": "ES6",
     "allowJs": false,

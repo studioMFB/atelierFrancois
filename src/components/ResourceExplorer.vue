@@ -6,9 +6,9 @@ import { Draggable } from "@shopify/draggable";
 import { eventHub } from "./modelViewer/ModelViewer";
 import { DragStartEvent, DragStopEvent } from "@shopify/draggable/lib/draggable.bundle.legacy";
 
-const img1 = new URL("./../textures/terrains/mountain/1/thumb.png", import.meta.url).toString();
-const img2 = new URL("./../textures/terrains/mountain/2/thumb.png", import.meta.url).toString();
-const img3 = new URL("./../textures/terrains/mountain/3/thumb.png", import.meta.url).toString();
+const img1 = new URL("./modelViewer/textures/terrains/mountain/1/thumb.png", import.meta.url).toString();
+const img2 = new URL("./modelViewer/textures/terrains/mountain/2/thumb.png", import.meta.url).toString();
+const img3 = new URL("./modelViewer/textures/terrains/mountain/3/thumb.png", import.meta.url).toString();
 
 function initSortable() {
     setTimeout(() => {

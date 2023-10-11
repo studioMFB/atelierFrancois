@@ -21,16 +21,42 @@ export class Terrain extends Mesh {
   }
 
   initMesh(name: string, id: number): void {
-    const texLoader = new TextureLoader();
+    let aoMapUrl = "";
+    let bMapUrl = "";
+    let nMapUrl = "";
+    let dMapUrl = "";
+    let difMapUrl = "";
 
-    const location = name + "/" + id;
-    // const aoUrl = "./../../../textures/terrains/" + location + "/ao.png";
-    // const t = terrain.terrains[id] as Texture.ITerrainTexture;
-    const aoMap = texLoader.load(new URL(`./../../../textures/terrains/${location}/ao.png`, import.meta.url).toString());
-    const bMap = texLoader.load(new URL(`./../../../textures/terrains/${location}/bump.png`, import.meta.url).pathname);
-    const nMap = texLoader.load(new URL(`./../../../textures/terrains/${location}/normal.png`, import.meta.url).toString());
-    const dMap = texLoader.load(new URL(`./../../../textures/terrains/${location}/displacement.png`, import.meta.url).toString());
-    const difMap = texLoader.load(new URL(`./../../../textures/terrains/${location}/diffuse.png`, import.meta.url).toString());
+    switch (id) {
+      case 1:
+        aoMapUrl = new URL(`./../textures/terrains/mountain/1/ao.png`, import.meta.url).pathname;
+        bMapUrl = new URL(`./../textures/terrains/mountain/1/bump.png`, import.meta.url).pathname;
+        nMapUrl = new URL(`./../textures/terrains/mountain/1/normal.png`, import.meta.url).pathname;
+        dMapUrl = new URL(`./../textures/terrains/mountain/1/displacement.png`, import.meta.url).pathname;
+        difMapUrl = new URL(`./../textures/terrains/mountain/1/diffuse.png`, import.meta.url).pathname;
+        break;
+      case 2:
+        aoMapUrl = new URL(`./../textures/terrains/mountain/2/ao.png`, import.meta.url).pathname;
+        bMapUrl = new URL(`./../textures/terrains/mountain/2/bump.png`, import.meta.url).pathname;
+        nMapUrl = new URL(`./../textures/terrains/mountain/2/normal.png`, import.meta.url).pathname;
+        dMapUrl = new URL(`./../textures/terrains/mountain/2/displacement.png`, import.meta.url).pathname;
+        difMapUrl = new URL(`./../textures/terrains/mountain/2/diffuse.png`, import.meta.url).pathname;
+        break;
+      case 3:
+        aoMapUrl = new URL(`./../textures/terrains/mountain/3/ao.png`, import.meta.url).pathname;
+        bMapUrl = new URL(`./../textures/terrains/mountain/3/bump.png`, import.meta.url).pathname;
+        nMapUrl = new URL(`./../textures/terrains/mountain/3/normal.png`, import.meta.url).pathname;
+        dMapUrl = new URL(`./../textures/terrains/mountain/3/displacement.png`, import.meta.url).pathname;
+        difMapUrl = new URL(`./../textures/terrains/mountain/3/diffuse.png`, import.meta.url).pathname;
+        break;
+    }
+
+    const texLoader = new TextureLoader();
+    const aoMap = texLoader.load(aoMapUrl);
+    const bMap = texLoader.load(bMapUrl);
+    const nMap = texLoader.load(nMapUrl);
+    const dMap = texLoader.load(dMapUrl);
+    const difMap = texLoader.load(difMapUrl);
 
 
     this.geometry = new BoxGeometry(this.dim.x, this.dim.y, this.dim.z, this.seg.x, this.seg.y, this.seg.z);
