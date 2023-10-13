@@ -20,4 +20,9 @@ export namespace Texture {
         T02: ITerrainTexture,
     }
 
+    export interface ITerrain {
+        type: string, 
+        id: number
+    }
+
 }

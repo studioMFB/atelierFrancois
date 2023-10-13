@@ -1,7 +1,7 @@
 export namespace EventHub{
     export const createEventHub = () => ({
         hub: Object.create(null),
-        fire(event, data) {
+        fire(event, data:any) {
           (this.hub[event] || []).forEach(handler => handler(data));
         },
         on(event, handler) {

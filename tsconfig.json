@@ -1,5 +1,9 @@
 {
-  "include": ["dist", "./src/components/modelViewer/textures/terrains.json"],
+  "include": [
+    "src/**/*",
+    "dist",
+    "./src/components/modelViewer/textures/terrains.json"
+  ],
   "exclude": [
     "node_modules"
   ],
@@ -7,29 +11,30 @@
     "lib": [
       "dom",
       "dom.iterable",
-      "esnext"
+      "es2020"
     ],
     "types": [
       "node",
       "vite/client",
+      "react",
+      "react-dom",
     ],
-    "jsx": "react",
-    "jsxFactory": "jsx",
-    "baseUrl": "dist",
     "paths": {
       "~/*": [
         "./*"
       ]
     },
+    "jsx":"preserve",
+    "baseUrl": "dist",
     "outDir": "dist",
-    "module": "ESNext",
-    "target": "ES6",
+    "module": "ES2022",
+    "target": "ES2022",
     "allowJs": false,
     "noImplicitAny": false,
     "strict": false,
     "noEmit": true,
     "moduleResolution": "node",
-    "inlineSourceMap": true,
+    "sourceMap": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "isolatedModules": true,
@@ -38,5 +43,6 @@
     "downlevelIteration": true,
     "allowImportingTsExtensions": true,
     "allowSyntheticDefaultImports": true,
+    "preserveConstEnums": true,
   }
 }

@@ -1,16 +1,20 @@
-<script setup lang="ts">
+<script setup lang="tsx">
 // import MovebuttonView from "./moveButton/MovebuttonView.vue";
-
-
 import { Draggable } from "@shopify/draggable";
 import { eventHub } from "./modelViewer/ModelViewer";
 import { DragStartEvent, DragStopEvent } from "@shopify/draggable/lib/draggable.bundle.legacy";
+import { type Texture } from "./../interfaces/Texture";
+// import { GitHubApi } from "./../api/gitHubApi";
+// import jsx from "@vue/babel-plugin-jsx";
+// import { h, render } from 'vue';
 
 const img1 = new URL("./modelViewer/textures/terrains/mountain/1/thumb.png", import.meta.url).toString();
 const img2 = new URL("./modelViewer/textures/terrains/mountain/2/thumb.png", import.meta.url).toString();
 const img3 = new URL("./modelViewer/textures/terrains/mountain/3/thumb.png", import.meta.url).toString();
 
+
 function initSortable() {
+
     setTimeout(() => {
         let sortable = new Draggable(document.getElementById("menu__resources") as HTMLElement, {
             draggable: 'li.menu__resources--tile',
@@ -24,33 +28,21 @@ function initSortable() {
             const tile = e.source as HTMLElement;
             console.log("TILE ", tile);
 
-            eventHub.fire('dropTerrain', (tile.tabIndex));
+            const terrain: Texture.ITerrain = {
+                type: "mountain",
+                id: tile.tabIndex
+            }
+            eventHub.fire('dropTerrain', (terrain));
         });
     }, 500);
 }
 
-// function initEvents() {
-//     setTimeout(() => {
-
-//         const tiles = document.querySelectorAll(".menu__resources--tile") as NodeListOf<HTMLElement>;
-
-//         tiles.forEach(tile => {
-//             // Create a synthetic click MouseEvent
-//             const evt = new MouseEvent("click", {
-//                 bubbles: true,
-//                 cancelable: true,
-//                 view: window,
-//             });
-
-//             // Send the event to the checkbox element
-//             tile.dispatchEvent(evt);
-//         });
-
-//     }, 500);
-// }
+// const img1 = await GitHubApi.getSingleTextureUrl("mountain", 1, "thumb");
+// const img2 = await GitHubApi.getSingleTextureUrl("mountain", 2, "thumb");
+// const img3 = await GitHubApi.getSingleTextureUrl("mountain", 3, "thumb");
 
 initSortable();
-// initEvents();
+
 
 </script>
 
@@ -92,12 +84,10 @@ initSortable();
 <style>
 .menu {
     z-index: 10;
-    /* grid-area: menu; */
     position: fixed;
-    /* position: absolute; */
     display: flex;
     align-items: center;
-    justify-content:flex-start;
+    justify-content: flex-start;
     top: 0;
     right: 0;
     width: 14.5rem;
@@ -129,8 +119,6 @@ initSortable();
 
     list-style-type: none;
 }
-
-.menu__resources--tile {}
 
 .menu__resources--btn {
     cursor: pointer;

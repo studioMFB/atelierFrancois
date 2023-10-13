@@ -6,3 +6,4 @@ import ResourceExplorer from './components/ResourceExplorer.vue';
     <ResourceExplorer></ResourceExplorer>
 </template>
 
+./components/ResourceExplorer.tsx./components/ResourceExplorer.js

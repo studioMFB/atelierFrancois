@@ -1,6 +1,7 @@
 import { BoxGeometry, Float32BufferAttribute, MeshStandardMaterial, TextureLoader, Mesh, DoubleSide, Vector3 } from "three";
 // import {type Texture} from "./../../../interfaces/Texture";
 // import * as terrain from "./../../../textures/terrains.json";
+import { GitHubApi } from "./../../../api/gitHubApi";
 
 export class Terrain extends Mesh {
 
@@ -20,43 +21,31 @@ export class Terrain extends Mesh {
     this.pos = pos;
   }
 
-  initMesh(name: string, id: number): void {
-    let aoMapUrl = "";
-    let bMapUrl = "";
-    let nMapUrl = "";
-    let dMapUrl = "";
-    let difMapUrl = "";
+  async initMesh(name: string, id: number): Promise<void> {
+    await GitHubApi.getRateLimit();
 
-    switch (id) {
-      case 1:
-        aoMapUrl = new URL(`./../textures/terrains/mountain/1/ao.png`, import.meta.url).pathname;
-        bMapUrl = new URL(`./../textures/terrains/mountain/1/bump.png`, import.meta.url).pathname;
-        nMapUrl = new URL(`./../textures/terrains/mountain/1/normal.png`, import.meta.url).pathname;
-        dMapUrl = new URL(`./../textures/terrains/mountain/1/displacement.png`, import.meta.url).pathname;
-        difMapUrl = new URL(`./../textures/terrains/mountain/1/diffuse.png`, import.meta.url).pathname;
-        break;
-      case 2:
-        aoMapUrl = new URL(`./../textures/terrains/mountain/2/ao.png`, import.meta.url).pathname;
-        bMapUrl = new URL(`./../textures/terrains/mountain/2/bump.png`, import.meta.url).pathname;
-        nMapUrl = new URL(`./../textures/terrains/mountain/2/normal.png`, import.meta.url).pathname;
-        dMapUrl = new URL(`./../textures/terrains/mountain/2/displacement.png`, import.meta.url).pathname;
-        difMapUrl = new URL(`./../textures/terrains/mountain/2/diffuse.png`, import.meta.url).pathname;
-        break;
-      case 3:
-        aoMapUrl = new URL(`./../textures/terrains/mountain/3/ao.png`, import.meta.url).pathname;
-        bMapUrl = new URL(`./../textures/terrains/mountain/3/bump.png`, import.meta.url).pathname;
-        nMapUrl = new URL(`./../textures/terrains/mountain/3/normal.png`, import.meta.url).pathname;
-        dMapUrl = new URL(`./../textures/terrains/mountain/3/displacement.png`, import.meta.url).pathname;
-        difMapUrl = new URL(`./../textures/terrains/mountain/3/diffuse.png`, import.meta.url).pathname;
-        break;
-    }
+    const aoMapUrl = await GitHubApi.getSingleTextureUrl(name, id, "ao");
+    const bMapUrl = await GitHubApi.getSingleTextureUrl(name, id, "bump");
+    const nMapUrl = await GitHubApi.getSingleTextureUrl(name, id, "normal");
+    const dMapUrl = await GitHubApi.getSingleTextureUrl(name, id, "displacement");
+    const difMapUrl = await GitHubApi.getSingleTextureUrl(name, id, "diffuse");
 
     const texLoader = new TextureLoader();
+
     const aoMap = texLoader.load(aoMapUrl);
     const bMap = texLoader.load(bMapUrl);
     const nMap = texLoader.load(nMapUrl);
     const dMap = texLoader.load(dMapUrl);
     const difMap = texLoader.load(difMapUrl);
+
+
+    // const allTex = await GitHubApi.getallTexturesUrl(name, id);
+    // // console.log("all Tex ", allTex);
+    // const aoMap = texLoader.load(allTex[0]);
+    // const bMap = texLoader.load(allTex[1]);
+    // const nMap = texLoader.load(allTex[2]);
+    // const dMap = texLoader.load(allTex[4]);
+    // const difMap = texLoader.load(allTex[5]);
 
 
     this.geometry = new BoxGeometry(this.dim.x, this.dim.y, this.dim.z, this.seg.x, this.seg.y, this.seg.z);

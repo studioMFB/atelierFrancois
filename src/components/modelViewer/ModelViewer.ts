@@ -11,6 +11,7 @@ import { PlaneController } from './resources/PlaneController';
 import { Terrain } from './resources/Terrain';
 import { TerrainGhost } from './resources/TerrainGhost';
 import { EventHub } from './../EventHub';
+import { type Texture } from './../../interfaces/Texture';
 
 const GRID_SIZE = 20;
 const GRID_DIVISION = 40;
@@ -48,6 +49,8 @@ export class ModelViewer {
     private meshArray: THREE.Mesh[];
 
     private isShiftDown: boolean;
+
+    private terrainsList: Map<string, Terrain> = new Map();
 
 
     constructor(container: HTMLElement) {
@@ -131,7 +134,7 @@ export class ModelViewer {
         // );
 
         // eventHub.on('spawnTerrain', (e: MouseEvent) => this.onPointerMove(e));
-        eventHub.on('dropTerrain', (index:number) => this.onPointerDown(index));
+        eventHub.on('dropTerrain', async (terrain:Texture.ITerrain) => await this.onPointerDown(terrain.type, terrain.id));
         // eventHub.on('spawnTerrain', () => console.log('Message event fired'));
 
 
@@ -203,7 +206,7 @@ export class ModelViewer {
         }
     }
 
-    onPointerDown(terrainIndex: number) {
+    async onPointerDown(terrainType: string, terrainIndex: number) {
         console.log("OnPointerDown =>");
         // this.pointer.set((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window.innerHeight) * 2 + 1);
 
@@ -222,10 +225,17 @@ export class ModelViewer {
                 }
             } else {
                 // create Terrain
-                const terrain = new Terrain("T01", TERRAIN_SIZE, new THREE.Vector3(50, 1, 50), new THREE.Vector3(0, 0, 0));
-                terrain.initMesh("mountain", terrainIndex);
+                const key =  `${terrainType}${terrainIndex}`;
+                let terrain : Terrain | undefined;
+                if(this.terrainsList.has(key)){
+                    terrain = this.terrainsList.get(key);
+                }
+                else{
+                    terrain = new Terrain("T01", TERRAIN_SIZE, new THREE.Vector3(50, 1, 50), new THREE.Vector3(0, 0, 0));
+                    await terrain.initMesh(terrainType, terrainIndex);
+                }
 
-                if (terrain.mesh && intersect && intersect.face) {
+                if (terrain && terrain.mesh && intersect && intersect.face) {
                     terrain.mesh.position.copy(intersect.point).add(intersect.face.normal);
                     terrain.mesh.position.divideScalar(GRID_CELL_SIZE).floor().multiplyScalar(GRID_CELL_SIZE).addScalar(GRID_CELL_MID_SIZE);
                     terrain.mesh.position.y = TERRAIN_OFFSET;
