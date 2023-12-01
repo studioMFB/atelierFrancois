@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import ResourceExplorer from './components/ResourceExplorer.vue';
+// import ResourceExplorer from './components/ResourceExplorer.vue';
 </script>
 
-<template>
+<!-- <template>
     <ResourceExplorer></ResourceExplorer>
-</template>
-
-./components/ResourceExplorer.tsx./components/ResourceExplorer.js
+</template> -->

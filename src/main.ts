@@ -10,5 +10,5 @@ async function run() {
     modelViewer.start();
 }
 
-createApp(App).mount('#App');
+// createApp(App).mount('#App');
 run();

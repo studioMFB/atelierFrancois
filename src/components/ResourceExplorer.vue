@@ -1,8 +1,8 @@
 <script setup lang="tsx">
 // import MovebuttonView from "./moveButton/MovebuttonView.vue";
-import { Draggable } from "@shopify/draggable";
+// import { Draggable } from "@shopify/draggable";
 import { eventHub } from "./modelViewer/ModelViewer";
-import { DragStartEvent, DragStopEvent } from "@shopify/draggable/lib/draggable.bundle.legacy";
+// import { DragStartEvent, DragStopEvent } from "@shopify/draggable/lib/draggable.bundle.legacy";
 import { type Texture } from "./../interfaces/Texture";
 // import { GitHubApi } from "./../api/gitHubApi";
 // import jsx from "@vue/babel-plugin-jsx";
@@ -13,35 +13,35 @@ const img2 = new URL("./modelViewer/textures/terrains/mountain/2/thumb.png", imp
 const img3 = new URL("./modelViewer/textures/terrains/mountain/3/thumb.png", import.meta.url).toString();
 
 
-function initSortable() {
+// function initSortable() {
 
-    setTimeout(() => {
-        let sortable = new Draggable(document.getElementById("menu__resources") as HTMLElement, {
-            draggable: 'li.menu__resources--tile',
-        });
+//     setTimeout(() => {
+//         // let sortable = new Draggable(document.getElementById("menu__resources") as HTMLElement, {
+//             draggable: 'li.menu__resources--tile',
+//         });
 
-        sortable.on("drag:start", (e: DragStartEvent) => {
-            eventHub.fire('spawnTerrain', (""));
-        });
+//         sortable.on("drag:start", (e: DragStartEvent) => {
+//             eventHub.fire('spawnTerrain', (""));
+//         });
 
-        sortable.on('drag:stop', (e: DragStopEvent) => {
-            const tile = e.source as HTMLElement;
-            console.log("TILE ", tile);
+//         sortable.on('drag:stop', (e: DragStopEvent) => {
+//             const tile = e.source as HTMLElement;
+//             console.log("TILE ", tile);
 
-            const terrain: Texture.ITerrain = {
-                type: "mountain",
-                id: tile.tabIndex
-            }
-            eventHub.fire('dropTerrain', (terrain));
-        });
-    }, 500);
-}
+//             const terrain: Texture.ITerrain = {
+//                 type: "mountain",
+//                 id: tile.tabIndex
+//             }
+//             eventHub.fire('dropTerrain', (terrain));
+//         });
+//     }, 500);
+// }
 
 // const img1 = await GitHubApi.getSingleTextureUrl("mountain", 1, "thumb");
 // const img2 = await GitHubApi.getSingleTextureUrl("mountain", 2, "thumb");
 // const img3 = await GitHubApi.getSingleTextureUrl("mountain", 3, "thumb");
 
-initSortable();
+// initSortable();
 
 
 </script>

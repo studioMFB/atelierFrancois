@@ -12,6 +12,7 @@ import { Terrain } from './resources/Terrain';
 import { TerrainGhost } from './resources/TerrainGhost';
 import { EventHub } from './../EventHub';
 import { type Texture } from './../../interfaces/Texture';
+import { Furniture } from './resources/furniture';
 
 const GRID_SIZE = 20;
 const GRID_DIVISION = 40;
@@ -45,6 +46,8 @@ export class ModelViewer {
     private pointer: THREE.Vector2;
 
     private terrainGhost: TerrainGhost;
+
+    private table: Furniture;
 
     private meshArray: THREE.Mesh[];
 
@@ -95,12 +98,19 @@ export class ModelViewer {
         this.addObject(this.planeController);
 
         // Ghost Terrain //
-        this.terrainGhost = new TerrainGhost("T-Ghost", TERRAIN_SIZE, new THREE.Vector3(50, 1, 50), new THREE.Vector3(0, 0, 0));
-        this.terrainGhost.initMesh(new THREE.Color(0xff0000), .5);
+        // this.terrainGhost = new TerrainGhost("T-Ghost", TERRAIN_SIZE, new THREE.Vector3(50, 1, 50), new THREE.Vector3(0, 0, 0));
+        // this.terrainGhost.initMesh(new THREE.Color(0xff0000), .5);
+        // if (this.terrainGhost.mesh) {
+        //     this.sceneController.addMesh(this.terrainGhost.mesh);
+        //     this.loopController.addToUpdate(this.terrainGhost);
+        // }
 
-        if (this.terrainGhost.mesh) {
-            this.sceneController.addMesh(this.terrainGhost.mesh);
-            this.loopController.addToUpdate(this.terrainGhost);
+        // TEST FURNITURE TABLE //
+        this.table = new Furniture("Table", new THREE.Vector3(1, 1, 1), new THREE.Vector3(0, 0, 0));
+        this.table.initMesh();
+        if (this.table.mesh) {
+            this.sceneController.addMesh(this.table.mesh);
+            this.loopController.addToUpdate(this.table);
         }
 
         this.init();
@@ -134,7 +144,7 @@ export class ModelViewer {
         // );
 
         // eventHub.on('spawnTerrain', (e: MouseEvent) => this.onPointerMove(e));
-        eventHub.on('dropTerrain', async (terrain:Texture.ITerrain) => await this.onPointerDown(terrain.type, terrain.id));
+        eventHub.on('dropTerrain', async (terrain: Texture.ITerrain) => await this.onPointerDown(terrain.type, terrain.id));
         // eventHub.on('spawnTerrain', () => console.log('Message event fired'));
 
 
@@ -225,12 +235,12 @@ export class ModelViewer {
                 }
             } else {
                 // create Terrain
-                const key =  `${terrainType}${terrainIndex}`;
-                let terrain : Terrain | undefined;
-                if(this.terrainsList.has(key)){
+                const key = `${terrainType}${terrainIndex}`;
+                let terrain: Terrain | undefined;
+                if (this.terrainsList.has(key)) {
                     terrain = this.terrainsList.get(key);
                 }
-                else{
+                else {
                     terrain = new Terrain("T01", TERRAIN_SIZE, new THREE.Vector3(50, 1, 50), new THREE.Vector3(0, 0, 0));
                     await terrain.initMesh(terrainType, terrainIndex);
                 }
