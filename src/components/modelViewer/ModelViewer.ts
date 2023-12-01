@@ -62,7 +62,8 @@ export class ModelViewer {
 
         // Scene //
         this.sceneController = new SceneController();
-        this.scene = this.sceneController.init(new THREE.Color('#17181b'));
+        this.scene = this.sceneController.init(new THREE.Color('#ffffff'));
+        // this.scene = this.sceneController.init(new THREE.Color('#17181b'));
 
         // Renderer //
         this.renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -82,7 +83,7 @@ export class ModelViewer {
 
         // Light //
         const lightController = new LightController();
-        lightController.init(this.scene, new THREE.Color(0xffffff), new THREE.Color(0x52f78a));
+        lightController.init(this.scene, new THREE.Color('#ffffff'), new THREE.Color('#52f78a'));
 
         this.loopController = new LoopCOntroller(this.camera, this.scene, this.renderer);
 
@@ -106,12 +107,14 @@ export class ModelViewer {
         // }
 
         // TEST FURNITURE TABLE //
-        this.table = new Furniture("littlewood_furniture", new THREE.Vector3(1, 1, 1), new THREE.Vector3(0, 0, 0));
-        this.table.initMesh(1);
-        if (this.table.mesh) {
-            this.sceneController.addMesh(this.table.mesh);
-            this.loopController.addToUpdate(this.table);
-        }
+        this.table = new Furniture("littlewood_furniture", new THREE.Vector3(0, 0, 0));
+        this.table.initMesh(1, this.scene).then(()=>{
+            if (this.table.mesh) {
+                // this.scene.add(this.table.group);
+                // this.sceneController.addMesh(this.table.mesh);
+                this.loopController.addToUpdate(this.table);
+            }
+        });
 
         this.init();
     }
