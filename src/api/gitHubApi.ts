@@ -53,7 +53,7 @@ export namespace GitHubApi {
 
     export async function getSingleGLTFUrl(type: string, id: number, name: string): Promise<string> {
         // GET /repos/{owner}/{repo}/contents/{path}
-        const url = `https://api.github.com/repos/${USERNAME}/${REPO}/contents/${MODEL_DIR}/${type}/${id}/${name}.json`;
+        const url = `https://api.github.com/repos/${USERNAME}/${REPO}/contents/${MODEL_DIR}/${type}/${id}/${name}.gltf`;
 
         const res = await fetch(url, {
             method: "GET",
