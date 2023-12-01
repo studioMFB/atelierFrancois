@@ -106,8 +106,8 @@ export class ModelViewer {
         // }
 
         // TEST FURNITURE TABLE //
-        this.table = new Furniture("Table", new THREE.Vector3(1, 1, 1), new THREE.Vector3(0, 0, 0));
-        this.table.initMesh();
+        this.table = new Furniture("littlewood_furniture", new THREE.Vector3(1, 1, 1), new THREE.Vector3(0, 0, 0));
+        this.table.initMesh(1);
         if (this.table.mesh) {
             this.sceneController.addMesh(this.table.mesh);
             this.loopController.addToUpdate(this.table);

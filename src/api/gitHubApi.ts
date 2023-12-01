@@ -3,6 +3,7 @@ export namespace GitHubApi {
     const USERNAME = "studioMFB";
     const REPO = "atelierFrancois";
     const TEX_DIR = "src/components/modelViewer/textures/terrains"
+    const MODEL_DIR = "src/components/modelViewer/models"
 
 
     export interface IGitHubFile {
@@ -48,6 +49,38 @@ export namespace GitHubApi {
         }
 
         return limit
+    }
+
+    export async function getSingleGLTFUrl(type: string, id: number, name: string): Promise<string> {
+        // GET /repos/{owner}/{repo}/contents/{path}
+        const url = `https://api.github.com/repos/${USERNAME}/${REPO}/contents/${MODEL_DIR}/${type}/${id}/${name}.json`;
+
+        const res = await fetch(url, {
+            method: "GET",
+            headers: {
+                'User-Agent': USERNAME
+            }
+        });
+
+        let texUrl = "";
+
+        if (res.ok) {
+            const data = await res.json() as IGitHubFile;
+            const b64Data = data.content;
+
+            if (b64Data) {
+                const file = await b64toBlob(b64Data, 'application/json');
+
+                if (file) {
+                    texUrl = URL.createObjectURL(file);
+                }
+            }
+        }
+        else {
+            console.error(res.status + res.statusText);
+        }
+
+        return texUrl;
     }
 
     export async function getSingleTextureUrl(type: string, id: number, name: string): Promise<string> {

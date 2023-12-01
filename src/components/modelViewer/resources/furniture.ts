@@ -21,7 +21,9 @@ export class Furniture extends Mesh {
     this.pos = pos;
   }
 
-  async initMesh(): Promise<void> {
+  async initMesh(id:number): Promise<void> {
+    const modelUrl = await GitHubApi.getSingleGLTFUrl("table", id, this.name);
+
     const loader = new GLTFLoader();
 
     // loader.load(
@@ -49,8 +51,9 @@ export class Furniture extends Mesh {
     //   }
     // );
 
-    const loadedData = await loader.loadAsync('./../models/table/littlewood_furniture.gltf');
-
+    const loadedData = await loader.loadAsync(modelUrl);
+    
+    this.mesh = loadedData.scene.children[0] as Mesh;
     // this.mesh = new Mesh(this.geometry, this.material);
 
     this.mesh.name = this.name;
