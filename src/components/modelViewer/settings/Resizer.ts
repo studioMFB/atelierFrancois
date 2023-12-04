@@ -5,7 +5,7 @@ import { EffectComposer } from 'three-addons';
 
 export class Resizer {
 
-  constructor(camera: PerspectiveCamera, renderer: WebGLRenderer, composer: EffectComposer) {
+  constructor(camera: PerspectiveCamera, renderer: WebGLRenderer, composer?: EffectComposer) {
     this.setSize(camera, renderer, composer);
 
     window.addEventListener('resize', () => {
@@ -13,7 +13,7 @@ export class Resizer {
     });
   }
 
-  setSize(camera: PerspectiveCamera, renderer: WebGLRenderer, composer: EffectComposer): void {
+  setSize(camera: PerspectiveCamera, renderer: WebGLRenderer, composer?: EffectComposer): void {
     // camera.aspect = window.innerWidth / window.innerHeight;
     camera.aspect = window.innerWidth / window.innerHeight *.5;
     camera.updateProjectionMatrix();

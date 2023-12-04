@@ -4,6 +4,7 @@ import { Lut } from "three/examples/jsm/math/Lut";
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass';
+import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass';
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass';
 import { LUTPass } from 'three/examples/jsm/postprocessing/LUTPass';
 
@@ -42,7 +43,11 @@ export class ModelViewer {
 
     private loopController: LoopCOntroller;
     private renderer: THREE.WebGLRenderer;
-    // private composer: EffectComposer;
+
+
+    private composer: EffectComposer;
+    private outlinePass: OutlinePass;
+
 
     private controlsController: ControlsController;
 
@@ -86,7 +91,7 @@ export class ModelViewer {
         container.appendChild(canvas);
 
         // Effect Composer //
-        // this.composer = new EffectComposer(this.renderer);
+        this.composer = new EffectComposer(this.renderer);
 
         // Camera //
         this.cameraController = new CameraController(new THREE.Vector3(-2, 3, 2));
@@ -96,7 +101,7 @@ export class ModelViewer {
         this.controlsController = new ControlsController(this.camera, canvas)
         this.controlsController.init();
 
-        const resizer = new Resizer(this.camera, this.renderer, this.composer);
+        const resizer = new Resizer(this.camera, this.renderer);
 
         // Light //
         const lightController = new LightController();
@@ -107,6 +112,9 @@ export class ModelViewer {
         lightController.addPointLight(this.scene, 0x0040ff, new THREE.Vector3(0, 4, 2));
         lightController.addPointLight(this.scene, 0x80ff80, new THREE.Vector3(2, 9, -2));
         lightController.addPointLight(this.scene, 0xffaa00, new THREE.Vector3(-2, 6, 2));
+
+        this.outlinePass = new OutlinePass(new THREE.Vector2(window.innerWidth, window.innerHeight), this.scene, this.camera);
+        this.composer.addPass(this.outlinePass);
 
         this.loopController = new LoopCOntroller(this.camera, this.scene, this.renderer);
 
@@ -200,6 +208,7 @@ export class ModelViewer {
 
     render() {
         this.renderer.render(this.scene, this.camera);
+        this.composer.render();
     }
 
     start() {
@@ -257,6 +266,9 @@ export class ModelViewer {
         if (intersects && intersects.length > 0) {
 
             const intersect = intersects[0];
+
+            const obj = intersects[0].object; // the object that was intersected
+            this.outlinePass.selectedObjects[0] = obj;
 
             // delete Terrain //
             if (this.isShiftDown) {
