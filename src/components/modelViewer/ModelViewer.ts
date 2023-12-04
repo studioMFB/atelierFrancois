@@ -1,12 +1,11 @@
 
 import * as THREE from 'three';
-import { Lut } from "three/examples/jsm/math/Lut";
+
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
-import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
-import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass';
-import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass';
-import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass';
-import { LUTPass } from 'three/examples/jsm/postprocessing/LUTPass';
+import { OutlinePass } from "three/examples/jsm/postprocessing/OutlinePass";
+import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
+import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
+import { FXAAShader } from "three/examples/jsm/shaders/FXAAShader";
 
 import { ControlsController } from './settings/ControlsController';
 import { CameraController } from "./settings/CameraController";
@@ -40,14 +39,17 @@ export class ModelViewer {
 
     private sceneController: SceneController;
     private scene: THREE.Scene;
+    private canvas: HTMLCanvasElement;
 
     private loopController: LoopCOntroller;
     private renderer: THREE.WebGLRenderer;
 
 
+    //shader effect members
     private composer: EffectComposer;
+    private renderPass: RenderPass;
     private outlinePass: OutlinePass;
-
+    private effectFXAA: ShaderPass;
 
     private controlsController: ControlsController;
 
@@ -59,6 +61,7 @@ export class ModelViewer {
 
     private raycaster: THREE.Raycaster;
     private pointer: THREE.Vector2;
+    private selectedObjects: THREE.Object3D<THREE.Object3DEventMap>[];
 
     private terrainGhost: TerrainGhost;
 
@@ -87,8 +90,8 @@ export class ModelViewer {
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         this.renderer.shadowMap.enabled = true;
-        const canvas = this.renderer.domElement;
-        container.appendChild(canvas);
+        this.canvas = this.renderer.domElement;
+        container.appendChild(this.canvas);
 
         // Effect Composer //
         this.composer = new EffectComposer(this.renderer);
@@ -98,10 +101,8 @@ export class ModelViewer {
         this.camera = this.cameraController.init();
 
         // Controls //
-        this.controlsController = new ControlsController(this.camera, canvas)
+        this.controlsController = new ControlsController(this.camera, this.canvas)
         this.controlsController.init();
-
-        const resizer = new Resizer(this.camera, this.renderer);
 
         // Light //
         const lightController = new LightController();
@@ -127,7 +128,7 @@ export class ModelViewer {
         // Plane // 
         this.planeController = new PlaneController("T-Plane", new THREE.Vector2(GRID_SIZE, GRID_SIZE), new THREE.Vector2(1, 1), new THREE.Vector3(0, 0, 0));
         this.planeController.initMesh(false);
-        // this.addObject(this.planeController);
+        this.addObject(this.planeController);
         this.scene.add(this.planeController.ground);
         this.scene.add(this.planeController.shadowGround);
 
@@ -152,6 +153,41 @@ export class ModelViewer {
             }
         });
 
+        // -- shader effect
+        // - composer
+        this.composer = new EffectComposer(this.renderer);
+        this.composer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        // - render pass
+        this.renderPass = new RenderPass(this.scene, this.camera);
+        this.composer.addPass(this.renderPass);
+        // - outline pass
+        this.outlinePass = new OutlinePass(
+            new THREE.Vector2(window.innerWidth, window.innerHeight),
+            this.scene,
+            this.camera
+        );
+        // -- parameter config
+        this.outlinePass.edgeStrength = 3.0;
+        this.outlinePass.edgeGlow = 1.0;
+        this.outlinePass.edgeThickness = 3.0;
+        this.outlinePass.pulsePeriod = 0;
+        this.outlinePass.usePatternTexture = false; // patter texture for an object mesh
+        this.outlinePass.visibleEdgeColor.set("#00ff7f"); // set basic edge color
+        this.outlinePass.hiddenEdgeColor.set("#00ff7f"); // set edge color when it hidden by other objects
+        this.composer.addPass(this.outlinePass);
+
+        //shader
+        this.effectFXAA = new ShaderPass(FXAAShader);
+        this.effectFXAA.uniforms["resolution"].value.set(
+            1 / window.innerWidth,
+            1 / window.innerHeight
+        );
+        this.effectFXAA.renderToScreen = true;
+        this.composer.addPass(this.effectFXAA);
+
+        // RESIZER //
+        const resizer = new Resizer(this.camera, this.renderer, this.composer, this.effectFXAA);
+
         this.init();
     }
 
@@ -160,22 +196,18 @@ export class ModelViewer {
         this.addObject(this.controlsController);
         this.addObject(this.cameraController);
 
-        // document.addEventListener("pointermove", (e: MouseEvent) => { this.onPointerMove(e) });
-        // document.addEventListener("pointerdown", (e: MouseEvent) => { this.onPointerDown(e) });
+        document.addEventListener("pointermove", (e: PointerEvent) => { this.onPointerMove(e) });
+        document.addEventListener("pointerdown", (e: PointerEvent) => { this.onPointerDown(e) });
 
-        document.addEventListener('keydown', (e: KeyboardEvent) => { this.onDocumentKeyDown(e) });
-        document.addEventListener('keyup', (e: KeyboardEvent) => { this.onDocumentKeyUp(e) })
+        // document.addEventListener('keydown', (e: KeyboardEvent) => { this.onDocumentKeyDown(e) });
+        // document.addEventListener('keyup', (e: KeyboardEvent) => { this.onDocumentKeyUp(e) })
 
         // Custom Event
-        eventHub.on('spawnTerrain', () =>
-            // {
-            document.addEventListener("pointermove", (e: MouseEvent) => {
-                this.onPointerMove(e);
-            })
-            // document.removeEventListener("pointermove", this.onPointerMove)
-            //     this.controlsController.controls.enabled = true;
-            // }
-        );
+        // eventHub.on('spawnTerrain', () =>
+        //     document.addEventListener("pointermove", (e: PointerEvent) => {
+        //         this.onPointerMove(e);
+        //     });
+        // );
 
         // eventHub.on('spawnTerrain', () =>            
         //         {document.removeEventListener("pointermove", this.onPointerMove)
@@ -183,31 +215,12 @@ export class ModelViewer {
         // );
 
         // eventHub.on('spawnTerrain', (e: MouseEvent) => this.onPointerMove(e));
-        eventHub.on('dropTerrain', async (terrain: Texture.ITerrain) => await this.onPointerDown(terrain.type, terrain.id));
+        // eventHub.on('dropTerrain', async (terrain: Texture.ITerrain) => await this.onPointerDown(terrain.type, terrain.id));
         // eventHub.on('spawnTerrain', () => console.log('Message event fired'));
-
-
-        // Add Space + click to drag
-        // const dragControls = new DragControls(this.meshArray, this.camera, this.renderer.domElement);
-        // add event listener to highlight dragged objects
-        // dragControls.addEventListener("dragstart", (e: any) => {
-        // e.object.mesh.material.color.set(0xaaaaaa);
-        // });
-        // dragControls.addEventListener('dragend', (e: any) => {
-        // e.object.mesh.material.emissive.set(0x000000);
-        // e.object.material.emissive.set(0x000000);
-
-        // e.object.position.y = 1;
-
-        // if(e.object.position.x < -(GRID_SIZE*.5)) e.object.position.x = -(GRID_SIZE*.5);
-        // if(e.object.position.x > (GRID_SIZE*.5)) e.object.position.x = (GRID_SIZE*.5);
-        // if(e.object.position.z < -(GRID_SIZE*.5)) e.object.position.z = -(GRID_SIZE*.5);
-        // if(e.object.position.z > (GRID_SIZE*.5)) e.object.position.z = (GRID_SIZE*.5);
-        // })
     }
 
     render() {
-        this.renderer.render(this.scene, this.camera);
+        // this.renderer.render(this.scene, this.camera);
         this.composer.render();
     }
 
@@ -233,75 +246,104 @@ export class ModelViewer {
         this.loopController.addToUpdate(object);
     }
 
-    onPointerMove(event: MouseEvent) {
-        console.log("OnPointerMove =>");
-        this.controlsController.controls.enabled = false;
-
-        this.pointer.set((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window.innerHeight) * 2 + 1);
-
+    CheckIntersection() {
         this.raycaster.setFromCamera(this.pointer, this.camera);
         const intersects = this.raycaster.intersectObjects(this.meshArray, false);
 
         if (intersects && intersects.length > 0) {
-
-            const intersect = intersects[0];
-
-            if (this.terrainGhost && this.terrainGhost.mesh && intersect && intersect.face) {
-                this.terrainGhost.mesh.position.copy(intersect.point).add(intersect.face.normal);
-                this.terrainGhost.mesh.position.divideScalar(GRID_CELL_SIZE).floor().multiplyScalar(GRID_CELL_SIZE).addScalar(GRID_CELL_MID_SIZE);
-                this.terrainGhost.mesh.position.y = GHOST_OFFSET;
-            }
-
-            this.render();
-        }
-    }
-
-    async onPointerDown(terrainType: string, terrainIndex: number) {
-        console.log("OnPointerDown =>");
-        // this.pointer.set((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window.innerHeight) * 2 + 1);
-
-        this.raycaster.setFromCamera(this.pointer, this.camera);
-        const intersects = this.raycaster.intersectObjects(this.meshArray, false);
-
-        if (intersects && intersects.length > 0) {
-
-            const intersect = intersects[0];
+            // const intersect = intersects[0];
+            //When there is more than one intersected objects
+            // const selectedGroup = intersects[0].object.parent as THREE.Group;
+            // this.AddSelectedObject(selectedGroup);
+            // this.outlinePass.selectedObjects = this.selectedObjects;
 
             const obj = intersects[0].object; // the object that was intersected
             this.outlinePass.selectedObjects[0] = obj;
-
-            // delete Terrain //
-            if (this.isShiftDown) {
-                if (intersect.object && intersect.object !== this.planeController.ground) {
-                    this.scene.remove(intersect.object);
-                    this.meshArray.splice(this.meshArray.indexOf(intersect.object as THREE.Mesh), 1);
-                }
-            } else {
-                // create Terrain
-                const key = `${terrainType}${terrainIndex}`;
-                let terrain: Terrain | undefined;
-                if (this.terrainsList.has(key)) {
-                    terrain = this.terrainsList.get(key);
-                }
-                else {
-                    terrain = new Terrain("T01", TERRAIN_SIZE, new THREE.Vector3(50, 1, 50), new THREE.Vector3(0, 0, 0));
-                    await terrain.initMesh(terrainType, terrainIndex);
-                }
-
-                if (terrain && terrain.mesh && intersect && intersect.face) {
-                    terrain.mesh.position.copy(intersect.point).add(intersect.face.normal);
-                    terrain.mesh.position.divideScalar(GRID_CELL_SIZE).floor().multiplyScalar(GRID_CELL_SIZE).addScalar(GRID_CELL_MID_SIZE);
-                    terrain.mesh.position.y = TERRAIN_OFFSET;
-                }
-
-                this.addObject(terrain);
-            }
-
-            this.render();
+        } 
+        else {
+            this.outlinePass.selectedObjects = [];
         }
+    }
 
-        this.controlsController.controls.enabled = true;
-        document.removeEventListener("pointermove", this.onPointerMove);
+    AddSelectedObject(group: THREE.Group) {
+        this.selectedObjects = [];
+        this.selectedObjects.push(group.children[0]); // group : [gltf, cylinder]
+    }
+
+    onPointerMove(event: PointerEvent) {
+        console.log("OnPointerMove =>");
+        
+        // this.controlsController.controls.enabled = false;
+        this.pointer.set((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window.innerHeight) * 2 + 1);
+
+        this.CheckIntersection();
+
+        // this.raycaster.setFromCamera(this.pointer, this.camera);
+        // const intersects = this.raycaster.intersectObjects(this.meshArray, false);
+
+        // if (intersects && intersects.length > 0) {
+
+        //     const intersect = intersects[0];
+
+        //     if (this.terrainGhost && this.terrainGhost.mesh && intersect && intersect.face) {
+        //         this.terrainGhost.mesh.position.copy(intersect.point).add(intersect.face.normal);
+        //         this.terrainGhost.mesh.position.divideScalar(GRID_CELL_SIZE).floor().multiplyScalar(GRID_CELL_SIZE).addScalar(GRID_CELL_MID_SIZE);
+        //         this.terrainGhost.mesh.position.y = GHOST_OFFSET;
+        //     }
+
+        //     this.render();
+        // }
+    }
+
+    async onPointerDown(event: PointerEvent, terrainType?: string, terrainIndex?: number) {
+        console.log("OnPointerDown =>");
+
+        this.pointer.set((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window.innerHeight) * 2 + 1);
+    
+        this.CheckIntersection();
+
+        // this.raycaster.setFromCamera(this.pointer, this.camera);
+        // const intersects = this.raycaster.intersectObjects(this.meshArray, false);
+
+        // if (intersects && intersects.length > 0) {
+
+        //     const intersect = intersects[0];
+
+        //     const obj = intersects[0].object; // the object that was intersected
+        //     this.outlinePass.selectedObjects[0] = obj;
+
+        //     // delete Terrain //
+        //     if (this.isShiftDown) {
+        //         if (intersect.object && intersect.object !== this.planeController.ground) {
+        //             this.scene.remove(intersect.object);
+        //             this.meshArray.splice(this.meshArray.indexOf(intersect.object as THREE.Mesh), 1);
+        //         }
+        //     } else {
+        //         // create Terrain
+        //         const key = `${terrainType}${terrainIndex}`;
+        //         let terrain: Terrain | undefined;
+        //         if (this.terrainsList.has(key)) {
+        //             terrain = this.terrainsList.get(key);
+        //         }
+        //         else {
+        //             terrain = new Terrain("T01", TERRAIN_SIZE, new THREE.Vector3(50, 1, 50), new THREE.Vector3(0, 0, 0));
+        //             await terrain.initMesh(terrainType, terrainIndex);
+        //         }
+
+        //         if (terrain && terrain.mesh && intersect && intersect.face) {
+        //             terrain.mesh.position.copy(intersect.point).add(intersect.face.normal);
+        //             terrain.mesh.position.divideScalar(GRID_CELL_SIZE).floor().multiplyScalar(GRID_CELL_SIZE).addScalar(GRID_CELL_MID_SIZE);
+        //             terrain.mesh.position.y = TERRAIN_OFFSET;
+        //         }
+
+        //         this.addObject(terrain);
+        //     }
+
+        //     this.render();
+        // }
+
+        // this.controlsController.controls.enabled = true;
+        // document.removeEventListener("pointermove", this.onPointerMove);
     }
 
     private onDocumentKeyDown(event: KeyboardEvent) {
