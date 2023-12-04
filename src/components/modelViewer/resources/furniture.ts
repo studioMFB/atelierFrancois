@@ -40,7 +40,7 @@ export class Furniture extends Mesh {
       const mesh = loadedData.scene.children[i] as Mesh;
       mesh.material = matToon;
       mesh.castShadow = true;
-      mesh.receiveShadow = true;
+      // mesh.receiveShadow = true;
     }
 
     this.mesh = loadedData.scene as Group<Object3DEventMap>;

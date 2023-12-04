@@ -107,7 +107,7 @@ export class ModelViewer {
         // lightController.addDirectionalLight(this.scene, 0xffffff, new THREE.Vector3(5, 10, 7));
         lightController.addSpotLight(this.scene, 0xffffff, new THREE.Vector3(5, 10, 7));
 
-        // //lightController.addLight(this.scene, 0xff0040, new THREE.Vector3(0, 5, 2));
+        //lightController.addLight(this.scene, 0xff0040, new THREE.Vector3(0, 5, 2));
         lightController.addPointLight(this.scene, 0x0040ff, new THREE.Vector3(0, 4, 2));
         lightController.addPointLight(this.scene, 0x80ff80, new THREE.Vector3(2, 9, -2));
         lightController.addPointLight(this.scene, 0xffaa00, new THREE.Vector3(-2, 6, 2));
