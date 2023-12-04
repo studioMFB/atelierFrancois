@@ -12,6 +12,7 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@react-three/drei": "^9.90.0",
     "@shopify/draggable": "^1.1.1",
     "jsx": "^0.9.89",
     "react": "^18.2.0",

@@ -22,6 +22,8 @@ export class LightController {
     
     addSpotLight(scene: THREE.Scene, color: ColorRepresentation, pos: Vector3) {
         const spotLight = new SpotLight(color, 0.1);
+        // spotLight.castShadow = true;
+        // spotLight.shadow.radius = 15;
 
         spotLight.angle = Math.PI / 5;
         spotLight.penumbra = 0.3;
@@ -31,8 +33,8 @@ export class LightController {
 
         spotLight.shadow.camera.near = 10;
         spotLight.shadow.camera.far = 200;
-        spotLight.shadow.mapSize.width = 2048;
-        spotLight.shadow.mapSize.height = 2048;
+        spotLight.shadow.mapSize.width = 200;
+        spotLight.shadow.mapSize.height = 200;
         spotLight.shadow.bias = - 0.005;
         spotLight.shadow.radius = 20;
 

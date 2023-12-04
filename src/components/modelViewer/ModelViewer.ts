@@ -1,16 +1,11 @@
 
 import * as THREE from 'three';
 import { Lut } from "three/examples/jsm/math/Lut";
-// import { OrbitControls, GLTFLoader, RGBELoader, LUTCubeLoader, LUT3dlLoader, LUTImageLoader, ShaderPass, DotScreenShader } from 'three-addons';
-
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass';
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass';
-// import { RGBShiftShader  } from 'three/examples/jsm/postprocessing/RGBShiftShader';
-
 import { LUTPass } from 'three/examples/jsm/postprocessing/LUTPass';
-// import { GUI } from 'three/examples/jsm/postprocessing/GUI';
 
 import { ControlsController } from './settings/ControlsController';
 import { CameraController } from "./settings/CameraController";
@@ -25,10 +20,10 @@ import { TerrainGhost } from './resources/TerrainGhost';
 import { EventHub } from './../EventHub';
 import { type Texture } from './../../interfaces/Texture';
 import { Furniture } from './resources/furniture';
-import { lutimesSync } from 'fs';
 
-const GRID_SIZE = 20;
-const GRID_DIVISION = 40;
+
+const GRID_SIZE = 5;
+const GRID_DIVISION = 10;
 const GRID_CELL_SIZE = 2;
 const GRID_CELL_MID_SIZE = GRID_CELL_SIZE * .5;
 
@@ -47,7 +42,7 @@ export class ModelViewer {
 
     private loopController: LoopCOntroller;
     private renderer: THREE.WebGLRenderer;
-    private composer: EffectComposer;
+    // private composer: EffectComposer;
 
     private controlsController: ControlsController;
 
@@ -85,6 +80,7 @@ export class ModelViewer {
         this.renderer = new THREE.WebGLRenderer({ antialias: true });
         this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.setSize(window.innerWidth, window.innerHeight);
+        this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         this.renderer.shadowMap.enabled = true;
         const canvas = this.renderer.domElement;
         container.appendChild(canvas);
@@ -111,33 +107,6 @@ export class ModelViewer {
         lightController.addPointLight(this.scene, 0x0040ff, new THREE.Vector3(0, 4, 2));
         lightController.addPointLight(this.scene, 0x80ff80, new THREE.Vector3(2, 9, -2));
         lightController.addPointLight(this.scene, 0xffaa00, new THREE.Vector3(-2, 6, 2));
-
-        // const dirLight = new THREE.DirectionalLight(0xffffff, 1);
-        // dirLight.position.set(0, 70, 100);
-        // const d = 1000;
-        // const r = 2;
-        // const mapSize = 8192;
-        // dirLight.castShadow = true;
-        // dirLight.shadow.radius = r;
-        // dirLight.shadow.mapSize.width = mapSize;
-        // dirLight.shadow.mapSize.height = mapSize;
-        // dirLight.shadow.camera.top = dirLight.shadow.camera.right = d;
-        // dirLight.shadow.camera.bottom = dirLight.shadow.camera.left = -d;
-        // dirLight.shadow.camera.near = 1;
-        // dirLight.shadow.camera.far = 400000000;
-        // //dirLight.shadow.camera.visible = true;
-        // this.scene.add(dirLight);
-        // this.scene.add(new THREE.DirectionalLightHelper(dirLight, 10));
-
-        // const dirLight = new THREE.SpotLight(0xffa95c, 0.1);
-        // dirLight.name = 'Directional Light';
-        // dirLight.castShadow = true;
-        // dirLight.position.set(1, 5, 1);
-        // dirLight.shadow.mapSize = new THREE.Vector2(512, 512);
-        // dirLight.shadow.camera.near = 0.1;
-        // dirLight.shadow.camera.far = 3;
-        // this.scene.add(dirLight);
-        // this.scene.add(new THREE.CameraHelper(dirLight.shadow.camera));
 
         this.loopController = new LoopCOntroller(this.camera, this.scene, this.renderer);
 
