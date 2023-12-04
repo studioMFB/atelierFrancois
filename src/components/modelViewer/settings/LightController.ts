@@ -1,4 +1,4 @@
-import {DirectionalLight, AmbientLight, type ColorRepresentation, PointLight, LightShadow, SpotLight } from "three";
+import {type ColorRepresentation, PointLight, Vector3, SpotLight, DirectionalLight } from "three";
 
 
 export class LightController {
@@ -6,24 +6,54 @@ export class LightController {
     constructor() {
     }
 
-    init(scene: THREE.Scene, dColor: ColorRepresentation, aColour: ColorRepresentation): void {
-        const light = new DirectionalLight(dColor, 1.5);
-        light.position.set(0, 0, 5);
-        scene.add(light);
+    addPointLight(scene: THREE.Scene, color: ColorRepresentation, pos: Vector3): void {
+        const power = 1700;
+        const distance = 100;
 
-        // // aColour = new Color(0x256e3e);
-        // const aLight = new AmbientLight(aColour, .7);
-        // aLight.position.set(-2, 0, 5);
-        // scene.add(aLight);
+        const pointLight = new PointLight( color, .1, distance );
+        pointLight.position.set(pos.x, pos.y, pos.z);
 
-        // const pLight = new PointLight("white", 4);
-        // pLight.position.set(0, 0, 5);
-        // scene.add(pLight);
+        pointLight.castShadow = false;
 
-        const sLight = new DirectionalLight('#ed6b6b', 4);
-        sLight.position.set(0, 5, 0);
-        scene.add(sLight);
-    }        
+		pointLight.power = power;
+
+        scene.add(pointLight);
+    }       
+    
+    addSpotLight(scene: THREE.Scene, color: ColorRepresentation, pos: Vector3) {
+        const spotLight = new SpotLight(color, 0.1);
+
+        spotLight.angle = Math.PI / 5;
+        spotLight.penumbra = 0.3;
+        spotLight.position.set(pos.x, pos.y, pos.z);
+
+        spotLight.castShadow = true;
+
+        spotLight.shadow.camera.near = 10;
+        spotLight.shadow.camera.far = 200;
+        spotLight.shadow.mapSize.width = 2048;
+        spotLight.shadow.mapSize.height = 2048;
+        spotLight.shadow.bias = - 0.005;
+        spotLight.shadow.radius = 20;
+
+        scene.add(spotLight);
+    }
+
+    addDirectionalLight(scene: THREE.Scene, color: ColorRepresentation, pos: Vector3) {
+        //Create a DirectionalLight and turn on shadows for the light
+        const directLight = new DirectionalLight(color, .1);
+        directLight.position.set(pos.x, pos.y, pos.z); //default; light shining from top
+
+        directLight.castShadow = true;
+
+        // Set up shadow properties for the light
+        directLight.shadow.mapSize.width = 100; // default
+        directLight.shadow.mapSize.height = 212; // default
+        directLight.shadow.camera.near = 0.5; // default
+        directLight.shadow.camera.far = 500; // default
+
+        scene.add(directLight);
+    }
 
     tick(delta: any):void{
 

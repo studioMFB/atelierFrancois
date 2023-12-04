@@ -12,14 +12,18 @@ export class ControlsController {
     }
     
     init(): OrbitControls {
-
         this.controls.enabled = true;
         this.controls.autoRotate = false;
         this.controls.autoRotateSpeed = 1;
-
+        
         this.controls.enableDamping = false;
         this.controls.enableZoom = true;
         this.controls.enablePan = true;
+        
+        this.controls.minDistance = 2;
+        this.controls.maxDistance = 10;
+        this.controls.target.set( 0, 0, - 0.2 );
+        this.controls.update();
 
         return this.controls;
     }
