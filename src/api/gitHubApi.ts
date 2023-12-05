@@ -62,29 +62,14 @@ export namespace GitHubApi {
             }
         });
 
-        // let texUrl = "";
-
         if (res.ok) {
             const data = await res.json();
             return data.download_url;
-
-            // const data = await res.json() as IGitHubFile;
-            // const b64Data = data.content;
-
-            // if (b64Data) {
-            //     const file = await b64toBlob(b64Data, 'application/json');
-
-            //     if (file) {
-            //         texUrl = URL.createObjectURL(file);
-            //     }
-            // }
         }
         else {
             console.error(res.status + res.statusText);
             return "ERROR!";
         }
-
-        // return texUrl;
     }
 
     export async function getSingleTextureUrl(type: string, id: number, name: string): Promise<string> {

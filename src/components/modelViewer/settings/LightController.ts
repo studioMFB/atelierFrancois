@@ -10,7 +10,7 @@ export class LightController {
         const power = 1700;
         const distance = 100;
 
-        const pointLight = new PointLight( color, .1, distance );
+        const pointLight = new PointLight( color, 0.1, distance );
         pointLight.position.set(pos.x, pos.y, pos.z);
 
         pointLight.castShadow = false;
@@ -21,7 +21,7 @@ export class LightController {
     }       
     
     addSpotLight(scene: THREE.Scene, color: ColorRepresentation, pos: Vector3) {
-        const spotLight = new SpotLight(color, 0.1);
+        const spotLight = new SpotLight(color, 0.001);
         // spotLight.castShadow = true;
         // spotLight.shadow.radius = 15;
 

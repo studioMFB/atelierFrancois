@@ -1,4 +1,4 @@
-import { Mesh, Vector3, Scene, Group, MeshToonMaterial, Color, ShaderMaterial, Object3DEventMap } from "three";
+import { Mesh, Vector3, Scene, Group, MeshToonMaterial, Color, ShaderMaterial, Object3DEventMap, MeshBasicMaterial } from "three";
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { Lut } from "three/examples/jsm/math/Lut";
 
@@ -23,34 +23,35 @@ export class Furniture extends Mesh {
   async initMesh(id: number, scene: Scene): Promise<void> {
     const loader = new GLTFLoader();
     const gltfUrl = new URL('./../models/table/1/littlewood_furniture.gltf', import.meta.url).toString();
-    const loadedData = await loader.loadAsync(gltfUrl);
-
-    // // Look Up Table //
-    // const lut = new Lut('rainbow', 512);
-    // const color = lut.getColor(0.5);
 
     const parameters = {
-      // color: color
       color: new Color('#e2eab8')
     }
 
     const matToon = new MeshToonMaterial(parameters);
+    const matColor = new MeshBasicMaterial({ color: 0x1d2e58 });
 
-    for (let i = 0; i < loadedData.scene.children.length; ++i) {
-      const mesh = loadedData.scene.children[i] as Mesh;
-      mesh.material = matToon;
-      mesh.castShadow = true;
-      // mesh.receiveShadow = true;
-    }
+    loader.load(gltfUrl, (gltf) => {
+      this.mesh = gltf.scene as Group<Object3DEventMap>;
 
-    this.mesh = loadedData.scene as Group<Object3DEventMap>;
-    this.mesh.name = this.name;
+      gltf.scene.traverse((child: Mesh) => {
+        console.log("GLTF traverse child ", child);
+        child.castShadow = true;
 
-    this.mesh.castShadow = true;
-    this.mesh.receiveShadow = true;
+        if(child.name.toLowerCase().includes("outline")){
+          child.material = matColor;
+        }
+      });
 
-    this.mesh.position.set(this.pos.x, this.pos.y, this.pos.z);
-    scene.add(this.mesh);
+      for (let i = 0; i < gltf.scene.children.length; ++i) {
+        const mesh = gltf.scene.children[i] as Mesh;
+        mesh.material = matToon;
+      }
+
+      this.mesh.name = this.name;
+      this.mesh.position.set(this.pos.x, this.pos.y, this.pos.z);
+      scene.add(this.mesh);
+    });
   }
 
   tick(delta: any): void {
