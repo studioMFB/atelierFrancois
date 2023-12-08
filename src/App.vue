@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, watch, Ref } from 'vue';
+import { ref, onMounted, Ref } from 'vue';
 import {
   Renderer, Camera, RendererPublicInterface, Scene, PerspectiveCamera,
   GltfModel, Plane, MeshPublicInterface,
@@ -7,7 +7,6 @@ import {
   DirectionalLight, HemisphereLight, AmbientLight, PointLight, SpotLight, StandardMaterial, ShadowMaterial, OrthographicCamera
 } from 'troisjs';
 import * as THREE from "three";
-import { OutlinePass } from "three/examples/jsm/postprocessing/OutlinePass";
 
 
 const rendererRef = ref() as Ref<RendererPublicInterface>;
@@ -18,20 +17,16 @@ const furnitureRef = ref() as Ref<THREE.PerspectiveCamera>;
 let localCamera: THREE.PerspectiveCamera;
 let raycaster: THREE.Raycaster;
 let pointer: THREE.Vector2;
-// const meshArray: THREE.Mesh[] = [];
-// const objectArray: THREE.Object3D<THREE.Event>[] = [];
-const objectArray: any[] = [];
 
-let INTERSECTED: any = null;
+let intersected: THREE.Mesh;
 
 onMounted(() => {
   const renderer = rendererRef.value;
   const scene = sceneRef.value;
-  const camera = cameraRef.value;
+  scene.children = [];
 
   localCamera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 1, 10000);
   localCamera.position.set(-2, 3, 2);
-  scene.add(localCamera);
 
   raycaster = new THREE.Raycaster();
   pointer = new THREE.Vector2();
@@ -43,53 +38,11 @@ onMounted(() => {
   const grid = new THREE.GridHelper(GRID_SIZE, GRID_DIVISION, "#888888", "#888888");
   scene.add(grid);
 
-  renderer.onBeforeRender((event: any) => {
-    if (!raycaster) {
-      return;
-    }
-    // console.log("onUpdate =>");
+  sceneRef.value = scene;
+  cameraRef.value = localCamera;
 
-    raycaster.setFromCamera(pointer, localCamera);
-
-    // const intersects = raycaster.intersectObjects(sceneRef.value.children);
-    const intersects = raycaster.intersectObjects(objectArray);
-    if (intersects.length > 0) {
-      INTERSECTED = intersects[0].object;
-      // INTERSECTED.currentHex = INTERSECTED.material.emissive.getHex();
-      INTERSECTED.material.emissive.setHex(0xff0000);
-    }
-
-    // // raycaster.setFromCamera(pointer, cameraRef.value);
-    // raycaster.setFromCamera(pointer, localCamera);
-    // // console.log("pointer ", pointer);
-    // // console.log("meshArray ", meshArray);
-    // // console.log("objectArray ", objectArray);
-    // // console.log("scene.children ", sceneRef.value.children);
-    // // const intersects = raycaster.intersectObjects(meshArray, true);
-    // const intersects = raycaster.intersectObjects(objectArray, false);
-
-    // console.log("intersects ", intersects);
-
-    // if (intersects.length > 0) {
-
-    //   console.log("intersects.length ", intersects.length);
-
-    //   if (INTERSECTED != intersects[0].object) {
-
-    //     if (INTERSECTED) INTERSECTED.material.emissive.setHex(INTERSECTED.currentHex);
-
-    //     INTERSECTED = intersects[0].object;
-    //     INTERSECTED.currentHex = INTERSECTED.material.emissive.getHex();
-    //     INTERSECTED.material.emissive.setHex(0xff0000);
-    //   }
-    // } else {
-
-    //   if (INTERSECTED) INTERSECTED.material.emissive.setHex(INTERSECTED.currentHex);
-
-    //   INTERSECTED = null;
-    // }
+  renderer.onBeforeRender(() => {
   });
-
 });
 
 const onReady = (gltf: any) => {
@@ -103,87 +56,52 @@ const onReady = (gltf: any) => {
     if (child.isMesh) {
       if (child.name.toLowerCase().includes("outline")) {
         child.material = matColor;
+        // sceneRef.value.children.push(child);
       }
       else {
         child.material = matToon;
         child.castShadow = true;
-        // child.receiveShadow = true;
-        // meshArray.push(child);
-        objectArray.push(child);
+        // sceneRef.value.children.push(child);
       }
     }
+    // sceneRef.value.children.push(child);
   });
 
-  // meshArray.push(gltf.scene);
+  sceneRef.value.children.push(gltf.scene);
 }
 
 function onPointerMove(event: any) {
-  if (!pointer) {
-    return;
-  }
-
-  console.log("OnPointerMove =>");
-
-  // pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
-  // pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
-  pointer.x = 2 * event.clientX / innerWidth - 1;
-  pointer.y = -2 * event.clientY / innerHeight + 1;
+  pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+  pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
 }
 
 async function onPointerDown(event: any) {
-  console.log("OnPointerDown =>");
+  try {
+    raycaster.setFromCamera(pointer, cameraRef.value);
+  }
+  catch (e: any) {
+    throw new Error(e.toString());
+  }
 
-  raycaster.setFromCamera(pointer, localCamera);
-  // console.log("pointer ", pointer);
-  // console.log("meshArray ", meshArray);
-  // console.log("objectArray ", objectArray);
-  // console.log("scene.children ", sceneRef.value.children);
-  // const intersects = raycaster.intersectObjects(meshArray, true);
-  const intersects = raycaster.intersectObjects(objectArray, false);
-
-  console.log("intersects ", intersects);
+  const intersects = raycaster.intersectObjects(sceneRef.value.children, true);
 
   if (intersects.length > 0) {
+    console.log("intersects ", intersects);
 
-    console.log("intersects.length ", intersects.length);
-
-    if (INTERSECTED != intersects[0].object) {
-
-      if (INTERSECTED) INTERSECTED.material.emissive.setHex(INTERSECTED.currentHex);
-
-      INTERSECTED = intersects[0].object;
-      INTERSECTED.currentHex = INTERSECTED.material.emissive.getHex();
-      INTERSECTED.material.emissive.setHex(0xff0000);
+    intersected = intersects[0].object as THREE.Mesh;
+    if (!intersected.name.toLowerCase().includes("outline")) {
+      (intersected.material as THREE.MeshToonMaterial).color.set(0xf47653);
     }
-  } else {
-
-    if (INTERSECTED) INTERSECTED.material.emissive.setHex(INTERSECTED.currentHex);
-
-    INTERSECTED = null;
   }
-}
-
-function onPointerUp(event: Event) {
-  console.log("OnPointerUp =>");
-
-  raycaster.setFromCamera(pointer, localCamera);
-  if (!raycaster) {
-    return;
+  else {
+    if (intersected && !intersected.name.toLowerCase().includes("outline"))
+      (intersected.material as THREE.MeshToonMaterial).color.set(0xffffff);
   }
 
-  raycaster.params.Points!.threshold = 100000;
-
-  const intersects = raycaster.intersectObjects(objectArray, false);
-  console.log("intersects ", intersects);
 }
 
-// document.addEventListener("pointermove", (e: PointerEvent) => { onPointerMove(e) });
-// document.addEventListener("pointerdown", (e: PointerEvent) => { onPointerDown(e) });
-document.addEventListener("pointermove", onPointerMove);
-// document.addEventListener("mousemove", onPointerMove);
-// document.addEventListener("mousedown", onPointerDown, false);
-// document.addEventListener("mouseup", onPointerUp, false);
-
+document.addEventListener("pointermove", (e: PointerEvent) => { onPointerMove(e) });
+document.addEventListener("pointerdown", (e: PointerEvent) => { onPointerDown(e) });
 </script>
 
 <template>
