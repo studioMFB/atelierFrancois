@@ -4,7 +4,7 @@ import * as THREE from 'three';
 
 export class CameraController {
 
-    private camera?: PerspectiveCamera
+    private camera?: OrthographicCamera
 
     private pos: Vector3;
 
@@ -13,7 +13,7 @@ export class CameraController {
         this.pos = position;
     }
 
-    init(): PerspectiveCamera {
+    init(): OrthographicCamera {
         // this.camera = new PerspectiveCamera(80, window.innerWidth / window.innerHeight, 1, 10000);
         // this.camera = new PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.25, 20 );
         // this.camera = new OrthographicCamera( 45, window.innerWidth / window.innerHeight, 0.25, 20 );

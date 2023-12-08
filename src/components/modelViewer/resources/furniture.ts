@@ -1,5 +1,5 @@
 import { Mesh, Vector3, Scene, Group, MeshToonMaterial, Color, ShaderMaterial, Object3DEventMap, MeshBasicMaterial } from "three";
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { Lut } from "three/examples/jsm/math/Lut";
 
 
@@ -31,7 +31,7 @@ export class Furniture extends Mesh {
     const matToon = new MeshToonMaterial(parameters);
     const matColor = new MeshBasicMaterial({ color: 0x1d2e58 });
 
-    loader.load(gltfUrl, (gltf) => {
+    loader.load(gltfUrl, (gltf: GLTF) => {
       this.mesh = gltf.scene as Group<Object3DEventMap>;
 
       gltf.scene.traverse((child: Mesh) => {

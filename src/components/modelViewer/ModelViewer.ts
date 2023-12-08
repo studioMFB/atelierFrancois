@@ -54,7 +54,7 @@ export class ModelViewer {
     private controlsController: ControlsController;
 
     private cameraController: CameraController;
-    private camera: THREE.PerspectiveCamera;
+    private camera: THREE.OrthographicCamera;
 
     private gridController: GridController;
     private planeController: PlaneController;
