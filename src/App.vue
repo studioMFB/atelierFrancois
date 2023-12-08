@@ -4,7 +4,7 @@ import {
   Renderer, Camera, RendererPublicInterface, Scene, PerspectiveCamera,
   GltfModel, Plane, MeshPublicInterface,
   LambertMaterial, ToonMaterial, PhongMaterial,
-  DirectionalLight, HemisphereLight, AmbientLight, PointLight, SpotLight, StandardMaterial, ShadowMaterial
+  DirectionalLight, HemisphereLight, AmbientLight, PointLight, SpotLight, StandardMaterial, ShadowMaterial, OrthographicCamera
 } from 'troisjs';
 import * as THREE from "three";
 import { OutlinePass } from "three/examples/jsm/postprocessing/OutlinePass";
@@ -19,7 +19,8 @@ let localCamera: THREE.PerspectiveCamera;
 let raycaster: THREE.Raycaster;
 let pointer: THREE.Vector2;
 // const meshArray: THREE.Mesh[] = [];
-const objectArray: THREE.Object3D<THREE.Event>[] = [];
+// const objectArray: THREE.Object3D<THREE.Event>[] = [];
+const objectArray: any[] = [];
 
 let INTERSECTED: any = null;
 
@@ -43,10 +44,20 @@ onMounted(() => {
   scene.add(grid);
 
   renderer.onBeforeRender((event: any) => {
-    // if(!raycaster){
-    //   return;
-    // }
-    // // console.log("onUpdate =>");
+    if (!raycaster) {
+      return;
+    }
+    // console.log("onUpdate =>");
+
+    raycaster.setFromCamera(pointer, localCamera);
+
+    // const intersects = raycaster.intersectObjects(sceneRef.value.children);
+    const intersects = raycaster.intersectObjects(objectArray);
+    if (intersects.length > 0) {
+      INTERSECTED = intersects[0].object;
+      // INTERSECTED.currentHex = INTERSECTED.material.emissive.getHex();
+      INTERSECTED.material.emissive.setHex(0xff0000);
+    }
 
     // // raycaster.setFromCamera(pointer, cameraRef.value);
     // raycaster.setFromCamera(pointer, localCamera);
@@ -86,7 +97,7 @@ const onReady = (gltf: any) => {
     // color: new Color('#e2eab8')
   }
   const matToon = new THREE.MeshToonMaterial(parameters);
-  const matColor = new THREE.MeshBasicMaterial({ color: 0x1d2e58 });
+  const matColor = new THREE.MeshBasicMaterial({ color: "#3c3c3c" });
 
   gltf.scene.traverse((child: THREE.Mesh) => {
     if (child.isMesh) {
@@ -113,8 +124,10 @@ function onPointerMove(event: any) {
 
   console.log("OnPointerMove =>");
 
-  pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
-  pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
+  // pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+  // pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
+  pointer.x = 2 * event.clientX / innerWidth - 1;
+  pointer.y = -2 * event.clientY / innerHeight + 1;
 }
 
 async function onPointerDown(event: any) {
@@ -166,15 +179,16 @@ function onPointerUp(event: Event) {
 
 // document.addEventListener("pointermove", (e: PointerEvent) => { onPointerMove(e) });
 // document.addEventListener("pointerdown", (e: PointerEvent) => { onPointerDown(e) });
-document.addEventListener("mousemove", onPointerMove, false);
-document.addEventListener("mousedown", onPointerDown, false);
-document.addEventListener("mouseup", onPointerUp, false);
+document.addEventListener("pointermove", onPointerMove);
+// document.addEventListener("mousemove", onPointerMove);
+// document.addEventListener("mousedown", onPointerDown, false);
+// document.addEventListener("mouseup", onPointerUp, false);
 
 </script>
 
 <template>
   <Renderer ref="rendererRef" antialias :orbit-ctrl="{ enableDamping: true }" resize="window" shadow>
-    <PerspectiveCamera ref="cameraRef" :position="{ x: -2, y: 3, z: 2 }" />
+    <Camera ref="cameraRef" :position="{ x: -2, y: 3, z: 2 }" />
     <Scene ref="sceneRef" background="#ded6d8">
 
       <HemisphereLight />
@@ -193,6 +207,7 @@ document.addEventListener("mouseup", onPointerUp, false);
       <PointLight color="#ffaa00" :position="{ x: -2, y: 6, z: 2 }" :intensity=".08"></PointLight>
 
       <GltfModel ref="furnitureRef" src="/assets/models/table/1/littlewood_furniture.gltf" @load="onReady" />
+      <!-- <GltfModel ref="furnitureRef" src="/assets/models/van/1/van.glb" @load="onReady" /> -->
 
       <Plane :width="2000" :height="2000" :rotation="{ x: -Math.PI / 2 }" receive-shadow>
         <ShadowMaterial receive-shadow color="#888888" :transparent=true :opacity=0.005 :side=THREE.DoubleSide>
