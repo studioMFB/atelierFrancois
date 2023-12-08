@@ -1,15 +1,21 @@
 <script setup lang="ts">
 import { ref, onMounted, Ref } from 'vue';
+import * as THREE from "three";
 import {
   Renderer, Camera, RendererPublicInterface, Scene, PerspectiveCamera,
   GltfModel, Plane, MeshPublicInterface,
   LambertMaterial, ToonMaterial, PhongMaterial,
   DirectionalLight, HemisphereLight, AmbientLight, PointLight, SpotLight, StandardMaterial, ShadowMaterial, OrthographicCamera
 } from 'troisjs';
-import * as THREE from "three";
+import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
+import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
+import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
+import { OutlinePass } from "three/examples/jsm/postprocessing/OutlinePass.js";
+import { FXAAShader } from "three/examples/jsm/shaders/FXAAShader.js";
 
 
 const rendererRef = ref() as Ref<RendererPublicInterface>;
+// const rendererRef = ref() as Ref<THREE.WebGLRenderer>;
 const sceneRef = ref() as Ref<THREE.Scene>;
 const cameraRef = ref() as Ref<THREE.PerspectiveCamera>;
 const furnitureRef = ref() as Ref<THREE.PerspectiveCamera>;
@@ -17,19 +23,50 @@ const furnitureRef = ref() as Ref<THREE.PerspectiveCamera>;
 let localCamera: THREE.PerspectiveCamera;
 let raycaster: THREE.Raycaster;
 let pointer: THREE.Vector2;
+// let canvas: HTMLCanvasElement;
 
-let intersected: THREE.Mesh;
+let intersected: any;
+let INTERSECTED: any;
+const selectedObjects: any[] = [];
+
+// let composer: EffectComposer;
+// let renderPass: RenderPass;
+// let outline: OutlinePass;
+// let fxaaShader: ShaderPass;
 
 onMounted(() => {
   const renderer = rendererRef.value;
+  renderer.renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.renderer.setClearColor(0x000000);
+  renderer.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
   const scene = sceneRef.value;
   scene.children = [];
+
+  // canvas = document.getElementsByTagName("canvas")[0] as HTMLCanvasElement;
+  // console.log("CANVAS ", canvas);
 
   localCamera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 1, 10000);
   localCamera.position.set(-2, 3, 2);
 
   raycaster = new THREE.Raycaster();
   pointer = new THREE.Vector2();
+
+  cameraRef.value = localCamera;
+
+  // composer = new EffectComposer(renderer.renderer);
+  // renderPass = new RenderPass(scene, localCamera);
+  // composer.addPass(renderPass);
+  // outline = new OutlinePass(new THREE.Vector2(window.innerWidth, window.innerHeight), scene, localCamera);
+  // outline.edgeThickness = 2.0;
+  // outline.edgeStrength = 3.0;
+  // outline.visibleEdgeColor.set(0xffffff);
+  // composer.addPass(outline);
+
+  // fxaaShader = new ShaderPass(FXAAShader);
+  // fxaaShader.uniforms["resolution"].value.set(1 / window.innerWidth, 1 / window.innerHeight);
+  // composer.addPass(fxaaShader);
 
   scene.fog = new THREE.Fog(0xa0a0a0, 200, 1000);
 
@@ -38,8 +75,14 @@ onMounted(() => {
   const grid = new THREE.GridHelper(GRID_SIZE, GRID_DIVISION, "#888888", "#888888");
   scene.add(grid);
 
+  // canvas.addEventListener('click', onPointerDown, false);
+  // window.addEventListener("resize", windowResize);
+  // renderer.renderer.domElement.style.touchAction = "none";
+  // renderer.renderer.domElement.addEventListener("mousemove", mouseMove);
+  document.addEventListener("mousemove", mouseMove);
+
+  rendererRef.value = renderer;
   sceneRef.value = scene;
-  cameraRef.value = localCamera;
 
   renderer.onBeforeRender(() => {
   });
@@ -68,14 +111,17 @@ const onReady = (gltf: any) => {
   });
 
   sceneRef.value.children.push(gltf.scene);
+  // sceneRef.value.add(gltf.scene);
 }
 
-function onPointerMove(event: any) {
-  pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
-  pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
+function addSelectedObjects(object: any) {
+  if (selectedObjects.length > 0) {
+    selectedObjects.pop();
+  }
+  selectedObjects.push(object);
 }
 
-async function onPointerDown(event: any) {
+function intersection() {
   try {
     raycaster.setFromCamera(pointer, cameraRef.value);
   }
@@ -83,25 +129,111 @@ async function onPointerDown(event: any) {
     throw new Error(e.toString());
   }
 
+  // raycaster.setFromCamera(pointer, cameraRef.value);
+  // const intersects = raycaster.intersectObjects(sceneRef.value.children, false);
   const intersects = raycaster.intersectObjects(sceneRef.value.children, true);
 
   if (intersects.length > 0) {
-    console.log("intersects ", intersects);
+    console.log(intersects);
 
-    intersected = intersects[0].object as THREE.Mesh;
-    if (!intersected.name.toLowerCase().includes("outline")) {
-      (intersected.material as THREE.MeshToonMaterial).color.set(0xf47653);
+    //     if (!intersects[0].object)
+    //       return;
+
+    //   }
+    //   else {
+    //   }
+
+    if (intersected != intersects[0].object && intersects[0].object.type === "Mesh") {
+      // INTERSECTED = intersects[0].object;
+      intersected = intersects[0].object;
+      if (!intersected.name.toLowerCase().includes("outline")) {
+        (intersected.material as THREE.MeshToonMaterial).color.set(0xf47653);
+      }
+      // addSelectedObjects(intersected);
+      // outline.selectedObjects = selectedObjects;
+      console.log(intersected.name);
     }
-  }
-  else {
+  } else {
     if (intersected && !intersected.name.toLowerCase().includes("outline"))
       (intersected.material as THREE.MeshToonMaterial).color.set(0xffffff);
-  }
 
+    intersected = null;
+  }
 }
 
-document.addEventListener("pointermove", (e: PointerEvent) => { onPointerMove(e) });
-document.addEventListener("pointerdown", (e: PointerEvent) => { onPointerDown(e) });
+function mouseMove(event: any) {
+  console.log("mouseMove");
+
+  event.preventDefault();
+  // pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+  // pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
+  // pointer.z = 0.5;
+
+  pointer.x = ((event.clientX - rendererRef.value.renderer.domElement.offsetLeft) / rendererRef.value.renderer.domElement.width) * 2 - 1;
+  pointer.y = -((event.clientY - rendererRef.value.renderer.domElement.offsetTop) / rendererRef.value.renderer.domElement.height) * 2 + 1;
+
+  // const deltaX = event.clientX - mouseX;
+  // const deltaY = event.clientY - mouseY;
+
+  intersection();
+  // composer.render();
+}
+
+// function windowResize() {
+//   cameraRef.value.aspect = window.innerWidth / window.innerHeight;
+//   cameraRef.value.updateProjectionMatrix();
+
+//   rendererRef.value.renderer.setSize(window.innerWidth, window.innerHeight);
+
+//   // composer.setSize(window.innerWidth, window.innerHeight);
+//   // fxaaShader.uniforms["resolution"].value.set(1 / window.innerWidth, 1 / window.innerHeight);
+// }
+
+
+// function onPointerMove(event: any) {
+//   event.preventDefault();
+//   // pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+//   // pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
+//   // pointer.x = ( (event.clientX + canvas.offsetLeft) / canvas.width ) * 2 - 1;
+//   // pointer.y = - ( (event.clientY - canvas.offsetTop) / canvas.height ) * 2 + 1;
+// }
+
+// async function onPointerDown(event: any) {
+//   // pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+//   // pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
+//   pointer.x = ((event.clientX + canvas.offsetLeft) / canvas.width) * 2 - 1;
+//   pointer.y = - ((event.clientY - canvas.offsetTop) / canvas.height) * 2 + 1;
+
+//   try {
+//     raycaster.setFromCamera(pointer, cameraRef.value);
+//   }
+//   catch (e: any) {
+//     throw new Error(e.toString());
+//   }
+
+//   const intersects = raycaster.intersectObjects(sceneRef.value.children, true);
+
+//   if (intersects.length > 0) {
+//     console.log("intersects ", intersects);
+
+//     if (!intersects[0].object)
+//       return;
+
+//     intersected = intersects[0].object as THREE.Mesh;
+//     if (!intersected.name.toLowerCase().includes("outline")) {
+//       (intersected.material as THREE.MeshToonMaterial).color.set(0xf47653);
+//     }
+//   }
+//   else {
+//     if (intersected && !intersected.name.toLowerCase().includes("outline"))
+//       (intersected.material as THREE.MeshToonMaterial).color.set(0xffffff);
+//   }
+
+// }
+
+// document.addEventListener("pointermove", (e: PointerEvent) => { onPointerMove(e) });
+// document.addEventListener("pointerdown", (e: PointerEvent) => { onPointerDown(e) });
+// canvas.addEventListener('click', onPointerDown, false);
 </script>
 
 <template>
@@ -142,7 +274,14 @@ html {
   margin: 0;
 }
 
+#app {
+  width: 100%;
+  height: 100%;
+}
+
 canvas {
   display: block;
+  width: 100%;
+  height: 100%;
 }
 </style>
