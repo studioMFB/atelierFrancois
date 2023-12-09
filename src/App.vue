@@ -49,11 +49,10 @@ onMounted(() => {
 
   localCamera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 1, 10000);
   localCamera.position.set(-2, 3, 2);
+  cameraRef.value = localCamera;
 
   raycaster = new THREE.Raycaster();
   pointer = new THREE.Vector2();
-
-  cameraRef.value = localCamera;
 
   // composer = new EffectComposer(renderer.renderer);
   // renderPass = new RenderPass(scene, localCamera);
@@ -79,7 +78,7 @@ onMounted(() => {
   // window.addEventListener("resize", windowResize);
   // renderer.renderer.domElement.style.touchAction = "none";
   // renderer.renderer.domElement.addEventListener("mousemove", mouseMove);
-  document.addEventListener("mousemove", mouseMove);
+  document.addEventListener("pointermove", mouseMove);
 
   rendererRef.value = renderer;
   sceneRef.value = scene;
@@ -97,6 +96,8 @@ const onReady = (gltf: any) => {
 
   gltf.scene.traverse((child: THREE.Mesh) => {
     if (child.isMesh) {
+      if ( child.material ) child.material = (child.material as THREE.MeshStandardMaterial).clone();
+
       if (child.name.toLowerCase().includes("outline")) {
         child.material = matColor;
         // sceneRef.value.children.push(child);
@@ -111,7 +112,6 @@ const onReady = (gltf: any) => {
   });
 
   sceneRef.value.children.push(gltf.scene);
-  // sceneRef.value.add(gltf.scene);
 }
 
 function addSelectedObjects(object: any) {
@@ -129,22 +129,15 @@ function intersection() {
     throw new Error(e.toString());
   }
 
-  // raycaster.setFromCamera(pointer, cameraRef.value);
-  // const intersects = raycaster.intersectObjects(sceneRef.value.children, false);
+  // const vector = new THREE.Vector3(pointer.x, pointer.y, 1);
+  // const newVec = vector.unproject(cameraRef.value);
+  // raycaster = new THREE.Raycaster(cameraRef.value.position, newVec.sub(cameraRef.value.position).normalize());
   const intersects = raycaster.intersectObjects(sceneRef.value.children, true);
 
   if (intersects.length > 0) {
     console.log(intersects);
 
-    //     if (!intersects[0].object)
-    //       return;
-
-    //   }
-    //   else {
-    //   }
-
     if (intersected != intersects[0].object && intersects[0].object.type === "Mesh") {
-      // INTERSECTED = intersects[0].object;
       intersected = intersects[0].object;
       if (!intersected.name.toLowerCase().includes("outline")) {
         (intersected.material as THREE.MeshToonMaterial).color.set(0xf47653);
@@ -161,19 +154,12 @@ function intersection() {
   }
 }
 
-function mouseMove(event: any) {
+function mouseMove(event: PointerEvent) {
   console.log("mouseMove");
 
-  event.preventDefault();
-  // pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
-  // pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
-  // pointer.z = 0.5;
-
-  pointer.x = ((event.clientX - rendererRef.value.renderer.domElement.offsetLeft) / rendererRef.value.renderer.domElement.width) * 2 - 1;
-  pointer.y = -((event.clientY - rendererRef.value.renderer.domElement.offsetTop) / rendererRef.value.renderer.domElement.height) * 2 + 1;
-
-  // const deltaX = event.clientX - mouseX;
-  // const deltaY = event.clientY - mouseY;
+  // event.preventDefault();
+  pointer.x = (event.offsetX / window.innerWidth) * 2 - 1;
+  pointer.y = -(event.offsetY / window.innerHeight) * 2 + 1;
 
   intersection();
   // composer.render();
