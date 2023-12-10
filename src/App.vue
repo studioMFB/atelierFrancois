@@ -4,7 +4,7 @@ import * as THREE from "three";
 import {
   Renderer, Camera, RendererPublicInterface, Scene, PerspectiveCamera,
   GltfModel, Plane, MeshPublicInterface, Raycaster,
-  LambertMaterial, ToonMaterial, PhongMaterial,
+  LambertMaterial, ToonMaterial, PhongMaterial, Box,
   DirectionalLight, HemisphereLight, AmbientLight, PointLight, SpotLight, StandardMaterial, ShadowMaterial, OrthographicCamera
 } from 'troisjs';
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
@@ -17,7 +17,8 @@ import { FXAAShader } from "three/examples/jsm/shaders/FXAAShader.js";
 const rendererRef = ref() as Ref<RendererPublicInterface>;
 const sceneRef = ref() as Ref<THREE.Scene>;
 const cameraRef = ref() as Ref<THREE.PerspectiveCamera>;
-const furnitureRef = ref() as Ref<any>;
+const furnitureRef = ref() as Ref<THREE.Mesh<THREE.BufferGeometry, THREE.Material | THREE.Material[]>>;
+// const furnitureRef = ref() as Ref<THREE.Mesh<THREE.BufferGeometry, THREE.Material | THREE.Material[]>[]>;
 const furnitureColourRef = ref() as Ref<string>
 
 let raycaster: THREE.Raycaster;
@@ -36,6 +37,7 @@ onMounted(() => {
 
   const scene = sceneRef.value;
   // scene.children = [];
+  // furnitureRef.value = [];
 
   cameraRef.value = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 1, 10000);
   // cameraRef.value = new THREE.OrthographicCamera(-window.innerWidth/2, window.innerWidth/2, window.innerHeight/2, -window.innerHeight, 0.1, 1000);
@@ -63,14 +65,14 @@ onMounted(() => {
   });
 });
 
-const onReady = (gltf: any) => {
+const onReady = (model: any) => {
   const parameters = {
     // color: new Color('#e2eab8')
   }
   const matToon = new THREE.MeshToonMaterial(parameters);
   const matColor = new THREE.MeshBasicMaterial({ color: "#3c3c3c" });
 
-  gltf.scene.traverse((child: THREE.Mesh) => {
+  model.scene.traverse((child: THREE.Mesh) => {
     if (child.isMesh) {
       if (child.name.toLowerCase().includes("outline")) {
         child.material = matColor;
@@ -79,10 +81,12 @@ const onReady = (gltf: any) => {
         child.material = matToon;
         child.castShadow = true;
       }
+
+      furnitureRef.value = child;
     }
   });
-  
-  furnitureRef.value = gltf.scene;
+
+  // furnitureRef.value = gltf.scene;
   // sceneRef.value.children.push(gltf.scene);
 }
 
@@ -135,17 +139,21 @@ const onReady = (gltf: any) => {
 //   furnitureColourRef.value = over ? '#ff0000' : '#ffffff';
 // }
 
-function gltfOnClick(e:Event){
+function onPointerOver({ over }: any) {
+  furnitureColourRef.value = over ? '#ff0000' : '#ffffff';
+}
+
+function gltfOnClick(e: Event) {
   alert('Click');
   console.log(e);
 }
 
-window.addEventListener('resize', onWindowResize, false)
-function onWindowResize() {
-  cameraRef.value.aspect = window.innerWidth / window.innerHeight
-  cameraRef.value.updateProjectionMatrix()
-  rendererRef.value.renderer.setSize(window.innerWidth, window.innerHeight)
-}
+// window.addEventListener('resize', onWindowResize, false)
+// function onWindowResize() {
+//   cameraRef.value.aspect = window.innerWidth / window.innerHeight
+//   cameraRef.value.updateProjectionMatrix()
+//   rendererRef.value.renderer.setSize(window.innerWidth, window.innerHeight)
+// }
 </script>
 
 <template>
@@ -158,9 +166,6 @@ function onWindowResize() {
     <Scene ref="sceneRef" background="#ded6d8">
 
       <HemisphereLight />
-      <!-- <DirectionalLight :position="{ x: 55, y: 300, z: 70 }" :intensity=".07"
-        cast-shadow :shadow-camera="{ bias:0.005, radius:200 }"
-      :shadow-map-size="{ width: 6000, height: 6000 }" :angle="Math.PI/3" :penumbra="0.3"/> -->
 
       <SpotLight color="#ffffff" :position="{ x: 5, y: 9, z: 7 }" :intensity="0.01" :angle="Math.PI / 3" :penumbra="0.3"
         cast-shadow :shadow-map-size="{ width: 200, height: 200 }"
@@ -171,12 +176,15 @@ function onWindowResize() {
       <PointLight color="#80ff80" :position="{ x: 2, y: 9, z: -2 }" :intensity=".08"></PointLight>
       <PointLight color="#ffaa00" :position="{ x: -2, y: 6, z: 2 }" :intensity=".08"></PointLight>
 
+      <Box ref="box" @pointerOver="onPointerOver" @click="gltfOnClick" :rotation="{ y: Math.PI / 4, z: Math.PI / 4 }">
+        <LambertMaterial :color="furnitureColourRef" />
+      </Box>
       <!-- <Raycaster intersect-mode="frame" intersect-recursive @click="onPointerOver" /> -->
-      <GltfModel ref="furnitureRef" src="/assets/models/table/1/littlewood_furniture.gltf" 
-      @click="gltfOnClick" @load="onReady">
+      <GltfModel ref="furnitureRef" src="/assets/models/table/1/littlewood_furniture.gltf" @click="gltfOnClick"
+        @load="onReady" />
       <!-- @pointerOver="onPointerOver" @click="gltfOnClick" @load="onReady"> -->
       <!-- <LambertMaterial :color="furnitureColourRef" />   -->
-    </GltfModel>
+      <!-- </GltfModel> -->
       <!-- <GltfModel ref="furnitureRef" src="/assets/models/van/1/van.glb" @load="onReady" /> -->
 
       <Plane :width="2000" :height="2000" :rotation="{ x: -Math.PI / 2 }" receive-shadow>
