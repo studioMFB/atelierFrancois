@@ -215,18 +215,6 @@ export class ModelViewer {
                 }
             }
         } 
-        // else {
-        //     if (this.intersected) {
-
-        //         console.log("UNDO");
-        //         for (let i = 0; i < this.intersectedArray.length; ++i) {
-        //             (this.intersectedArray[i].material as THREE.MeshToonMaterial).color.set(0xffffff);
-        //         }
-
-        //         this.intersected = null;
-        //         this.intersectedArray = [];
-        //     }
-        // }
     }
 
     render() {
