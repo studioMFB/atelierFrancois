@@ -35,9 +35,12 @@ export class PlaneController extends Mesh {
 
     // SHADOW GROUND //
     this.shadowGround = this.ground.clone();
+
     this.shadowGround.material = new ShadowMaterial({
-      opacity: .5,       
+      opacity: .5,  
+      color: '#888888'
     });
+
     this.shadowGround.receiveShadow = true;
     this.shadowGround.position.set(this.pos.x+0.01, this.pos.y+0.01, this.pos.z+0.01);
   }

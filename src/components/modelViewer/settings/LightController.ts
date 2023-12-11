@@ -7,10 +7,10 @@ export class LightController {
     }
 
     addPointLight(scene: THREE.Scene, color: ColorRepresentation, pos: Vector3): void {
-        const power = 1700;
-        const distance = 100;
+        const power = 700;
+        // const distance = 100;
 
-        const pointLight = new PointLight( color, 0.1, distance );
+        const pointLight = new PointLight( color, 0.08 );
         pointLight.position.set(pos.x, pos.y, pos.z);
 
         pointLight.castShadow = false;

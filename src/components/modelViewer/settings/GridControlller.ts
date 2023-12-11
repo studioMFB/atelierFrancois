@@ -4,8 +4,6 @@ import { GridHelper, Scene } from "three";
 export class GridController {
 
     gridHelper?: GridHelper;
-    // raycaster: Raycaster;
-    // pointer: Vector2;
 
     size: number;
     divisions: number;
@@ -13,16 +11,12 @@ export class GridController {
     constructor(size: number, divisions: number) {
         this.size = size;
         this.divisions = divisions;
-
-        // this.raycaster = new Raycaster();
-        // this.pointer = new Vector2();
     }
 
-    init(scene: Scene) {
-        this.gridHelper = new GridHelper(this.size, this.divisions);
-        this.gridHelper.name = "GridHelper"
+    init(scene: Scene, colour:string) {
+        this.gridHelper = new GridHelper(this.size, this.divisions, colour, colour);
+        this.gridHelper.name = "GridHelper";
         // this.gridHelper.material.visible = false;
-
 
         scene.add(this.gridHelper);
     }

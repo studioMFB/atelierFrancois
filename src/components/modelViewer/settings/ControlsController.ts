@@ -16,7 +16,7 @@ export class ControlsController {
         this.controls.autoRotate = false;
         this.controls.autoRotateSpeed = 1;
         
-        this.controls.enableDamping = false;
+        this.controls.enableDamping = true;
         this.controls.enableZoom = true;
         this.controls.enablePan = true;
         

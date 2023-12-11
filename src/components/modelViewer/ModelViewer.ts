@@ -47,7 +47,7 @@ export class ModelViewer {
     private controlsController: ControlsController;
 
     private cameraController: CameraController;
-    private camera: THREE.OrthographicCamera;
+    private camera: THREE.Camera;
 
     private gridController: GridController;
     private planeController: PlaneController;
@@ -57,6 +57,7 @@ export class ModelViewer {
     private modelsArray: THREE.Group<THREE.Object3DEventMap>[];
 
     private intersected: any;
+    private intersectedArray: any[];
 
     private terrainGhost: TerrainGhost;
 
@@ -72,6 +73,7 @@ export class ModelViewer {
     constructor(container: HTMLElement) {
         this.meshArray = [];
         this.modelsArray = [];
+        this.intersectedArray = [];
         this.isShiftDown = false;
 
         // Scene //
@@ -96,6 +98,8 @@ export class ModelViewer {
         this.controlsController.init();
 
         // Light //
+        const hLight = new THREE.HemisphereLight();
+        this.scene.add(hLight);
         const lightController = new LightController();
         lightController.addSpotLight(this.scene, 0xffffff, new THREE.Vector3(5, 20, 7));
 
@@ -107,7 +111,7 @@ export class ModelViewer {
 
         // Grid //
         this.gridController = new GridController(GRID_SIZE, GRID_DIVISION);
-        this.gridController.init(this.scene);
+        this.gridController.init(this.scene, '#888888');
         this.raycaster = new THREE.Raycaster();
         this.pointer = new THREE.Vector2();
 
@@ -153,17 +157,18 @@ export class ModelViewer {
         this.addObject(this.cameraController);
 
         document.addEventListener("pointermove", (e: PointerEvent) => { this.onPointerMove(e) });
-        // document.addEventListener("pointerdown", (e: PointerEvent) => { this.onPointerDown(e) });
+        document.addEventListener("pointerdown", (e: PointerEvent) => { this.onPointerDown(e) });
     }
 
     onPointerMove(event: PointerEvent) {
         event.preventDefault();
-
-        console.log("mouseMove");
-
         this.pointer.x = (event.offsetX / window.innerWidth) * 2 - 1;
         this.pointer.y = -(event.offsetY / window.innerHeight) * 2 + 1;
+        // this.intersection();
+    }
 
+    onPointerDown(event: PointerEvent) {
+        console.log("mouseDown");
         this.intersection();
     }
 
@@ -178,22 +183,50 @@ export class ModelViewer {
 
         const intersects = this.raycaster.intersectObjects(this.scene.children, true);
 
-        if (intersects.length > 0 && intersects[0].object.name !== "Plane" && intersects[0].object.name !== "GridHelper") {
-            console.log(intersects);
+        if (intersects.length > 0) {
+            const tempIntersect = intersects[0].object;
+            if (tempIntersect != this.intersected && tempIntersect.type === "Mesh") {
+                this.intersected = tempIntersect;
+                const id = this.intersected.name.split('-')[1];
 
-            if (this.intersected != intersects[0].object && intersects[0].object.type === "Mesh") {
-                    this.intersected = intersects[0].object;
-                if (!this.intersected.name.toLowerCase().includes("outline") && this.intersected.name.toLowerCase().includes("wood"))
-                    (this.intersected.material as THREE.MeshToonMaterial).color.set(0xf47653);
+                console.log("DO");
 
-                console.log(this.intersected.name);
+                for (let i = 0; i < intersects.length; ++i) {
+                    const tempIntersect = intersects[i].object;
+
+                    if (tempIntersect.name === `model-${id}`) {
+                        ((tempIntersect as any).material as THREE.MeshToonMaterial).color.set(0xf47653);
+                        this.intersectedArray.push(tempIntersect);
+
+                        console.log(tempIntersect.name);
+                    }
+                }
+            } 
+            else {
+                if (this.intersected) {
+    
+                    console.log("UNDO");
+                    for (let i = 0; i < this.intersectedArray.length; ++i) {
+                        (this.intersectedArray[i].material as THREE.MeshToonMaterial).color.set(0xffffff);
+                    }
+    
+                    this.intersected = null;
+                    this.intersectedArray = [];
+                }
             }
-        } else {
-            if (this.intersected && !this.intersected.name.toLowerCase().includes("outline") && this.intersected.name.toLowerCase().includes("wood"))
-                (this.intersected.material as THREE.MeshToonMaterial).color.set(0xffffff);
+        } 
+        // else {
+        //     if (this.intersected) {
 
-            this.intersected = null;
-        }
+        //         console.log("UNDO");
+        //         for (let i = 0; i < this.intersectedArray.length; ++i) {
+        //             (this.intersectedArray[i].material as THREE.MeshToonMaterial).color.set(0xffffff);
+        //         }
+
+        //         this.intersected = null;
+        //         this.intersectedArray = [];
+        //     }
+        // }
     }
 
     render() {
@@ -222,20 +255,16 @@ export class ModelViewer {
         this.loopController.addToUpdate(object);
     }
 
-
-
     private onDocumentKeyDown(event: KeyboardEvent) {
         switch (event.keyCode) {
             case 16: this.isShiftDown = true; break;
         }
-
     }
 
     private onDocumentKeyUp(event: KeyboardEvent) {
         switch (event.keyCode) {
             case 16: this.isShiftDown = false; break;
         }
-
     }
 
 }
