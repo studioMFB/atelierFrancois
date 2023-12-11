@@ -6,15 +6,15 @@ import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
 
 export class Resizer {
 
-  constructor(camera: OrthographicCamera, renderer: WebGLRenderer, composer?: EffectComposer, effectFXAA?: ShaderPass) {
-    this.setSize(camera, renderer, composer);
+  constructor(camera: OrthographicCamera, renderer: WebGLRenderer) {
+    this.setSize(camera, renderer);
 
     window.addEventListener('resize', () => {
-      this.setSize(camera, renderer, composer, effectFXAA);
+      this.setSize(camera, renderer);
     });
   }
 
-  setSize(camera: OrthographicCamera, renderer: WebGLRenderer, composer?: EffectComposer, effectFXAA?: ShaderPass): void {
+  setSize(camera: OrthographicCamera, renderer: WebGLRenderer): void {
     const width = window.innerWidth;
     const height = window.innerHeight;
 
@@ -25,16 +25,7 @@ export class Resizer {
 
     renderer.setSize(width, height);
     renderer.setPixelRatio(window.devicePixelRatio);
-    
-    composer.setSize(width, height);
 
-
-    if(effectFXAA && effectFXAA.uniforms){
-      effectFXAA.uniforms["resolution"].value.set(
-        1 / window.innerWidth,
-        1 / window.innerHeight
-        );
-      }
     }
 
 }

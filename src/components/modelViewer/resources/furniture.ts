@@ -35,18 +35,16 @@ export class Furniture extends Mesh {
       this.mesh = gltf.scene as Group<Object3DEventMap>;
 
       gltf.scene.traverse((child: Mesh) => {
-        console.log("GLTF traverse child ", child);
-        child.castShadow = true;
-
-        if(child.name.toLowerCase().includes("outline")){
-          child.material = matColor;
+        if (child.isMesh) {
+          if (child.name.toLowerCase().includes("outline")) {
+            child.material = matColor;
+          }
+          else {
+            child.material = matToon;
+            child.castShadow = true;
+          }
         }
       });
-
-      for (let i = 0; i < gltf.scene.children.length; ++i) {
-        const mesh = gltf.scene.children[i] as Mesh;
-        mesh.material = matToon;
-      }
 
       this.mesh.name = this.name;
       this.mesh.position.set(this.pos.x, this.pos.y, this.pos.z);

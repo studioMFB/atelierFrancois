@@ -44,13 +44,6 @@ export class ModelViewer {
     private loopController: LoopCOntroller;
     private renderer: THREE.WebGLRenderer;
 
-
-    //shader effect members
-    private composer: EffectComposer;
-    private renderPass: RenderPass;
-    private outlinePass: OutlinePass;
-    private effectFXAA: ShaderPass;
-
     private controlsController: ControlsController;
 
     private cameraController: CameraController;
@@ -61,7 +54,9 @@ export class ModelViewer {
 
     private raycaster: THREE.Raycaster;
     private pointer: THREE.Vector2;
-    private selectedObjects: THREE.Object3D<THREE.Object3DEventMap>[];
+    private modelsArray: THREE.Group<THREE.Object3DEventMap>[];
+
+    private intersected: any;
 
     private terrainGhost: TerrainGhost;
 
@@ -76,12 +71,11 @@ export class ModelViewer {
 
     constructor(container: HTMLElement) {
         this.meshArray = [];
+        this.modelsArray = [];
         this.isShiftDown = false;
 
         // Scene //
         this.sceneController = new SceneController();
-        // this.scene = this.sceneController.init(new THREE.Color('#ffffff'));
-        // this.scene = this.sceneController.init(new THREE.Color('#17181b'));
         this.scene = this.sceneController.init(new THREE.Color('#ded6d8'));
 
         // Renderer //
@@ -93,9 +87,6 @@ export class ModelViewer {
         this.canvas = this.renderer.domElement;
         container.appendChild(this.canvas);
 
-        // Effect Composer //
-        this.composer = new EffectComposer(this.renderer);
-
         // Camera //
         this.cameraController = new CameraController(new THREE.Vector3(-2, 3, 2));
         this.camera = this.cameraController.init();
@@ -106,17 +97,11 @@ export class ModelViewer {
 
         // Light //
         const lightController = new LightController();
-        // lightController.addDirectionalLight(this.scene, 0xffffff, new THREE.Vector3(5, 10, 7));
         lightController.addSpotLight(this.scene, 0xffffff, new THREE.Vector3(5, 20, 7));
-
-        //lightController.addLight(this.scene, 0xff0040, new THREE.Vector3(0, 5, 2));
 
         lightController.addPointLight(this.scene, 0x0040ff, new THREE.Vector3(0, 4, 2));
         lightController.addPointLight(this.scene, 0x80ff80, new THREE.Vector3(2, 9, -2));
         lightController.addPointLight(this.scene, 0xffaa00, new THREE.Vector3(-2, 6, 2));
-
-        this.outlinePass = new OutlinePass(new THREE.Vector2(window.innerWidth, window.innerHeight), this.scene, this.camera);
-        this.composer.addPass(this.outlinePass);
 
         this.loopController = new LoopCOntroller(this.camera, this.scene, this.renderer);
 
@@ -127,7 +112,7 @@ export class ModelViewer {
         this.pointer = new THREE.Vector2();
 
         // Plane // 
-        this.planeController = new PlaneController("T-Plane", new THREE.Vector2(GRID_SIZE, GRID_SIZE), new THREE.Vector2(1, 1), new THREE.Vector3(0, 0, 0));
+        this.planeController = new PlaneController("Plane", new THREE.Vector2(GRID_SIZE, GRID_SIZE), new THREE.Vector2(1, 1), new THREE.Vector3(0, 0, 0));
         this.planeController.initMesh(false);
         this.addObject(this.planeController);
         this.scene.add(this.planeController.ground);
@@ -144,8 +129,10 @@ export class ModelViewer {
         // TEST FURNITURE TABLE //
         this.table = new Furniture("littlewood_furniture", new THREE.Vector3(0, 0, 0));
         this.table.initMesh(1, this.scene).then(() => {
+
+            this.modelsArray.push(this.table.mesh);
+
             if (this.table.mesh) {
-                // alert("littlewood_furniture");
                 for (let i = 0; i < this.table.mesh.children.length; ++i) {
                     const mesh = this.table.mesh.children[i] as THREE.Mesh;
                     this.sceneController.addMesh(mesh);
@@ -154,40 +141,8 @@ export class ModelViewer {
             }
         });
 
-        // -- shader effect
-        // - composer
-        this.composer = new EffectComposer(this.renderer);
-        this.composer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        // - render pass
-        this.renderPass = new RenderPass(this.scene, this.camera);
-        this.composer.addPass(this.renderPass);
-        // - outline pass
-        this.outlinePass = new OutlinePass(
-            new THREE.Vector2(window.innerWidth, window.innerHeight),
-            this.scene,
-            this.camera
-        );
-        // -- parameter config
-        this.outlinePass.edgeStrength = 3.0;
-        this.outlinePass.edgeGlow = 1.0;
-        this.outlinePass.edgeThickness = 3.0;
-        this.outlinePass.pulsePeriod = 0;
-        this.outlinePass.usePatternTexture = false; // patter texture for an object mesh
-        this.outlinePass.visibleEdgeColor.set("#00ff7f"); // set basic edge color
-        this.outlinePass.hiddenEdgeColor.set("#00ff7f"); // set edge color when it hidden by other objects
-        this.composer.addPass(this.outlinePass);
-
-        //shader
-        this.effectFXAA = new ShaderPass(FXAAShader);
-        this.effectFXAA.uniforms["resolution"].value.set(
-            1 / window.innerWidth,
-            1 / window.innerHeight
-        );
-        this.effectFXAA.renderToScreen = true;
-        this.composer.addPass(this.effectFXAA);
-
         // RESIZER //
-        const resizer = new Resizer(this.camera, this.renderer, this.composer, this.effectFXAA);
+        const resizer = new Resizer(this.camera, this.renderer);
 
         this.init();
     }
@@ -198,31 +153,51 @@ export class ModelViewer {
         this.addObject(this.cameraController);
 
         document.addEventListener("pointermove", (e: PointerEvent) => { this.onPointerMove(e) });
-        document.addEventListener("pointerdown", (e: PointerEvent) => { this.onPointerDown(e) });
+        // document.addEventListener("pointerdown", (e: PointerEvent) => { this.onPointerDown(e) });
+    }
 
-        // document.addEventListener('keydown', (e: KeyboardEvent) => { this.onDocumentKeyDown(e) });
-        // document.addEventListener('keyup', (e: KeyboardEvent) => { this.onDocumentKeyUp(e) })
+    onPointerMove(event: PointerEvent) {
+        event.preventDefault();
 
-        // Custom Event
-        // eventHub.on('spawnTerrain', () =>
-        //     document.addEventListener("pointermove", (e: PointerEvent) => {
-        //         this.onPointerMove(e);
-        //     });
-        // );
+        console.log("mouseMove");
 
-        // eventHub.on('spawnTerrain', () =>            
-        //         {document.removeEventListener("pointermove", this.onPointerMove)
-        //         this.controlsController.controls.enabled = true;}
-        // );
+        this.pointer.x = (event.offsetX / window.innerWidth) * 2 - 1;
+        this.pointer.y = -(event.offsetY / window.innerHeight) * 2 + 1;
 
-        // eventHub.on('spawnTerrain', (e: MouseEvent) => this.onPointerMove(e));
-        // eventHub.on('dropTerrain', async (terrain: Texture.ITerrain) => await this.onPointerDown(terrain.type, terrain.id));
-        // eventHub.on('spawnTerrain', () => console.log('Message event fired'));
+        this.intersection();
+    }
+
+    intersection() {
+        try {
+            this.raycaster.setFromCamera(this.pointer, this.camera);
+        }
+        catch (e: any) {
+            throw new Error(e.toString());
+            return;
+        }
+
+        const intersects = this.raycaster.intersectObjects(this.scene.children, true);
+
+        if (intersects.length > 0 && intersects[0].object.name !== "Plane" && intersects[0].object.name !== "GridHelper") {
+            console.log(intersects);
+
+            if (this.intersected != intersects[0].object && intersects[0].object.type === "Mesh") {
+                    this.intersected = intersects[0].object;
+                if (!this.intersected.name.toLowerCase().includes("outline") && this.intersected.name.toLowerCase().includes("wood"))
+                    (this.intersected.material as THREE.MeshToonMaterial).color.set(0xf47653);
+
+                console.log(this.intersected.name);
+            }
+        } else {
+            if (this.intersected && !this.intersected.name.toLowerCase().includes("outline") && this.intersected.name.toLowerCase().includes("wood"))
+                (this.intersected.material as THREE.MeshToonMaterial).color.set(0xffffff);
+
+            this.intersected = null;
+        }
     }
 
     render() {
-        // this.renderer.render(this.scene, this.camera);
-        this.composer.render();
+        this.renderer.render(this.scene, this.camera);
     }
 
     start() {
@@ -247,105 +222,7 @@ export class ModelViewer {
         this.loopController.addToUpdate(object);
     }
 
-    CheckIntersection() {
-        this.raycaster.setFromCamera(this.pointer, this.camera);
-        const intersects = this.raycaster.intersectObjects(this.meshArray, false);
 
-        if (intersects && intersects.length > 0) {
-            // const intersect = intersects[0];
-            //When there is more than one intersected objects
-            // const selectedGroup = intersects[0].object.parent as THREE.Group;
-            // this.AddSelectedObject(selectedGroup);
-            // this.outlinePass.selectedObjects = this.selectedObjects;
-
-            const obj = intersects[0].object; // the object that was intersected
-            this.outlinePass.selectedObjects[0] = obj;
-        } 
-        else {
-            this.outlinePass.selectedObjects = [];
-        }
-    }
-
-    AddSelectedObject(group: THREE.Group) {
-        this.selectedObjects = [];
-        this.selectedObjects.push(group.children[0]); // group : [gltf, cylinder]
-    }
-
-    onPointerMove(event: PointerEvent) {
-        console.log("OnPointerMove =>");
-        
-        // this.controlsController.controls.enabled = false;
-        this.pointer.set((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window.innerHeight) * 2 + 1);
-
-        this.CheckIntersection();
-
-        // this.raycaster.setFromCamera(this.pointer, this.camera);
-        // const intersects = this.raycaster.intersectObjects(this.meshArray, false);
-
-        // if (intersects && intersects.length > 0) {
-
-        //     const intersect = intersects[0];
-
-        //     if (this.terrainGhost && this.terrainGhost.mesh && intersect && intersect.face) {
-        //         this.terrainGhost.mesh.position.copy(intersect.point).add(intersect.face.normal);
-        //         this.terrainGhost.mesh.position.divideScalar(GRID_CELL_SIZE).floor().multiplyScalar(GRID_CELL_SIZE).addScalar(GRID_CELL_MID_SIZE);
-        //         this.terrainGhost.mesh.position.y = GHOST_OFFSET;
-        //     }
-
-        //     this.render();
-        // }
-    }
-
-    async onPointerDown(event: PointerEvent, terrainType?: string, terrainIndex?: number) {
-        console.log("OnPointerDown =>");
-
-        this.pointer.set((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window.innerHeight) * 2 + 1);
-    
-        this.CheckIntersection();
-
-        // this.raycaster.setFromCamera(this.pointer, this.camera);
-        // const intersects = this.raycaster.intersectObjects(this.meshArray, false);
-
-        // if (intersects && intersects.length > 0) {
-
-        //     const intersect = intersects[0];
-
-        //     const obj = intersects[0].object; // the object that was intersected
-        //     this.outlinePass.selectedObjects[0] = obj;
-
-        //     // delete Terrain //
-        //     if (this.isShiftDown) {
-        //         if (intersect.object && intersect.object !== this.planeController.ground) {
-        //             this.scene.remove(intersect.object);
-        //             this.meshArray.splice(this.meshArray.indexOf(intersect.object as THREE.Mesh), 1);
-        //         }
-        //     } else {
-        //         // create Terrain
-        //         const key = `${terrainType}${terrainIndex}`;
-        //         let terrain: Terrain | undefined;
-        //         if (this.terrainsList.has(key)) {
-        //             terrain = this.terrainsList.get(key);
-        //         }
-        //         else {
-        //             terrain = new Terrain("T01", TERRAIN_SIZE, new THREE.Vector3(50, 1, 50), new THREE.Vector3(0, 0, 0));
-        //             await terrain.initMesh(terrainType, terrainIndex);
-        //         }
-
-        //         if (terrain && terrain.mesh && intersect && intersect.face) {
-        //             terrain.mesh.position.copy(intersect.point).add(intersect.face.normal);
-        //             terrain.mesh.position.divideScalar(GRID_CELL_SIZE).floor().multiplyScalar(GRID_CELL_SIZE).addScalar(GRID_CELL_MID_SIZE);
-        //             terrain.mesh.position.y = TERRAIN_OFFSET;
-        //         }
-
-        //         this.addObject(terrain);
-        //     }
-
-        //     this.render();
-        // }
-
-        // this.controlsController.controls.enabled = true;
-        // document.removeEventListener("pointermove", this.onPointerMove);
-    }
 
     private onDocumentKeyDown(event: KeyboardEvent) {
         switch (event.keyCode) {
