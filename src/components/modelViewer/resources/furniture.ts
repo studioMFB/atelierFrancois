@@ -19,7 +19,7 @@ export function findModelParent(mesh: Mesh): RootNodeObject {
 }
 
 export class RootNodeObject extends THREE.Object3D {
-
+  isSelected: boolean;
 }
 export class Furniture extends Mesh {
 
@@ -29,6 +29,7 @@ export class Furniture extends Mesh {
   group?: Group;
   scene?: Group<Object3DEventMap>;
   rootNode: RootNodeObject;
+  boxHelper: THREE.BoxHelper;
 
   constructor(name: string, pos: Vector3) {
     super()
@@ -46,6 +47,16 @@ export class Furniture extends Mesh {
   //     }
   //     return mesh;
   // }
+
+  changeColour(colour:string){
+    this.scene.traverse((child: Mesh) => {
+      if (child.isMesh) {
+          if (!child.name.toLowerCase().includes("outline")) {
+              (child.material as MeshToonMaterial).color = new THREE.Color(colour);
+          }
+      }
+  });
+  }
 
   async initMesh(id: number, scene: Scene): Promise<void> {
     const loader = new GLTFLoader();
@@ -75,8 +86,17 @@ export class Furniture extends Mesh {
             child.material = matToon;
             child.castShadow = true;
           }
+
+          child.name += "-model";
         }
       });
+
+      // this.boxHelper = new THREE.BoxHelper(this.scene, 0xff0000);
+      // this.boxHelper.name = 'boxhelper_model-' + id;
+      // this.boxHelper.children.push(this.scene);
+      // this.boxHelper.update();
+      // // If you want a visible bounding box
+      // scene.add(this.boxHelper);
 
       // const geometry = new THREE.BoxGeometry();
       // this.mesh = new Mesh(geometry, matToon);

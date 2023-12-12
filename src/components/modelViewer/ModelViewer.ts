@@ -162,19 +162,29 @@ export class ModelViewer {
         this.addObject(this.cameraController);
 
         document.addEventListener("pointermove", (e: PointerEvent) => { this.onPointerMove(e) });
-        document.addEventListener("pointerdown", (e: PointerEvent) => { this.onPointerDown(e) });
+        // document.addEventListener("pointerdown", (e: PointerEvent) => { this.onPointerDown(e) });
     }
 
     onPointerMove(event: PointerEvent) {
-        event.preventDefault();
-        this.pointer.x = (event.offsetX / window.innerWidth) * 2 - 1;
-        this.pointer.y = -(event.offsetY / window.innerHeight) * 2 + 1;
-        // this.intersection();
+        console.log("pointerMove");
+
+        this.updatePointerMode(event);
+        this.intersection();
     }
 
     onPointerDown(event: PointerEvent) {
-        console.log("mouseDown");
+        console.log("pointerDown");
+
+        this.updatePointerMode(event);
         this.intersection();
+    }
+
+    updatePointerMode(event: PointerEvent) {
+        event.preventDefault();
+        // this.pointer.x = (event.offsetX / window.innerWidth) * 2 - 1;
+        // this.pointer.y = -(event.offsetY / window.innerHeight) * 2 + 1;
+        this.pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+        this.pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
     }
 
     intersection() {
@@ -188,60 +198,17 @@ export class ModelViewer {
             return;
         }
 
-        const intersects = this.raycaster.intersectObjects(this.scene.children, true);
+        // Update the raycaster with the camera and mouse position
+        //   this.raycaster.setFromCamera(this.pointer, this.camera);
 
-        if (intersects.length > 0) {
-            const intersect = intersects[0].object;
+        // Perform the raycasting
+        const intersects = this.raycaster.intersectObjects(this.scene.children);
 
-            if (intersect != this.intersected) {
-
-                if (intersect instanceof RootNodeObject) {
-                    this.intersected = intersect;
-                }
-                else if (intersect.type === "Mesh") {
-                    this.intersected = findModelParent(intersect as THREE.Mesh);
-                }
-                else {
-
-                    console.log("Not a selectable Object ", intersect);
-                    if (this.intersected) {
-                        this.intersected.traverse((child: THREE.Mesh) => {
-                            if (child.isMesh) {
-                                if (!child.name.toLowerCase().includes("outline")) {
-                                    (child.material as THREE.MeshToonMaterial).color = new THREE.Color(0xe2eab8);
-                                }
-                            }
-                        });
-                    }
-                    return;
-                }
-
-                console.log("DO => this.intersected ", this.intersected);
-
-                this.intersected.traverse((child: THREE.Mesh) => {
-                    if (child.isMesh) {
-                        if (!child.name.toLowerCase().includes("outline")) {
-                            (child.material as THREE.MeshToonMaterial).color = new THREE.Color(0xf47653);
-                        }
-                    }
-                });
-            }
-            else {
-                if (this.intersected) {
-
-                    console.log("UNDO => this.intersected ", this.intersected);
-
-                    this.intersected.traverse((child: THREE.Mesh) => {
-                        if (child.isMesh) {
-                            if (!child.name.toLowerCase().includes("outline")) {
-                                (child.material as THREE.MeshToonMaterial).color = new THREE.Color(0xe2eab8);
-                            }
-                        }
-                    });
-
-                    this.intersected = null;
-                }
-            }
+        if (intersects.length > 0 && intersects[0].object.name.includes('model')) {
+            this.table.changeColour('#f47653');
+        }
+        else {
+            this.table.changeColour('#e2eab8');
         }
     }
 
