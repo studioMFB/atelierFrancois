@@ -25,11 +25,11 @@ export class Furniture extends Mesh {
     const gltfUrl = new URL('./../models/table/1/littlewood_furniture.gltf', import.meta.url).toString();
 
     const parameters = {
-      color: new Color('#e2eab8')
+      // color: new Color('#e2eab8')
     }
 
     const matToon = new MeshToonMaterial(parameters);
-    const matColor = new MeshBasicMaterial({ color: 0x1d2e58 });
+    const matColor = new MeshBasicMaterial({ color: 0x888888 });
 
     loader.load(gltfUrl, (gltf: GLTF) => {
       this.mesh = gltf.scene as Group<Object3DEventMap>;
@@ -38,15 +38,17 @@ export class Furniture extends Mesh {
         if (child.isMesh) {
           if (child.name.toLowerCase().includes("outline")) {
             child.material = matColor;
+            child.name = "outline-"+id;
           }
           else {
             child.material = matToon;
             child.castShadow = true;
+            child.name = "model-"+id;
           }
         }
       });
 
-      this.mesh.name = this.name;
+      this.mesh.name = this.name+ '-' + id;
       this.mesh.position.set(this.pos.x, this.pos.y, this.pos.z);
       scene.add(this.mesh);
     });

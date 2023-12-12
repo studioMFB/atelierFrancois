@@ -42,6 +42,7 @@ export class PlaneController extends Mesh {
       side:DoubleSide,
       transparent:true
     });
+
     this.shadowGround.receiveShadow = true;
     this.shadowGround.position.set(this.pos.x+0.01, this.pos.y+0.01, this.pos.z+0.01);
   }
