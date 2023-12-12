@@ -57,7 +57,7 @@ export class ModelViewer {
     private modelsArray: THREE.Group<THREE.Object3DEventMap>[];
     // private modelsArray: RootNodeObject[];
 
-    private intersected: any;
+    private intersected: RootNodeObject;
     private intersectedArray: any[];
 
     private terrainGhost: TerrainGhost;
@@ -137,18 +137,7 @@ export class ModelViewer {
 
         // TEST FURNITURE TABLE //
         this.table = new Furniture("furniture", new THREE.Vector3(0, 0, 0));
-        this.table.initMesh(1, this.scene).then(() => {
-
-            this.modelsArray.push(this.table.scene);
-
-            // if (this.table.mesh) {
-            //     for (let i = 0; i < this.table.mesh.children.length; ++i) {
-            //         const mesh = this.table.mesh.children[i] as THREE.Mesh;
-            //         this.sceneController.addMesh(mesh);
-            //     }
-            //     this.loopController.addToUpdate(this.table);
-            // }
-        });
+        this.table.initMesh(1, this.scene, this.modelsArray);
 
         // RESIZER //
         const resizer = new Resizer(this.camera, this.renderer);
@@ -162,54 +151,69 @@ export class ModelViewer {
         this.addObject(this.cameraController);
 
         document.addEventListener("pointermove", (e: PointerEvent) => { this.onPointerMove(e) });
-        // document.addEventListener("pointerdown", (e: PointerEvent) => { this.onPointerDown(e) });
+        document.addEventListener("pointerdown", (e: PointerEvent) => { this.onPointerDown(e) });
     }
 
     onPointerMove(event: PointerEvent) {
-        console.log("pointerMove");
-
         this.updatePointerMode(event);
-        this.intersection();
+
+        if (this.intersection()) {
+            this.changeColour('#f47653');
+        }
+        else {
+            this.changeColour('#e2eab8');
+        }
     }
 
     onPointerDown(event: PointerEvent) {
-        console.log("pointerDown");
+        if (this.intersection()) {
 
-        this.updatePointerMode(event);
-        this.intersection();
+            this.intersected.translateX(10);
+            console.log(this.intersected.position);
+        }
+        else {
+            console.log("DONT MOVE");
+            // this.intersected.translateX(0);
+        }
     }
 
     updatePointerMode(event: PointerEvent) {
         event.preventDefault();
-        // this.pointer.x = (event.offsetX / window.innerWidth) * 2 - 1;
-        // this.pointer.y = -(event.offsetY / window.innerHeight) * 2 + 1;
         this.pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
         this.pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
     }
 
-    intersection() {
+    intersection(): boolean {
         try {
             this.raycaster.setFromCamera(this.pointer, this.camera);
-            // const arrow = new THREE.ArrowHelper( this.raycaster.ray.direction, this.raycaster.ray.origin, 100, 0xff0000 );
-            // this.scene.add( arrow );
         }
         catch (e: any) {
             throw new Error(e.toString());
             return;
         }
 
-        // Update the raycaster with the camera and mouse position
-        //   this.raycaster.setFromCamera(this.pointer, this.camera);
+        const intersects = this.raycaster.intersectObjects(this.modelsArray, true);
 
-        // Perform the raycasting
-        const intersects = this.raycaster.intersectObjects(this.scene.children);
-
-        if (intersects.length > 0 && intersects[0].object.name.includes('model')) {
-            this.table.changeColour('#f47653');
+        if (intersects.length > 0) {
+            this.intersected = findModelParent(intersects[0].object as THREE.Mesh);
+            return true;
         }
         else {
-            this.table.changeColour('#e2eab8');
+            return false;
         }
+    }
+
+    changeColour(colour: string) {
+        if (!this.intersected)
+            return;
+
+        this.intersected.children.forEach(child => {
+            const c = child as THREE.Mesh;
+            if (!c.name.toLowerCase().includes("outline")) {
+                (c.material as THREE.MeshToonMaterial).color = new THREE.Color(colour);
+                return;
+            }
+        });
     }
 
     render() {

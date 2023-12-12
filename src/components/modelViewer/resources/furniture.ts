@@ -1,21 +1,19 @@
-import { Mesh, Vector3, Scene, Group, MeshToonMaterial, Color, ShaderMaterial, Object3DEventMap, MeshBasicMaterial } from "three";
+import { Mesh, Vector3, Scene, Group, MeshToonMaterial, Color, Object3DEventMap, MeshBasicMaterial } from "three";
 import { GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { Lut } from "three/examples/jsm/math/Lut";
 import * as THREE from "three"
 
 
 export function findModelParent(mesh: Mesh): RootNodeObject {
-  console.log("findModelParent => Mesh.parent ", mesh.parent);
   // If the mesh has no parent, return null
   if (!mesh.parent) {
     return null;
   }
   // If the parent is an instance of GameObject, return it
-  if (mesh.parent instanceof RootNodeObject || mesh.parent.name.includes('root_model-')) {
+  if (mesh.parent.name.includes('root_model-')) {
     return mesh.parent as RootNodeObject;
   }
   // Otherwise, recursively call the function with the parent as the argument
-  return this.findModelParent(mesh.parent as Mesh);
+  // return this.findModelParent(mesh.parent as Mesh);
 }
 
 export class RootNodeObject extends THREE.Object3D {
@@ -30,23 +28,15 @@ export class Furniture extends Mesh {
   scene?: Group<Object3DEventMap>;
   rootNode: RootNodeObject;
   boxHelper: THREE.BoxHelper;
+  mesh:Mesh;
 
   constructor(name: string, pos: Vector3) {
     super()
 
     this.name = name;
-
     // this.dim = dim;
     this.pos = pos;
   }
-
-  // bubbleParent(mesh:Mesh) {
-
-  //     while (mesh.parent !== null) {
-  //         mesh = mesh.parent as Mesh;
-  //     }
-  //     return mesh;
-  // }
 
   changeColour(colour:string){
     this.scene.traverse((child: Mesh) => {
@@ -58,7 +48,7 @@ export class Furniture extends Mesh {
   });
   }
 
-  async initMesh(id: number, scene: Scene): Promise<void> {
+  async initMesh(id: number, scene: Scene, modelsArray:Group<Object3DEventMap>[]): Promise<void> {
     const loader = new GLTFLoader();
     const gltfUrl = new URL('./../models/table/1/littlewood_furniture.gltf', import.meta.url).toString();
 
@@ -91,20 +81,10 @@ export class Furniture extends Mesh {
         }
       });
 
-      // this.boxHelper = new THREE.BoxHelper(this.scene, 0xff0000);
-      // this.boxHelper.name = 'boxhelper_model-' + id;
-      // this.boxHelper.children.push(this.scene);
-      // this.boxHelper.update();
-      // // If you want a visible bounding box
-      // scene.add(this.boxHelper);
-
-      // const geometry = new THREE.BoxGeometry();
-      // this.mesh = new Mesh(geometry, matToon);
-      // rootNode.children.push(this.mesh);
-
       this.scene.name = 'root_model-' + id;
+      this.rootNode.matrixAutoUpdate = true;
       scene.add(this.rootNode);
-      // rootNode.position.set(this.pos.x, -10, this.pos.z);
+      modelsArray.push(this.scene);
     });
   }
 
