@@ -10,7 +10,7 @@ export class LightController {
         const power = 700;
         // const distance = 100;
 
-        const pointLight = new PointLight( color, 0.08 );
+        const pointLight = new PointLight( color, 0.06 );
         pointLight.position.set(pos.x, pos.y, pos.z);
 
         pointLight.castShadow = false;

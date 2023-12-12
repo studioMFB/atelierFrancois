@@ -14,7 +14,7 @@ export class CameraController {
     }
 
     init(): Camera {
-        this.camera = new PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.1, 10000);
+        this.camera = new PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.1, 100);
 
         // const rathio = 5.2;
         // const left = -1.0, right = 1.0,

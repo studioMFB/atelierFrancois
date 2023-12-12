@@ -55,6 +55,7 @@ export class ModelViewer {
     private raycaster: THREE.Raycaster;
     private pointer: THREE.Vector2;
     private modelsArray: THREE.Group<THREE.Object3DEventMap>[];
+    // private modelsArray: RootNodeObject[];
 
     private intersected: any;
     private intersectedArray: any[];
@@ -78,7 +79,7 @@ export class ModelViewer {
 
         // Scene //
         this.sceneController = new SceneController();
-        this.scene = this.sceneController.init(new THREE.Color('#ded6d8'));
+        this.scene = this.sceneController.init(new THREE.Color(0xded6d8));
 
         // Renderer //
         this.renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -90,23 +91,26 @@ export class ModelViewer {
         container.appendChild(this.canvas);
 
         // Camera //
-        this.cameraController = new CameraController(new THREE.Vector3(-2, 3, 2));
+        // this.cameraController = new CameraController(new THREE.Vector3(-2, 2, 2));
+        this.cameraController = new CameraController(new THREE.Vector3(-3, 4.5, 3));
         this.camera = this.cameraController.init();
+        (this.camera as THREE.PerspectiveCamera).zoom = 2.2;
 
         // Controls //
         this.controlsController = new ControlsController(this.camera, this.canvas)
         this.controlsController.init();
 
         // Light //
-        const hLight = new THREE.HemisphereLight();
+        // const hLight = new THREE.HemisphereLight(new THREE.Color(0xded6d8), null, 1.3);
+        const hLight = new THREE.HemisphereLight(new THREE.Color(0xffffff), null, 1.05);
         this.scene.add(hLight);
         const lightController = new LightController();
         lightController.addSpotLight(this.scene, 0xffffff, new THREE.Vector3(5, 9, 7));
 
-        // lightController.addPointLight(this.scene, 0xff0040, new THREE.Vector3(0, 5, 2));
-        lightController.addPointLight(this.scene, 0x0040ff, new THREE.Vector3(0, 4, 2));
-        lightController.addPointLight(this.scene, 0x80ff80, new THREE.Vector3(2, 9, -2));
-        lightController.addPointLight(this.scene, 0xffaa00, new THREE.Vector3(-2, 6, 2));
+        lightController.addPointLight(this.scene, 0xff0040, new THREE.Vector3(0, 10.5, 2));
+        lightController.addPointLight(this.scene, 0x0040ff, new THREE.Vector3(0, 4.5, 2));
+        lightController.addPointLight(this.scene, 0x80ff80, new THREE.Vector3(2, 9.5, -2));
+        lightController.addPointLight(this.scene, 0xffaa00, new THREE.Vector3(-2, 6.5, 2));
 
         this.loopController = new LoopCOntroller(this.camera, this.scene, this.renderer);
 
@@ -135,15 +139,15 @@ export class ModelViewer {
         this.table = new Furniture("furniture", new THREE.Vector3(0, 0, 0));
         this.table.initMesh(1, this.scene).then(() => {
 
-            // this.modelsArray.push(this.table.mesh);
+            this.modelsArray.push(this.table.scene);
 
-            if (this.table.mesh) {
-                for (let i = 0; i < this.table.mesh.children.length; ++i) {
-                    const mesh = this.table.mesh.children[i] as THREE.Mesh;
-                    this.sceneController.addMesh(mesh);
-                }
-                this.loopController.addToUpdate(this.table);
-            }
+            // if (this.table.mesh) {
+            //     for (let i = 0; i < this.table.mesh.children.length; ++i) {
+            //         const mesh = this.table.mesh.children[i] as THREE.Mesh;
+            //         this.sceneController.addMesh(mesh);
+            //     }
+            //     this.loopController.addToUpdate(this.table);
+            // }
         });
 
         // RESIZER //
@@ -198,6 +202,7 @@ export class ModelViewer {
                     this.intersected = findModelParent(intersect as THREE.Mesh);
                 }
                 else {
+
                     console.log("Not a selectable Object ", intersect);
                     if (this.intersected) {
                         this.intersected.traverse((child: THREE.Mesh) => {
@@ -216,7 +221,7 @@ export class ModelViewer {
                 this.intersected.traverse((child: THREE.Mesh) => {
                     if (child.isMesh) {
                         if (!child.name.toLowerCase().includes("outline")) {
-                            (child.material as THREE.MeshToonMaterial).color = new THREE.Color(0xff0000);
+                            (child.material as THREE.MeshToonMaterial).color = new THREE.Color(0xf47653);
                         }
                     }
                 });

@@ -27,8 +27,8 @@ export class Furniture extends Mesh {
   pos: Vector3;
 
   group?: Group;
-  mesh?: Group<Object3DEventMap>;
-  // mesh?: Mesh;
+  scene?: Group<Object3DEventMap>;
+  rootNode: RootNodeObject;
 
   constructor(name: string, pos: Vector3) {
     super()
@@ -56,17 +56,18 @@ export class Furniture extends Mesh {
     }
 
     const matToon = new MeshToonMaterial(parameters);
-    const matColor = new MeshBasicMaterial({ color: 0x1d2e58 });
+    matToon.opacity = .005;
+    const matColor = new MeshBasicMaterial({ color: 0x3c3c3c });
+
 
     loader.load(gltfUrl, (gltf: GLTF) => {
 
-      const rootNode = new RootNodeObject();
+      this.rootNode = new RootNodeObject();
+      this.scene = gltf.scene;
 
-      this.mesh = gltf.scene as Group<Object3DEventMap>;
-
-      this.mesh.traverse((child: Mesh) => {
+      this.scene.traverse((child: Mesh) => {
         if (child.isMesh) {
-          rootNode.children.push(child);
+          this.rootNode.children.push(child);
           if (child.name.toLowerCase().includes("outline")) {
             child.material = matColor;
           }
@@ -81,9 +82,8 @@ export class Furniture extends Mesh {
       // this.mesh = new Mesh(geometry, matToon);
       // rootNode.children.push(this.mesh);
 
-      this.mesh.name = 'root_model-' + id;
-      // scene.add(this.mesh);
-      scene.add(rootNode);
+      this.scene.name = 'root_model-' + id;
+      scene.add(this.rootNode);
       // rootNode.position.set(this.pos.x, -10, this.pos.z);
     });
   }
