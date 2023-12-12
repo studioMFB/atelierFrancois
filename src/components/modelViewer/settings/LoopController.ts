@@ -1,16 +1,16 @@
-import { Clock, Scene, OrthographicCamera, WebGLRenderer} from "three";
+import { Clock, Scene, OrthographicCamera, WebGLRenderer, PerspectiveCamera} from "three";
 
 
 export class LoopCOntroller {
 
   clock: Clock;
-  camera: OrthographicCamera;
+  camera: PerspectiveCamera;
   scene: Scene;
   renderer: WebGLRenderer;
   updatables: any[];
 
 
-  constructor(camera: OrthographicCamera, scene: Scene, renderer: WebGLRenderer) {
+  constructor(camera: PerspectiveCamera, scene: Scene, renderer: WebGLRenderer) {
     this.clock = new Clock();
     this.camera = camera;
     this.scene = scene;

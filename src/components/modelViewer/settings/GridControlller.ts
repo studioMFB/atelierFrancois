@@ -18,11 +18,10 @@ export class GridController {
         // this.pointer = new Vector2();
     }
 
-    init(scene: Scene) {
-        this.gridHelper = new GridHelper(this.size, this.divisions);
-        this.gridHelper.name = "GridHelper"
+    init(scene: Scene, colour:string) {
+        this.gridHelper = new GridHelper(this.size, this.divisions, colour, colour);
+        this.gridHelper.name = "GridHelper";
         // this.gridHelper.material.visible = false;
-
 
         scene.add(this.gridHelper);
     }

@@ -1,12 +1,12 @@
 
-import { OrthographicCamera, WebGLRenderer } from "three";
+import { OrthographicCamera, PerspectiveCamera, WebGLRenderer } from "three";
 import { EffectComposer } from 'three-addons';
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
 
 
 export class Resizer {
 
-  constructor(camera: OrthographicCamera, renderer: WebGLRenderer) {
+  constructor(camera: PerspectiveCamera, renderer: WebGLRenderer) {
     this.setSize(camera, renderer);
 
     window.addEventListener('resize', () => {
@@ -14,7 +14,7 @@ export class Resizer {
     });
   }
 
-  setSize(camera: OrthographicCamera, renderer: WebGLRenderer): void {
+  setSize(camera: PerspectiveCamera, renderer: WebGLRenderer): void {
     const width = window.innerWidth;
     const height = window.innerHeight;
 

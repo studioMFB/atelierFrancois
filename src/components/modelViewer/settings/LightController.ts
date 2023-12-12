@@ -21,7 +21,7 @@ export class LightController {
     }       
     
     addSpotLight(scene: THREE.Scene, color: ColorRepresentation, pos: Vector3) {
-        const spotLight = new SpotLight(color, 0.001);
+        const spotLight = new SpotLight(color, 0.01);
         // spotLight.castShadow = true;
         // spotLight.shadow.radius = 15;
 
@@ -43,16 +43,16 @@ export class LightController {
 
     addDirectionalLight(scene: THREE.Scene, color: ColorRepresentation, pos: Vector3) {
         //Create a DirectionalLight and turn on shadows for the light
-        const directLight = new DirectionalLight(color, .1);
+        const directLight = new DirectionalLight(color, .08);
         directLight.position.set(pos.x, pos.y, pos.z); //default; light shining from top
 
-        directLight.castShadow = true;
+        // directLight.castShadow = true;
 
-        // Set up shadow properties for the light
-        directLight.shadow.mapSize.width = 100; // default
-        directLight.shadow.mapSize.height = 212; // default
-        directLight.shadow.camera.near = 0.5; // default
-        directLight.shadow.camera.far = 500; // default
+        // // Set up shadow properties for the light
+        // directLight.shadow.mapSize.width = 100; // default
+        // directLight.shadow.mapSize.height = 212; // default
+        // directLight.shadow.camera.near = 0.5; // default
+        // directLight.shadow.camera.far = 500; // default
 
         scene.add(directLight);
     }

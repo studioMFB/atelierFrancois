@@ -47,7 +47,8 @@ export class ModelViewer {
     private controlsController: ControlsController;
 
     private cameraController: CameraController;
-    private camera: THREE.OrthographicCamera;
+    private camera: THREE.PerspectiveCamera;
+    // private camera: THREE.OrthographicCamera;
 
     private gridController: GridController;
     private planeController: PlaneController;
@@ -97,8 +98,9 @@ export class ModelViewer {
 
         // Light //
         const lightController = new LightController();
-        lightController.addSpotLight(this.scene, 0xffffff, new THREE.Vector3(5, 20, 7));
+        lightController.addSpotLight(this.scene, 0xffffff, new THREE.Vector3(5, 9, 7));
 
+        // lightController.addPointLight(this.scene, 0xff0040, new THREE.Vector3(0, 5, 2));
         lightController.addPointLight(this.scene, 0x0040ff, new THREE.Vector3(0, 4, 2));
         lightController.addPointLight(this.scene, 0x80ff80, new THREE.Vector3(2, 9, -2));
         lightController.addPointLight(this.scene, 0xffaa00, new THREE.Vector3(-2, 6, 2));
@@ -107,7 +109,7 @@ export class ModelViewer {
 
         // Grid //
         this.gridController = new GridController(GRID_SIZE, GRID_DIVISION);
-        this.gridController.init(this.scene);
+        this.gridController.init(this.scene, "#888888");
         this.raycaster = new THREE.Raycaster();
         this.pointer = new THREE.Vector2();
 

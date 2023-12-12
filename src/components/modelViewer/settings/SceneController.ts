@@ -11,7 +11,7 @@ export class SceneController {
 
     init(colour: Color): Scene {
         this.scene.background = new Color(colour);
-        this.scene.fog = new Fog(colour, 50, 90);
+        this.scene.fog = new Fog(colour, 200, 1000);
 
         return this.scene;
     }
