@@ -17,7 +17,6 @@ export function findModelParent(mesh: Mesh): RootNodeObject {
 }
 
 export class RootNodeObject extends THREE.Object3D {
-  isSelected: boolean;
 }
 export class Furniture extends Mesh {
 
@@ -29,6 +28,7 @@ export class Furniture extends Mesh {
   rootNode: RootNodeObject;
   boxHelper: THREE.BoxHelper;
   mesh:Mesh;
+  move:boolean;
 
   constructor(name: string, pos: Vector3) {
     super()
@@ -82,7 +82,7 @@ export class Furniture extends Mesh {
       });
 
       this.scene.name = 'root_model-' + id;
-      this.rootNode.matrixAutoUpdate = true;
+      // this.rootNode.matrixAutoUpdate = true;
       scene.add(this.rootNode);
       modelsArray.push(this.scene);
     });

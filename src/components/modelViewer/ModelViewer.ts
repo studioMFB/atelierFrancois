@@ -58,9 +58,9 @@ export class ModelViewer {
     // private modelsArray: RootNodeObject[];
 
     private intersected: RootNodeObject;
-    private intersectedArray: any[];
+    // private intersectedArray: any[];
 
-    private terrainGhost: TerrainGhost;
+    // private terrainGhost: TerrainGhost;
 
     private table: Furniture;
 
@@ -68,14 +68,14 @@ export class ModelViewer {
 
     private isShiftDown: boolean;
 
-    private terrainsList: Map<string, Terrain> = new Map();
+    // private terrainsList: Map<string, Terrain> = new Map();
 
 
     constructor(container: HTMLElement) {
         this.meshArray = [];
         this.modelsArray = [];
-        this.intersectedArray = [];
-        this.isShiftDown = false;
+        // this.intersectedArray = [];
+        // this.isShiftDown = false;
 
         // Scene //
         this.sceneController = new SceneController();
@@ -138,6 +138,7 @@ export class ModelViewer {
         // TEST FURNITURE TABLE //
         this.table = new Furniture("furniture", new THREE.Vector3(0, 0, 0));
         this.table.initMesh(1, this.scene, this.modelsArray);
+        this.loopController.addToUpdate(this.table);
 
         // RESIZER //
         const resizer = new Resizer(this.camera, this.renderer);
@@ -159,6 +160,7 @@ export class ModelViewer {
 
         if (this.intersection()) {
             this.changeColour('#f47653');
+            // this.changePosition();
         }
         else {
             this.changeColour('#e2eab8');
@@ -166,15 +168,8 @@ export class ModelViewer {
     }
 
     onPointerDown(event: PointerEvent) {
-        if (this.intersection()) {
-
-            this.intersected.translateX(10);
-            console.log(this.intersected.position);
-        }
-        else {
-            console.log("DONT MOVE");
-            // this.intersected.translateX(0);
-        }
+        if (this.intersection())
+            this.changePosition();
     }
 
     updatePointerMode(event: PointerEvent) {
@@ -196,11 +191,37 @@ export class ModelViewer {
 
         if (intersects.length > 0) {
             this.intersected = findModelParent(intersects[0].object as THREE.Mesh);
+
             return true;
         }
         else {
             return false;
         }
+    }
+
+    changePosition() {
+        // const intersect = this.raycaster.intersectObject(this.gridController.gridHelper);
+        // this.raycaster.
+        // intersect
+
+        const pickedPoint = new THREE.Vector3(this.pointer.x, 1, this.pointer.y);
+        const pos = this.calculateClosestGridPosition(pickedPoint);
+        console.log("Pos ", pos);
+
+        this.intersected.children.forEach(child => {
+            const c = child as THREE.Mesh;
+            c.position.x += pos.x;
+            c.position.y += pos.y;
+            c.position.z += pos.z;
+        });
+        // console.log(this.intersected.position);
+    }
+    calculateClosestGridPosition(pickedPoint: THREE.Vector3) {
+        const snappedX = Math.round(pickedPoint.x / GRID_SIZE) * GRID_SIZE;
+        // const snappedY = Math.round(pickedPoint.y / GRID_SIZE) * GRID_SIZE;
+        const snappedZ = Math.round(pickedPoint.z / GRID_SIZE) * GRID_SIZE;
+        // Use the node's Y value.
+        return new THREE.Vector3(snappedX, this.intersected.position.y, snappedZ);
     }
 
     changeColour(colour: string) {
