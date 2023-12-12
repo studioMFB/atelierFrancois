@@ -19,7 +19,7 @@ import { Terrain } from './resources/Terrain';
 import { TerrainGhost } from './resources/TerrainGhost';
 import { EventHub } from './../EventHub';
 import { type Texture } from './../../interfaces/Texture';
-import { Furniture } from './resources/furniture';
+import { Furniture, RootNodeObject, findModelParent } from './resources/furniture';
 
 
 const GRID_SIZE = 5;
@@ -132,10 +132,10 @@ export class ModelViewer {
         // }
 
         // TEST FURNITURE TABLE //
-        this.table = new Furniture("littlewood_furniture", new THREE.Vector3(0, 0, 0));
+        this.table = new Furniture("furniture", new THREE.Vector3(0, 0, 0));
         this.table.initMesh(1, this.scene).then(() => {
 
-            this.modelsArray.push(this.table.mesh);
+            // this.modelsArray.push(this.table.mesh);
 
             if (this.table.mesh) {
                 for (let i = 0; i < this.table.mesh.children.length; ++i) {
@@ -176,6 +176,8 @@ export class ModelViewer {
     intersection() {
         try {
             this.raycaster.setFromCamera(this.pointer, this.camera);
+            // const arrow = new THREE.ArrowHelper( this.raycaster.ray.direction, this.raycaster.ray.origin, 100, 0xff0000 );
+            // this.scene.add( arrow );
         }
         catch (e: any) {
             throw new Error(e.toString());
@@ -185,37 +187,57 @@ export class ModelViewer {
         const intersects = this.raycaster.intersectObjects(this.scene.children, true);
 
         if (intersects.length > 0) {
-            const tempIntersect = intersects[0].object;
-            if (tempIntersect != this.intersected && tempIntersect.type === "Mesh") {
-                this.intersected = tempIntersect;
-                const id = this.intersected.name.split('-')[1];
+            const intersect = intersects[0].object;
 
-                console.log("DO");
+            if (intersect != this.intersected) {
 
-                for (let i = 0; i < intersects.length; ++i) {
-                    const tempIntersect = intersects[i].object;
-
-                    if (tempIntersect.name === `model-${id}`) {
-                        ((tempIntersect as any).material as THREE.MeshToonMaterial).color.set(0xf47653);
-                        this.intersectedArray.push(tempIntersect);
-
-                        console.log(tempIntersect.name);
-                    }
+                if (intersect instanceof RootNodeObject) {
+                    this.intersected = intersect;
                 }
-            } 
+                else if (intersect.type === "Mesh") {
+                    this.intersected = findModelParent(intersect as THREE.Mesh);
+                }
+                else {
+                    console.log("Not a selectable Object ", intersect);
+                    if (this.intersected) {
+                        this.intersected.traverse((child: THREE.Mesh) => {
+                            if (child.isMesh) {
+                                if (!child.name.toLowerCase().includes("outline")) {
+                                    (child.material as THREE.MeshToonMaterial).color = new THREE.Color(0xe2eab8);
+                                }
+                            }
+                        });
+                    }
+                    return;
+                }
+
+                console.log("DO => this.intersected ", this.intersected);
+
+                this.intersected.traverse((child: THREE.Mesh) => {
+                    if (child.isMesh) {
+                        if (!child.name.toLowerCase().includes("outline")) {
+                            (child.material as THREE.MeshToonMaterial).color = new THREE.Color(0xff0000);
+                        }
+                    }
+                });
+            }
             else {
                 if (this.intersected) {
-    
-                    console.log("UNDO");
-                    for (let i = 0; i < this.intersectedArray.length; ++i) {
-                        (this.intersectedArray[i].material as THREE.MeshToonMaterial).color.set(0xffffff);
-                    }
-    
+
+                    console.log("UNDO => this.intersected ", this.intersected);
+
+                    this.intersected.traverse((child: THREE.Mesh) => {
+                        if (child.isMesh) {
+                            if (!child.name.toLowerCase().includes("outline")) {
+                                (child.material as THREE.MeshToonMaterial).color = new THREE.Color(0xe2eab8);
+                            }
+                        }
+                    });
+
                     this.intersected = null;
-                    this.intersectedArray = [];
                 }
             }
-        } 
+        }
     }
 
     render() {
