@@ -3,21 +3,21 @@ import { GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import * as THREE from "three"
 
 
-export function findModelParent(mesh: Mesh): RootNodeObject {
+export function findModelParent(mesh: Mesh): Group<Object3DEventMap> {
   // If the mesh has no parent, return null
   if (!mesh.parent) {
     return null;
   }
   // If the parent is an instance of GameObject, return it
   if (mesh.parent.name.includes('root_model-')) {
-    return mesh.parent as RootNodeObject;
+    return mesh.parent as Group<Object3DEventMap> ;
   }
   // Otherwise, recursively call the function with the parent as the argument
   // return this.findModelParent(mesh.parent as Mesh);
 }
 
-export class RootNodeObject extends THREE.Object3D {
-}
+// export class RootNodeObject extends THREE.Object3D {
+// }
 export class Furniture extends Mesh {
 
   // dim: Vector3;
@@ -25,7 +25,7 @@ export class Furniture extends Mesh {
 
   group?: Group;
   scene?: Group<Object3DEventMap>;
-  rootNode: RootNodeObject;
+  // rootNode: RootNodeObject;
   boxHelper: THREE.BoxHelper;
   mesh:Mesh;
   move:boolean;
@@ -63,12 +63,12 @@ export class Furniture extends Mesh {
 
     loader.load(gltfUrl, (gltf: GLTF) => {
 
-      this.rootNode = new RootNodeObject();
+      // this.rootNode = new RootNodeObject();
       this.scene = gltf.scene;
 
       this.scene.traverse((child: Mesh) => {
         if (child.isMesh) {
-          this.rootNode.children.push(child);
+          // this.rootNode.children.push(child);
           if (child.name.toLowerCase().includes("outline")) {
             child.material = matColor;
           }
@@ -83,7 +83,8 @@ export class Furniture extends Mesh {
 
       this.scene.name = 'root_model-' + id;
       // this.rootNode.matrixAutoUpdate = true;
-      scene.add(this.rootNode);
+      // scene.add(this.rootNode);
+      scene.add(this.scene);
       modelsArray.push(this.scene);
     });
   }

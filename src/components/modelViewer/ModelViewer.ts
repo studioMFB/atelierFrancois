@@ -7,6 +7,8 @@ import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
 import { FXAAShader } from "three/examples/jsm/shaders/FXAAShader";
 
+import { DragControls } from 'three/examples/jsm/controls/DragControls.js';
+
 import { ControlsController } from './settings/ControlsController';
 import { CameraController } from "./settings/CameraController";
 import { LightController } from "./settings/LightController";
@@ -19,7 +21,7 @@ import { Terrain } from './resources/Terrain';
 import { TerrainGhost } from './resources/TerrainGhost';
 import { EventHub } from './../EventHub';
 import { type Texture } from './../../interfaces/Texture';
-import { Furniture, RootNodeObject, findModelParent } from './resources/furniture';
+import { Furniture, findModelParent } from './resources/furniture';
 
 
 const GRID_SIZE = 5;
@@ -57,7 +59,7 @@ export class ModelViewer {
     private modelsArray: THREE.Group<THREE.Object3DEventMap>[];
     // private modelsArray: RootNodeObject[];
 
-    private intersected: RootNodeObject;
+    private intersected: THREE.Group<THREE.Object3DEventMap>;
     // private intersectedArray: any[];
 
     // private terrainGhost: TerrainGhost;
@@ -148,8 +150,22 @@ export class ModelViewer {
 
     private init(): void {
         // Add To render loop
-        this.addObject(this.controlsController);
-        this.addObject(this.cameraController);
+        // this.addObject(this.controlsController);
+        // this.addObject(this.cameraController);
+
+        const dragControls = new DragControls(this.modelsArray, this.camera, this.canvas);
+        dragControls.transformGroup = true;
+
+        dragControls.addEventListener( 'dragstart', function ( event ) {
+            ( (this.intersected as THREE.Mesh).material as THREE.MeshToonMaterial).emissive.set( 0xaaaaaa );
+        } );
+        
+        dragControls.addEventListener( 'dragend', function ( event ) {
+           ( (this.intersected as THREE.Mesh).material as THREE.MeshToonMaterial).emissive.set( 0x000000 );
+        } );
+        // dragControls.addEventListener('dragstart', onDragStart, false);
+        // dragControls.addEventListener('drag', onDrag, false);
+        // dragControls.addEventListener('dragend', onDragEnd, false);
 
         document.addEventListener("pointermove", (e: PointerEvent) => { this.onPointerMove(e) });
         document.addEventListener("pointerdown", (e: PointerEvent) => { this.onPointerDown(e) });
@@ -168,8 +184,8 @@ export class ModelViewer {
     }
 
     onPointerDown(event: PointerEvent) {
-        if (this.intersection())
-            this.changePosition();
+        // if (this.intersection())
+            // this.changePosition();
     }
 
     updatePointerMode(event: PointerEvent) {
@@ -199,23 +215,23 @@ export class ModelViewer {
         }
     }
 
-    changePosition() {
-        // const intersect = this.raycaster.intersectObject(this.gridController.gridHelper);
-        // this.raycaster.
-        // intersect
+    // changePosition() {
+    //     // const intersect = this.raycaster.intersectObject(this.gridController.gridHelper);
+    //     // this.raycaster.
+    //     // intersect
 
-        const pickedPoint = new THREE.Vector3(this.pointer.x, 1, this.pointer.y);
-        const pos = this.calculateClosestGridPosition(pickedPoint);
-        console.log("Pos ", pos);
+    //     const pickedPoint = new THREE.Vector3(this.pointer.x, 1, this.pointer.y);
+    //     const pos = this.calculateClosestGridPosition(pickedPoint);
+    //     console.log("Pos ", pos);
 
-        this.intersected.children.forEach(child => {
-            const c = child as THREE.Mesh;
-            c.position.x += pos.x;
-            c.position.y += pos.y;
-            c.position.z += pos.z;
-        });
-        // console.log(this.intersected.position);
-    }
+    //     this.intersected.children.forEach(child => {
+    //         const c = child as THREE.Mesh;
+    //         c.position.x += pos.x;
+    //         c.position.y += pos.y;
+    //         c.position.z += pos.z;
+    //     });
+    //     // console.log(this.intersected.position);
+    // }
     calculateClosestGridPosition(pickedPoint: THREE.Vector3) {
         const snappedX = Math.round(pickedPoint.x / GRID_SIZE) * GRID_SIZE;
         // const snappedY = Math.round(pickedPoint.y / GRID_SIZE) * GRID_SIZE;
