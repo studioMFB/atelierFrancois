@@ -141,8 +141,10 @@ export class ModelViewer {
         // TEST FURNITURE TABLE //
         this.table = new Furniture("furniture", new THREE.Vector3(0, 0, 0));
         this.table.initMesh(1, this.scene, this.modelsArray);
+        console.log("modelArray ", this.modelsArray);
         this.table = new Furniture("furniture", new THREE.Vector3(1, 0, 1));
         this.table.initMesh(2, this.scene, this.modelsArray);
+        console.log("modelArray ", this.modelsArray);
         // this.loopController.addToUpdate(this.table);
 
         // RESIZER //
@@ -171,21 +173,30 @@ export class ModelViewer {
     }
 
     onHoverOn(event: any) {
-        this.intersected = findModelParent(event.object as THREE.Mesh);
+        console.log("onHoverOn => event.object ", event.object);
+        const split = event.object.name.split('-');
+        const id = split[split.length - 1];
+        this.intersected = findModelParent(event.object as THREE.Mesh, id);
+        console.log("onHoverOn => this.intersected ", this.intersected);
+        // this.intersection();
 
-        console.log("this.intersected ", this.intersected);
         this.changeColour('#f47653');
     }
     onHoverOff(event: any) {
         // setTimeout(()=>{
-            this.changeColour('#e2eab8');
-            // this.intersected = null;
+        this.changeColour('#e2eab8');
+        // this.intersected = null;
         // },100);
     }
 
     onDragStart(event: any) {
         this.controlsController.controls.enabled = false;
-        this.intersected = event.object;
+
+        // console.log("onDragStart => event.object ", event.object);
+        // this.intersected = findModelParent(event.object as THREE.Mesh);
+        // this.intersection();
+        console.log("onDragStart => this.intersected ", this.intersected);
+
         // this.intersected = findModelParent(event.object as THREE.Mesh);
 
         this.changeColour('#f47653');
@@ -213,8 +224,8 @@ export class ModelViewer {
     }
 
     // onPointerDown(event: PointerEvent) {
-        // if (this.intersection())
-        // this.changePosition();
+    // if (this.intersection())
+    // this.changePosition();
     // }
 
     updatePointerMode(event: PointerEvent) {
@@ -235,7 +246,9 @@ export class ModelViewer {
         const intersects = this.raycaster.intersectObjects(this.modelsArray, true);
 
         if (intersects.length > 0) {
-            this.intersected = findModelParent(intersects[0].object as THREE.Mesh);
+            const split = intersects[0].object.name.split('-');
+            const id = split[split.length - 1];
+            this.intersected = findModelParent(intersects[0].object as THREE.Mesh, id);
 
             return true;
         }
