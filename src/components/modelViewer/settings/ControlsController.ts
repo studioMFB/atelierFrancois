@@ -18,7 +18,7 @@ export class ControlsController {
         
         this.controls.enableDamping = true;
         this.controls.enableZoom = true;
-        this.controls.enablePan = true;
+        this.controls.enablePan = false;
         
         this.controls.minDistance = 2;
         this.controls.maxDistance = 10;
