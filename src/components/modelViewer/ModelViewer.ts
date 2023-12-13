@@ -47,6 +47,7 @@ export class ModelViewer {
     private renderer: THREE.WebGLRenderer;
 
     private controlsController: ControlsController;
+    private dragControls: DragControls;
 
     private cameraController: CameraController;
     private camera: THREE.Camera;
@@ -153,12 +154,12 @@ export class ModelViewer {
         // this.addObject(this.controlsController);
         // this.addObject(this.cameraController);
 
-        const dragControls = new DragControls(this.modelsArray, this.camera, this.canvas);
-        dragControls.transformGroup = true;
+        this.dragControls = new DragControls(this.modelsArray, this.camera, this.canvas);
+        this.dragControls.transformGroup = true;
 
-        dragControls.addEventListener( 'dragstart', (e) => {this.onDragStart(e)});
+        this.dragControls.addEventListener( 'dragstart', (e) => {this.onDragStart(e)});
         // dragControls.addEventListener('drag', onDrag, false);
-        dragControls.addEventListener( 'dragend', function ( e ) {this.dragend(e)});
+        this.dragControls.addEventListener( 'dragend', ( e ) => {this.onDragEnd(e)});
 
         document.addEventListener("pointermove", (e: PointerEvent) => { this.onPointerMove(e) });
         document.addEventListener("pointerdown", (e: PointerEvent) => { this.onPointerDown(e) });
