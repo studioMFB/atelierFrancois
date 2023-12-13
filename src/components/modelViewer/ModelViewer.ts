@@ -156,19 +156,21 @@ export class ModelViewer {
         const dragControls = new DragControls(this.modelsArray, this.camera, this.canvas);
         dragControls.transformGroup = true;
 
-        dragControls.addEventListener( 'dragstart', function ( event ) {
-            ( (this.intersected as THREE.Mesh).material as THREE.MeshToonMaterial).emissive.set( 0xaaaaaa );
-        } );
-        
-        dragControls.addEventListener( 'dragend', function ( event ) {
-           ( (this.intersected as THREE.Mesh).material as THREE.MeshToonMaterial).emissive.set( 0x000000 );
-        } );
-        // dragControls.addEventListener('dragstart', onDragStart, false);
+        dragControls.addEventListener( 'dragstart', (e) => {this.onDragStart(e)});
         // dragControls.addEventListener('drag', onDrag, false);
-        // dragControls.addEventListener('dragend', onDragEnd, false);
+        dragControls.addEventListener( 'dragend', function ( e ) {this.dragend(e)});
 
         document.addEventListener("pointermove", (e: PointerEvent) => { this.onPointerMove(e) });
         document.addEventListener("pointerdown", (e: PointerEvent) => { this.onPointerDown(e) });
+    }
+
+    onDragStart(event: any){
+        this.controlsController.controls.enabled = false;
+        // ( (this.intersected as THREE.Mesh).material as THREE.MeshToonMaterial).emissive.set( 0xaaaaaa );
+    }
+    onDragEnd(event: any){
+        this.controlsController.controls.enabled = true;
+        // ( (this.intersected as THREE.Mesh).material as THREE.MeshToonMaterial).emissive.set( 0x000000 );
     }
 
     onPointerMove(event: PointerEvent) {
