@@ -59,6 +59,8 @@ export class ModelViewer {
     private pointer: THREE.Vector2;
     private modelsArray: THREE.Group<THREE.Object3DEventMap>[];
     // private modelsArray: RootNodeObject[];
+    private group: THREE.Group;
+    private enableSelection = false;
 
     private intersected: THREE.Group<THREE.Object3DEventMap>;
     // private intersectedArray: any[];
@@ -139,16 +141,19 @@ export class ModelViewer {
         // }
 
         // TEST FURNITURE TABLE //
-        this.table = new Furniture("furniture", new THREE.Vector3(0, 0, 0));
-        this.table.initMesh(1, this.scene, this.modelsArray);
-        console.log("modelArray ", this.modelsArray);
-        this.table = new Furniture("furniture", new THREE.Vector3(1, 0, 1));
-        this.table.initMesh(2, this.scene, this.modelsArray);
-        console.log("modelArray ", this.modelsArray);
+        const table1 = new Furniture("furniture", new THREE.Vector3(0, 0, 0));
+        table1.initMesh(1, this.scene, this.modelsArray);
+
+        const table2 = new Furniture("furniture", new THREE.Vector3(1, 0, 1));
+        table2.initMesh(2, this.scene, this.modelsArray);
+
         // this.loopController.addToUpdate(this.table);
 
         // RESIZER //
         const resizer = new Resizer(this.camera, this.renderer);
+
+        this.group = new THREE.Group();
+        this.scene.add(this.group);
 
         this.init();
     }
@@ -158,18 +163,81 @@ export class ModelViewer {
         // this.addObject(this.controlsController);
         // this.addObject(this.cameraController);
 
-        this.dragControls = new DragControls(this.modelsArray, this.camera, this.canvas);
-        this.dragControls.transformGroup = true;
+        // this.dragControls = new DragControls(this.modelsArray, this.camera, this.canvas);
+        this.dragControls = new DragControls([... this.modelsArray], this.camera, this.canvas);
+        // this.dragControls.transformGroup = true;
 
         this.dragControls.addEventListener('dragstart', (e) => { this.onDragStart(e) });
         this.dragControls.addEventListener('drag', (e) => { this.onDrag(e) });
         this.dragControls.addEventListener('dragend', (e) => { this.onDragEnd(e) });
-
         this.dragControls.addEventListener('hoveron', (e) => { this.onHoverOn(e) });
         this.dragControls.addEventListener('hoveroff', (e) => { this.onHoverOff(e) });
 
         // document.addEventListener("pointermove", (e: PointerEvent) => { this.onPointerMove(e) });
         // document.addEventListener("pointerdown", (e: PointerEvent) => { this.onPointerDown(e) });
+
+        // document.addEventListener("pointerdown", () => { this.controlsController.controls.enabled = false; });
+        // document.addEventListener("pointerup", () => { this.controlsController.controls.enabled = true; });
+
+        // this.dragControls.addEventListener('dragstart', (e) => { this.controlsController.controls.enabled = false;});
+        // this.dragControls.addEventListener('dragend', (e) => { this.controlsController.controls.enabled = true; });
+
+        document.addEventListener('click', (e) => { this.onClick(e) });
+        // window.addEventListener( 'keydown', (e) => { this.onKeyDown(e) });
+        // window.addEventListener( 'keyup', () => { this.onKeyUp() });
+    }
+
+    // onKeyDown(event: any) {
+    //     this.enableSelection = (event.keyCode === 16) ? true : false;
+    // }
+    // onKeyUp() {
+    //     this.enableSelection = false;
+    // }
+
+    onClick(event: MouseEvent) {
+        event.preventDefault();
+
+        // if (this.enableSelection === true) {
+
+        const draggableObjects = this.dragControls.getObjects();
+        draggableObjects.length = 0;
+
+        // if (!this.intersected) {
+
+            this.pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+            this.pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
+
+            this.raycaster.setFromCamera(this.pointer, this.camera);
+
+            const intersections = this.raycaster.intersectObjects(this.modelsArray, true);
+
+            if (intersections.length > 0) {
+                // const object = intersections[0].object as THREE.Mesh;
+                const split = intersections[0].object.name.split('-');
+                const id = split[split.length - 1];
+                this.intersected = findModelParent(intersections[0].object as THREE.Mesh, id);
+            // } else { 
+
+                if (this.group.children.includes(this.intersected) === true) {
+                    // (object.material as THREE.MeshToonMaterial).emissive.set(0x000000);
+                    this.scene.attach(this.intersected);
+
+                } else {
+                    // (object.material as THREE.MeshToonMaterial).emissive.set(0xaaaaaa);
+                    this.group.attach(this.intersected);
+                }
+
+                // this.dragControls.transformGroup = true;
+                draggableObjects.push(this.group);
+            }
+        // }
+
+        if (this.group.children.length === 0) {
+            // this.dragControls.transformGroup = true;
+            draggableObjects.push(...this.modelsArray);
+        }
+        // }
+        this.render();
     }
 
     onHoverOn(event: any) {
@@ -202,13 +270,15 @@ export class ModelViewer {
         this.changeColour('#f47653');
         // ( (this.intersected as THREE.Mesh).material as THREE.MeshToonMaterial).emissive.set( 0xaaaaaa );
     }
+
+
     onDrag(event: any) {
         event.object.position.y = 0;
     }
     onDragEnd(event: any) {
         this.controlsController.controls.enabled = true;
         this.changeColour('#e2eab8');
-        this.intersected = null;
+        // this.intersected = null;
         // ( (this.intersected as THREE.Mesh).material as THREE.MeshToonMaterial).emissive.set( 0x000000 );
     }
 

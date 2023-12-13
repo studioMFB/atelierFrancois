@@ -93,7 +93,9 @@ export class Furniture extends Mesh {
       this.scene.position.set(this.pos.x, this.pos.y, this.pos.z)
       this.scene.scale.set(1, 1, 1);
 
-      // group.add(boundingBox);
+      // group.add(this.scene);
+      // scene.add(group);
+      // modelsArray.push(group);
 
       scene.add(this.scene);
       modelsArray.push(this.scene);
