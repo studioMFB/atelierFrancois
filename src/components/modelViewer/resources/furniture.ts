@@ -1,5 +1,6 @@
 import { Mesh, Vector3, Scene, Group, MeshToonMaterial, Color, Object3DEventMap, MeshBasicMaterial, BoxHelper } from "three";
 import { GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
 import * as THREE from "three"
 
 
@@ -48,7 +49,7 @@ export class Furniture extends Mesh {
     });
   }
 
-  initMesh(id: number, scene: Scene, modelsArray: Group<Object3DEventMap>[]): void {
+  initMesh(id: number, scene: Scene, modelsArray: Group<Object3DEventMap>[], transformControls: TransformControls): void {
     const loader = new GLTFLoader();
     const gltfUrl = new URL('./../models/table/1/littlewood_furniture.gltf', import.meta.url).toString();
 
@@ -99,6 +100,7 @@ export class Furniture extends Mesh {
 
       scene.add(this.scene);
       modelsArray.push(this.scene);
+      // transformControls.attach(this.scene);
       // modelsArray.push(boundingBox);
     });
   }
