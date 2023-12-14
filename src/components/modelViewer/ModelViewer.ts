@@ -145,10 +145,24 @@ export class ModelViewer {
         this.transformControls = new TransformControls(this.camera, this.canvas);
         this.scene.add(this.transformControls);
         // this.transformControls.setMode('translate');
-        // this.transformControls.addEventListener('change', () =>{ this.render()});
+        this.transformControls.addEventListener('dragging-changed', (event: any) => {  this.intersected.position.y = 0; });
         // this.transformControls.addEventListener('dragging-changed', (event: any) => {this.controlsController.controls.enabled = ! event.value;});
-        this.transformControls.addEventListener("mouseDown", () => { this.controlsController.controls.enabled = false; });
-        this.transformControls.addEventListener("mouseUp", () => { this.controlsController.controls.enabled = true; });
+        document.addEventListener('click', (e) => {
+            if (!this.intersected)
+                 return;
+                this.transformControls.attach(this.intersected);
+            this.controlsController.controls.enabled = false;
+        });
+        // this.transformControls.addEventListener("mouseDown", () => {
+        //     if (!this.intersected)
+        //         return;
+        //     this.transformControls.attach(this.intersected);
+        //     this.controlsController.controls.enabled = false;
+        // });
+        this.transformControls.addEventListener("mouseUp", () => {
+            this.controlsController.controls.enabled = true;
+            this.transformControls.detach();
+        });
 
         // TEST FURNITURE TABLE //
         const table1 = new Furniture("furniture", new THREE.Vector3(0, 0, 0));
@@ -215,53 +229,53 @@ export class ModelViewer {
         draggableObjects = [];
         // this.modelsArray = [];
 
-            // Convert mouse position to NDC for raycasting
-            this.pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
-            this.pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
-            this.raycaster.setFromCamera(this.pointer, this.camera);
+        // Convert mouse position to NDC for raycasting
+        this.pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+        this.pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
+        this.raycaster.setFromCamera(this.pointer, this.camera);
 
-    // Find intersected objects
-            const intersections = this.raycaster.intersectObjects(this.modelsArray, true);
+        // Find intersected objects
+        const intersections = this.raycaster.intersectObjects(this.modelsArray, true);
 
-            if (intersections.length > 0) {
-        const selectedObject = intersections[0].object;
-        draggableObjects = [selectedObject]; // Update draggableObjects to contain only the selected object
-        this.dragControls.transformGroup = false; // Ensure individual object transformation
-    }
+        if (intersections.length > 0) {
+            const selectedObject = intersections[0].object;
+            draggableObjects = [selectedObject]; // Update draggableObjects to contain only the selected object
+            this.dragControls.transformGroup = false; // Ensure individual object transformation
+        }
 
         // if (!this.intersected) {
 
-            // this.pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
-            // this.pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
+        // this.pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+        // this.pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
 
-            // this.raycaster.setFromCamera(this.pointer, this.camera);
+        // this.raycaster.setFromCamera(this.pointer, this.camera);
 
-            // const intersections = this.raycaster.intersectObjects(this.modelsArray, true);
+        // const intersections = this.raycaster.intersectObjects(this.modelsArray, true);
 
-            // if (intersections.length > 0) {
-                // const object = intersections[0].object as THREE.Mesh;
-                // const split = intersections[0].object.name.split('-');
-                // const id = split[split.length - 1];
-                // this.intersected = findModelParent(intersections[0].object as THREE.Mesh, id);
-                // draggableObjects = [this.intersected]; // Update draggableObjects to contain only the selected object
-                // this.modelsArray = [this.intersected]; // Update draggableObjects to contain only the selected object
-                // this.dragControls.transformGroup = false;
+        // if (intersections.length > 0) {
+        // const object = intersections[0].object as THREE.Mesh;
+        // const split = intersections[0].object.name.split('-');
+        // const id = split[split.length - 1];
+        // this.intersected = findModelParent(intersections[0].object as THREE.Mesh, id);
+        // draggableObjects = [this.intersected]; // Update draggableObjects to contain only the selected object
+        // this.modelsArray = [this.intersected]; // Update draggableObjects to contain only the selected object
+        // this.dragControls.transformGroup = false;
 
 
-            // } else { 
+        // } else { 
 
-                // if (this.group.children.includes(this.intersected) === true) {
-                //     // (object.material as THREE.MeshToonMaterial).emissive.set(0x000000);
-                //     this.scene.attach(this.intersected);
+        // if (this.group.children.includes(this.intersected) === true) {
+        //     // (object.material as THREE.MeshToonMaterial).emissive.set(0x000000);
+        //     this.scene.attach(this.intersected);
 
-                // } else {
-                //     // (object.material as THREE.MeshToonMaterial).emissive.set(0xaaaaaa);
-                //     this.group.attach(this.intersected);
-                // }
+        // } else {
+        //     // (object.material as THREE.MeshToonMaterial).emissive.set(0xaaaaaa);
+        //     this.group.attach(this.intersected);
+        // }
 
-                // // this.dragControls.transformGroup = true;
-                // draggableObjects.push(this.group);
-            // }
+        // // this.dragControls.transformGroup = true;
+        // draggableObjects.push(this.group);
+        // }
         // }
 
         // if (this.group.children.length === 0) {
@@ -319,11 +333,11 @@ export class ModelViewer {
 
         if (this.intersection()) {
             this.changeColour('#f47653');
-            this.transformControls.attach(this.intersected);
+            // this.transformControls.attach(this.intersected);
         }
         else {
             this.changeColour('#e2eab8');
-            this.transformControls.detach();
+            // this.transformControls.detach();
         }
     }
 
