@@ -145,23 +145,41 @@ export class ModelViewer {
         this.transformControls = new TransformControls(this.camera, this.canvas);
         this.scene.add(this.transformControls);
         // this.transformControls.setMode('translate');
-        this.transformControls.addEventListener('dragging-changed', (event: any) => {  this.intersected.position.y = 0; });
+        this.transformControls.addEventListener('dragging-changed', (event: any) => {
+            if (!this.intersected)
+                return;
+
+            // this.changeColour('#e2eab8');
+            this.intersected.position.y = 0;
+        });
         // this.transformControls.addEventListener('dragging-changed', (event: any) => {this.controlsController.controls.enabled = ! event.value;});
         document.addEventListener('click', (e) => {
             if (!this.intersected)
-                 return;
-                this.transformControls.attach(this.intersected);
-            this.controlsController.controls.enabled = false;
+                return;
+            this.transformControls.attach(this.intersected);
+            // this.controlsController.controls.enabled = false;
+            this.changeColour('#e2eab8');
         });
-        // this.transformControls.addEventListener("mouseDown", () => {
-        //     if (!this.intersected)
-        //         return;
-        //     this.transformControls.attach(this.intersected);
-        //     this.controlsController.controls.enabled = false;
-        // });
+        document.addEventListener("pointerdown", () => { 
+            // this.controlsController.controls.enabled = false;
+            this.changeColour('#f47653'); 
+        });
+        document.addEventListener("pointerup", () => { 
+            // this.controlsController.controls.enabled = true;
+            this.transformControls.detach();
+            this.changeColour('#e2eab8');
+         });
+        this.transformControls.addEventListener("mouseDown", () => {
+            //     // if (!this.intersected)
+            //     //     return;
+            //     // this.transformControls.attach(this.intersected);
+                this.controlsController.controls.enabled = false;
+            // this.changeColour('#f47653');
+        });
         this.transformControls.addEventListener("mouseUp", () => {
             this.controlsController.controls.enabled = true;
-            this.transformControls.detach();
+            // this.transformControls.detach();
+            // this.changeColour('#e2eab8');
         });
 
         // TEST FURNITURE TABLE //
