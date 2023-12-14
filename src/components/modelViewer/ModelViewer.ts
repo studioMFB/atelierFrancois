@@ -8,7 +8,7 @@ import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
 import { FXAAShader } from "three/examples/jsm/shaders/FXAAShader";
 
 import { DragControls } from 'three/examples/jsm/controls/DragControls.js';
-import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
+import { TransformControls, TransformControlsGizmo } from 'three/examples/jsm/controls/TransformControls.js';
 
 import { ControlsController } from './settings/ControlsController';
 import { CameraController } from "./settings/CameraController";
@@ -143,6 +143,41 @@ export class ModelViewer {
         // }
 
         this.transformControls = new TransformControls(this.camera, this.canvas);
+        this.transformControls.position.x -= .1;
+        this.transformControls.position.y += .6;
+        // this.transformControls.showY = false;
+        
+        // const matColor = new THREE.MeshBasicMaterial({ color: 0xf47653, opacity: 1 });
+        // this.transformControls.traverse((child: THREE.Mesh) => {
+        //         if (child.isMesh) {
+        //             child.material = matColor;
+        //             // child.material.color.set(0xff0000); // Set to red
+        //         }
+        //     });
+
+        // this.transformControls.children[0].children[0].children[1].visible = false;
+        // this.transformControls.children[0].children[0].children[8].visible = false;
+        // const transformControlsGizmo = new TransformControlsGizmo();
+
+        // const translateXHandle = transformControlsGizmo.gizmo['translate'].children.find(child => child.name === 'X');
+        // if (translateXHandle) {
+        //     console.log("translateXHandle ", translateXHandle);
+        //     const matColor = new THREE.MeshBasicMaterial({ color: 0xffffff, opacity: .2 });
+        //     // (translateXHandle as THREE.Mesh).material = matColor;
+        //     // console.log("translateXHandle ", translateXHandle);
+
+        //     const rootParent = this.findParent(translateXHandle as THREE.Mesh);
+        //     console.log("rootParent ", rootParent);
+
+        //     translateXHandle.traverse((child: THREE.Mesh) => {
+        //         // if (child.isMesh) {
+        //             console.log("child ", child);
+        //             child.material = matColor;
+        //             // child.material.color.set(0xff0000); // Set to red
+        //         // }
+        //     });
+        // }
+
         this.scene.add(this.transformControls);
         // this.transformControls.setMode('translate');
         this.transformControls.addEventListener('dragging-changed', (event: any) => {
@@ -156,24 +191,26 @@ export class ModelViewer {
         document.addEventListener('click', (e) => {
             if (!this.intersected)
                 return;
+
+            // transformControlsGizmo.attach(this.intersected);
             this.transformControls.attach(this.intersected);
             // this.controlsController.controls.enabled = false;
             this.changeColour('#e2eab8');
         });
-        document.addEventListener("pointerdown", () => { 
+        document.addEventListener("pointerdown", () => {
             // this.controlsController.controls.enabled = false;
-            this.changeColour('#f47653'); 
+            this.changeColour('#f47653');
         });
-        document.addEventListener("pointerup", () => { 
+        document.addEventListener("pointerup", () => {
             // this.controlsController.controls.enabled = true;
             this.transformControls.detach();
             this.changeColour('#e2eab8');
-         });
+        });
         this.transformControls.addEventListener("mouseDown", () => {
             //     // if (!this.intersected)
             //     //     return;
             //     // this.transformControls.attach(this.intersected);
-                this.controlsController.controls.enabled = false;
+            this.controlsController.controls.enabled = false;
             // this.changeColour('#f47653');
         });
         this.transformControls.addEventListener("mouseUp", () => {
@@ -197,6 +234,15 @@ export class ModelViewer {
         // this.scene.add(this.group);
 
         this.init();
+    }
+
+    findParent(mesh: THREE.Mesh): THREE.Mesh {
+        // If the mesh has no parent, return null
+        if (!mesh.parent) {
+            return mesh;
+        }
+
+        return this.findParent(mesh.parent as THREE.Mesh);
     }
 
     private init(): void {

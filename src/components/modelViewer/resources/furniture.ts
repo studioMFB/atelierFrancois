@@ -61,7 +61,6 @@ export class Furniture extends Mesh {
     matToon.opacity = .005;
     const matColor = new MeshBasicMaterial({ color: 0x3c3c3c });
 
-
     loader.load(gltfUrl, (gltf: GLTF) => {
 
       this.scene = gltf.scene;
