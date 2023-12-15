@@ -1,7 +1,8 @@
-import { Clock, Scene, Camera, WebGLRenderer} from "three";
+import { Clock, Scene, Camera, WebGLRenderer } from "three";
+import { Furniture } from "../resources/furniture";
 
 
-export class LoopCOntroller {
+export class LoopController {
 
   clock: Clock;
   camera: Camera;
@@ -18,13 +19,34 @@ export class LoopCOntroller {
     this.updatables = [];
   }
 
-  public addToUpdate(object: any){
+  public addToUpdate(object: any) {
     this.updatables.push(object);
   }
 
-  start() {
+  intersect(furnitureArray: Furniture[]) {
+    if (!furnitureArray[0].scene)
+      return;
+
+    for (let i = 0; i < furnitureArray.length; ++i) {
+      for (let j = 0; j < furnitureArray.length; ++j) {
+        // Don't collide with itself.
+        if(j == i)
+          continue;
+
+        if (furnitureArray[i].boundingBox.intersectsBox(furnitureArray[j].boundingBox)) {
+          // Handle collision
+          console.warn("Collision detected");
+        }
+      }
+    }
+  }
+
+  start(furnitureArray: Furniture[]) {
     this.renderer.setAnimationLoop(() => {
+
       this.tick();
+
+      this.intersect(furnitureArray);
 
       this.renderer.render(this.scene, this.camera);
     });
@@ -34,8 +56,8 @@ export class LoopCOntroller {
     this.renderer.setAnimationLoop(null);
   }
 
-  tick(delta?:number) {
-    if(!delta){
+  tick(delta?: number) {
+    if (!delta) {
       delta = this.clock.getDelta();
     }
 

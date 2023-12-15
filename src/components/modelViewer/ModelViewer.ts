@@ -13,7 +13,7 @@ import { TransformControls, TransformControlsGizmo, TransformControlsPlane } fro
 import { ControlsController } from './settings/ControlsController';
 import { CameraController } from "./settings/CameraController";
 import { LightController } from "./settings/LightController";
-import { LoopCOntroller } from "./settings/LoopController";
+import { LoopController } from "./settings/LoopController";
 import { SceneController } from "./settings/SceneController";
 import { Resizer } from "./settings/Resizer";
 import { GridController } from './settings/GridControlller';
@@ -42,7 +42,7 @@ export class ModelViewer {
     private scene: THREE.Scene;
     private canvas: HTMLCanvasElement;
 
-    private loopController: LoopCOntroller;
+    private loopController: LoopController;
     private renderer: THREE.WebGLRenderer;
 
     private controlsController: ControlsController;
@@ -62,13 +62,13 @@ export class ModelViewer {
     private intersected: THREE.Group<THREE.Object3DEventMap>;
     // private terrainGhost: TerrainGhost;
 
-    // private meshArray: THREE.Mesh[];
+    private furnitureArray: Furniture[];
 
     private isShiftDown: boolean;
 
 
     constructor(container: HTMLElement) {
-        // this.meshArray = [];
+        this.furnitureArray =[];
         this.modelsArray = [];
 
         // Scene //
@@ -104,7 +104,7 @@ export class ModelViewer {
         lightController.addPointLight(this.scene, 0x80ff80, new THREE.Vector3(2, 9.5, -2));
         lightController.addPointLight(this.scene, 0xffaa00, new THREE.Vector3(-2, 6.5, 2));
 
-        this.loopController = new LoopCOntroller(this.camera, this.scene, this.renderer);
+        this.loopController = new LoopController(this.camera, this.scene, this.renderer);
 
         // Grid //
         this.gridController = new GridController(GRID_SIZE, GRID_DIVISION);
@@ -115,7 +115,7 @@ export class ModelViewer {
         // Plane // 
         this.planeController = new PlaneController("Plane", new THREE.Vector2(GRID_SIZE, GRID_SIZE), new THREE.Vector2(1, 1), new THREE.Vector3(0, 0, 0));
         this.planeController.initMesh(false);
-        this.addObject(this.planeController);
+        // this.addObject(this.planeController);
         this.scene.add(this.planeController.ground);
         this.scene.add(this.planeController.shadowGround);
 
@@ -148,8 +148,8 @@ export class ModelViewer {
         this.transformControls.position.x -= .1;
         this.transformControls.position.y += .6;
 
-        console.log("this.transformControls ", this.transformControls);
-        console.log("(this.transformControls.children[0] as TransformControlsGizmo).picker.translate ", (this.transformControls.children[0] as TransformControlsGizmo).picker.translate);
+        // console.log("this.transformControls ", this.transformControls);
+        // console.log("(this.transformControls.children[0] as TransformControlsGizmo).picker.translate ", (this.transformControls.children[0] as TransformControlsGizmo).picker.translate);
 
         // Main gizmo, arrows and squares
         (this.transformControls.children[0] as TransformControlsGizmo).gizmo.translate.traverse((child: any) => {
@@ -230,9 +230,18 @@ export class ModelViewer {
         // FOR DEV ONLY, later models will be spwaned from a menu into the scene.
         // TEST FURNITURE TABLE //
         const table1 = new Furniture("furniture", new THREE.Vector3(0, 0, -1));
-        table1.initMesh(1, this.scene, this.modelsArray, this.transformControls);
+        table1.initMesh(1, this.scene, this.modelsArray, this.transformControls).then(() => {
+            // this.addObject(table1);
+            this.loopController.addToUpdate(table1);
+            this.furnitureArray.push(table1);
+        });
+
         const table2 = new Furniture("furniture", new THREE.Vector3(1, 0, 1));
-        table2.initMesh(2, this.scene, this.modelsArray, this.transformControls);
+        table2.initMesh(2, this.scene, this.modelsArray, this.transformControls).then(() => {
+            // this.addObject(table2);
+            this.loopController.addToUpdate(table2);
+            this.furnitureArray.push(table2);
+        });
 
         // RESIZER //
         const resizer = new Resizer(this.camera, this.renderer);
@@ -288,7 +297,7 @@ export class ModelViewer {
     onDrag(event: any) {
         this.intersected.position.y = 0;
     }
-    
+
     onDragEnd(event: any) {
         this.controlsController.controls.enabled = true;
 
@@ -378,11 +387,17 @@ export class ModelViewer {
     }
 
     render() {
+        // Check for collision
+        // if (this.furnitureArray[0].boundingBox.intersectsBox(this.furnitureArray[1].boundingBox)) {
+        //     // Handle collision
+        //     alert("Collision detected");
+        // }
+
         this.renderer.render(this.scene, this.camera);
     }
 
     start() {
-        this.loopController.start();
+        this.loopController.start(this.furnitureArray);
     }
 
     stop() {
@@ -395,7 +410,7 @@ export class ModelViewer {
             return;
         }
 
-        if (object.mesh) {
+        if (object.isMesh) {
             this.sceneController.addMesh(object.mesh);
             // this.meshArray.push(object.mesh);
         }
