@@ -149,7 +149,7 @@ export class ModelViewer {
         this.transformControls.position.y += .6;
 
         // console.log("this.transformControls ", this.transformControls);
-        // console.log("(this.transformControls.children[0] as TransformControlsGizmo).picker.translate ", (this.transformControls.children[0] as TransformControlsGizmo).picker.translate);
+        // console.log("(this.transformControls.children[1] as TransformControlsGizmo) ", (this.transformControls.children[1] as TransformControlsGizmo));
 
         // Main gizmo, arrows and squares
         (this.transformControls.children[0] as TransformControlsGizmo).gizmo.translate.traverse((child: any) => {
@@ -158,41 +158,26 @@ export class ModelViewer {
                 // with which you can move the model in any direction.
                 if (child.name === 'XYZ') {
                     (child.material as THREE.MeshBasicMaterial).color.set(0x0e73e6);
+                    (child.material as THREE.MeshBasicMaterial).opacity = 0.5;
                 }
                 else {
-                    (child.material as THREE.MeshBasicMaterial).color.set(0xffffff);
-                    (child.material as THREE.MeshBasicMaterial).opacity = 0.00001;
+                    (child.material as THREE.MeshBasicMaterial).visible = false;
                 }
-            }
-            else {
-                // (child.material as THREE.MeshBasicMaterial).opacity = 0.00001;
-                // console.log("child not a mesh ", child);    
-                // Scaling somewhat changes the position of the gizmos from the model not in an even way.
-                // Making repositioning all gizmos to the centre of there model impossible. 
-                // Investigate at a later time.
-                // child.scale.x *= 0.5;            
-                // child.scale.y *= 0.5;            
-                // child.scale.z *= 0.5; 
-
-                // child.position.x -= .1;
-                // child.position.y += .6;
-                // child.position.z = 0;
             }
         });
 
         // Pickers
         // Not sure it does much.
-        // (this.transformControls.children[0] as TransformControlsGizmo).picker.translate.traverse((child: any) => {
-        //     if (child.isMesh) {
-        //         (child.material as THREE.MeshBasicMaterial).color.set(0xffffff);
-        //     }
-        //     console.log("child ", child);
-        // });
+        (this.transformControls.children[0] as TransformControlsGizmo).picker.translate.traverse((child: any) => {
+            if (child.isMesh) {
+                (child.material as THREE.MeshBasicMaterial).visible = false;
+            }
+        });
 
         // Helper transform lines axis
         (this.transformControls.children[0] as TransformControlsGizmo).helper.translate.traverse((child: any) => {
             if (child.isLine) {
-                (child.material as THREE.MeshBasicMaterial).opacity = 0.00001;
+                (child.material as THREE.MeshBasicMaterial).visible = false;
             }
         });
 
@@ -343,15 +328,15 @@ export class ModelViewer {
             throw new Error(e.toString());
             return;
         }
-        
+
         const intersects = this.raycaster.intersectObjects(this.modelsArray, true);
-        
+
         if (intersects.length > 0) {
             const split = intersects[0].object.name.split('-');
             const id = split[split.length - 1];
 
             // if(!this.intersected)
-                this.intersected = findModelParent(intersects[0].object as THREE.Mesh, id);
+            this.intersected = findModelParent(intersects[0].object as THREE.Mesh, id);
 
             return true;
         }
