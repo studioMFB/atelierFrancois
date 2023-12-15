@@ -336,9 +336,6 @@ export class ModelViewer {
     }
 
     intersection(): boolean {
-        if(this.intersected)
-            return;
-
         try {
             this.raycaster.setFromCamera(this.pointer, this.camera);
         }
@@ -346,16 +343,20 @@ export class ModelViewer {
             throw new Error(e.toString());
             return;
         }
-
+        
         const intersects = this.raycaster.intersectObjects(this.modelsArray, true);
-
+        
         if (intersects.length > 0) {
             const split = intersects[0].object.name.split('-');
             const id = split[split.length - 1];
-            this.intersected = findModelParent(intersects[0].object as THREE.Mesh, id);
+
+            // if(!this.intersected)
+                this.intersected = findModelParent(intersects[0].object as THREE.Mesh, id);
+
             return true;
         }
         else {
+            // this.intersected = null;
             return false;
         }
     }
