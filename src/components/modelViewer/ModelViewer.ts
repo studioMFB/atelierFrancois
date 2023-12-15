@@ -68,7 +68,7 @@ export class ModelViewer {
 
 
     constructor(container: HTMLElement) {
-        this.furnitureArray =[];
+        this.furnitureArray = [];
         this.modelsArray = [];
 
         // Scene //
@@ -196,12 +196,24 @@ export class ModelViewer {
             }
         });
 
-        this.transformControls.addEventListener('dragging-changed', (event: any) => {
-            if (!this.intersected)
-                return;
+        this.transformControls.addEventListener("mouseDown", () => { this.controlsController.controls.enabled = false; });
+        this.transformControls.addEventListener("mouseUp", () => { this.controlsController.controls.enabled = true; });
 
-            this.intersected.position.y = 0;
-        });
+        // this.transformControls.addEventListener('object-changed', () => {
+        //     console.log("CHANGE!");
+        //     if (!this.intersected)
+        //         return;
+
+        //     this.intersected.position.y = 0;
+        // });
+
+        // this.transformControls.addEventListener('dragging-changed', () => {
+        //     // Snap the model to the ground
+        //     if (!this.intersected)
+        //         return;
+
+        //     this.intersected.position.y = 0;
+        // });
 
         // document.addEventListener('click', (e) => {
         //     if (!this.intersected)
@@ -219,12 +231,6 @@ export class ModelViewer {
         document.addEventListener("pointerup", () => {
             this.transformControls.detach();
             this.changeColour('#e2eab8');
-        });
-        this.transformControls.addEventListener("mouseDown", () => {
-            this.controlsController.controls.enabled = false;
-        });
-        this.transformControls.addEventListener("mouseUp", () => {
-            this.controlsController.controls.enabled = true;
         });
 
         // FOR DEV ONLY, later models will be spwaned from a menu into the scene.
@@ -267,42 +273,38 @@ export class ModelViewer {
         // this.dragControls = new DragControls(this.modelsArray, this.camera, this.canvas);
         // this.dragControls.transformGroup = true;
 
+        // this.dragControls.addEventListener('hoveron', (e) => { this.onHoverOn(e) });
+        // this.dragControls.addEventListener('hoveroff', (e) => { this.onHoverOff(e) });
+
         // this.dragControls.addEventListener('dragstart', (e) => { this.onDragStart(e) });
         // this.dragControls.addEventListener('drag', (e) => { this.onDrag(e) });
         // this.dragControls.addEventListener('dragend', (e) => { this.onDragEnd(e) });
 
-        // this.dragControls.addEventListener('hoveron', (e) => { this.onHoverOn(e) });
-        // this.dragControls.addEventListener('hoveroff', (e) => { this.onHoverOff(e) });
-
         document.addEventListener("pointermove", (e: PointerEvent) => { this.onPointerMove(e) });
     }
 
-    onHoverOn(event: any) {
-        const split = event.object.name.split('-');
-        const id = split[split.length - 1];
-        this.intersected = findModelParent(event.object as THREE.Mesh, id);
+    // onHoverOn(event: any) {
+    //     const split = event.object.name.split('-');
+    //     const id = split[split.length - 1];
+    //     this.intersected = findModelParent(event.object as THREE.Mesh, id);
 
-        this.changeColour('#f47653');
-    }
-    onHoverOff(event: any) {
-        this.changeColour('#e2eab8');
-    }
+    //     this.changeColour('#f47653');
+    // }
+    // onHoverOff(event: any) {
+    //     this.changeColour('#e2eab8');
+    // }
 
-    onDragStart(event: any) {
-        this.controlsController.controls.enabled = false;
-
-        this.changeColour('#f47653');
-    }
-
-    onDrag(event: any) {
-        this.intersected.position.y = 0;
-    }
-
-    onDragEnd(event: any) {
-        this.controlsController.controls.enabled = true;
-
-        this.changeColour('#e2eab8');
-    }
+    // onDragStart(event: any) {
+    //     this.controlsController.controls.enabled = false;
+    //     this.changeColour('#f47653');
+    // }
+    // onDrag(event: any) {
+    //     this.intersected.position.y = 0;
+    // }
+    // onDragEnd(event: any) {
+    //     this.controlsController.controls.enabled = true;
+    //     this.changeColour('#e2eab8');
+    // }
 
     onPointerMove(event: PointerEvent) {
         this.updatePointerMode(event);
@@ -314,6 +316,12 @@ export class ModelViewer {
         else {
             this.changeColour('#e2eab8');
         }
+
+        // Stop the abillity to lift the model
+        if (!this.intersected)
+            return;
+
+        this.intersected.position.y = 0;
     }
 
     // onPointerDown(event: PointerEvent) {
@@ -365,13 +373,13 @@ export class ModelViewer {
     //     // console.log(this.intersected.position);
     // }
 
-    calculateClosestGridPosition(pickedPoint: THREE.Vector3) {
-        const snappedX = Math.round(pickedPoint.x / GRID_SIZE) * GRID_SIZE;
-        // const snappedY = Math.round(pickedPoint.y / GRID_SIZE) * GRID_SIZE;
-        const snappedZ = Math.round(pickedPoint.z / GRID_SIZE) * GRID_SIZE;
-        // Use the node's Y value.
-        return new THREE.Vector3(snappedX, this.intersected.position.y, snappedZ);
-    }
+    // calculateClosestGridPosition(pickedPoint: THREE.Vector3) {
+    //     const snappedX = Math.round(pickedPoint.x / GRID_SIZE) * GRID_SIZE;
+    //     // const snappedY = Math.round(pickedPoint.y / GRID_SIZE) * GRID_SIZE;
+    //     const snappedZ = Math.round(pickedPoint.z / GRID_SIZE) * GRID_SIZE;
+    //     // Use the node's Y value.
+    //     return new THREE.Vector3(snappedX, this.intersected.position.y, snappedZ);
+    // }
 
     changeColour(colour: string) {
         if (!this.intersected)
@@ -387,12 +395,6 @@ export class ModelViewer {
     }
 
     render() {
-        // Check for collision
-        // if (this.furnitureArray[0].boundingBox.intersectsBox(this.furnitureArray[1].boundingBox)) {
-        //     // Handle collision
-        //     alert("Collision detected");
-        // }
-
         this.renderer.render(this.scene, this.camera);
     }
 

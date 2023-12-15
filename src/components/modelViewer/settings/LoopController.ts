@@ -23,7 +23,7 @@ export class LoopController {
     this.updatables.push(object);
   }
 
-  intersect(furnitureArray: Furniture[]) {
+  checkCollision(furnitureArray: Furniture[]) {
     if (!furnitureArray[0].scene)
       return;
 
@@ -46,7 +46,7 @@ export class LoopController {
 
       this.tick();
 
-      this.intersect(furnitureArray);
+      this.checkCollision(furnitureArray);
 
       this.renderer.render(this.scene, this.camera);
     });
