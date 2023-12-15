@@ -184,32 +184,6 @@ export class ModelViewer {
         this.transformControls.addEventListener("mouseDown", () => { this.controlsController.controls.enabled = false; });
         this.transformControls.addEventListener("mouseUp", () => { this.controlsController.controls.enabled = true; });
 
-        // this.transformControls.addEventListener('object-changed', () => {
-        //     console.log("CHANGE!");
-        //     if (!this.intersected)
-        //         return;
-
-        //     this.intersected.position.y = 0;
-        // });
-
-        // this.transformControls.addEventListener('dragging-changed', () => {
-        //     // Snap the model to the ground
-        //     if (!this.intersected)
-        //         return;
-
-        //     this.intersected.position.y = 0;
-        // });
-
-        // document.addEventListener('click', (e) => {
-        //     if (!this.intersected)
-        //         return;
-
-        //     // transformControlsGizmo.attach(this.intersected);
-        //     // this.controlsController.controls.enabled = false;
-        //     // this.transformControls.attach(this.intersected);
-        //     // this.changeColour('#e2eab8');
-        // });
-
         document.addEventListener("pointerdown", () => {
             this.changeColour('#f47653');
         });
@@ -223,14 +197,12 @@ export class ModelViewer {
         // TEST FURNITURE TABLE //
         const table1 = new Furniture("furniture", new THREE.Vector3(0, 0, -1));
         table1.initMesh(1, this.scene, this.modelsArray, this.transformControls).then(() => {
-            // this.addObject(table1);
             this.loopController.addToUpdate(table1);
             this.furnitureArray.push(table1);
         });
 
         const table2 = new Furniture("furniture", new THREE.Vector3(1, 0, 1));
         table2.initMesh(2, this.scene, this.modelsArray, this.transformControls).then(() => {
-            // this.addObject(table2);
             this.loopController.addToUpdate(table2);
             this.furnitureArray.push(table2);
         });
@@ -269,29 +241,6 @@ export class ModelViewer {
         document.addEventListener("pointermove", (e: PointerEvent) => { this.onPointerMove(e) });
     }
 
-    // onHoverOn(event: any) {
-    //     const split = event.object.name.split('-');
-    //     const id = split[split.length - 1];
-    //     this.intersected = findModelParent(event.object as THREE.Mesh, id);
-
-    //     this.changeColour('#f47653');
-    // }
-    // onHoverOff(event: any) {
-    //     this.changeColour('#e2eab8');
-    // }
-
-    // onDragStart(event: any) {
-    //     this.controlsController.controls.enabled = false;
-    //     this.changeColour('#f47653');
-    // }
-    // onDrag(event: any) {
-    //     this.intersected.position.y = 0;
-    // }
-    // onDragEnd(event: any) {
-    //     this.controlsController.controls.enabled = true;
-    //     this.changeColour('#e2eab8');
-    // }
-
     onPointerMove(event: PointerEvent) {
         this.updatePointerMode(event);
 
@@ -301,18 +250,13 @@ export class ModelViewer {
         }
         else {
             this.changeColour('#e2eab8');
-            // this.intersected = null;
         }
 
         // Stop the abillity to lift the model
-        if (!this.intersected)
-            return;
-
-        this.intersected.position.y = 0;
+        if (this.intersected)
+            this.intersected.position.y = 0;
     }
 
-    // onPointerDown(event: PointerEvent) {
-    // }
 
     updatePointerMode(event: PointerEvent) {
         event.preventDefault();
@@ -335,42 +279,14 @@ export class ModelViewer {
             const split = intersects[0].object.name.split('-');
             const id = split[split.length - 1];
 
-            // if(!this.intersected)
             this.intersected = findModelParent(intersects[0].object as THREE.Mesh, id);
 
             return true;
         }
         else {
-            // this.intersected = null;
             return false;
         }
     }
-
-    // changePosition() {
-    //     // const intersect = this.raycaster.intersectObject(this.gridController.gridHelper);
-    //     // this.raycaster.
-    //     // intersect
-
-    //     const pickedPoint = new THREE.Vector3(this.pointer.x, 1, this.pointer.y);
-    //     const pos = this.calculateClosestGridPosition(pickedPoint);
-    //     console.log("Pos ", pos);
-
-    //     this.intersected.children.forEach(child => {
-    //         const c = child as THREE.Mesh;
-    //         c.position.x += pos.x;
-    //         c.position.y += pos.y;
-    //         c.position.z += pos.z;
-    //     });
-    //     // console.log(this.intersected.position);
-    // }
-
-    // calculateClosestGridPosition(pickedPoint: THREE.Vector3) {
-    //     const snappedX = Math.round(pickedPoint.x / GRID_SIZE) * GRID_SIZE;
-    //     // const snappedY = Math.round(pickedPoint.y / GRID_SIZE) * GRID_SIZE;
-    //     const snappedZ = Math.round(pickedPoint.z / GRID_SIZE) * GRID_SIZE;
-    //     // Use the node's Y value.
-    //     return new THREE.Vector3(snappedX, this.intersected.position.y, snappedZ);
-    // }
 
     changeColour(colour: string) {
         if (!this.intersected)
@@ -405,7 +321,6 @@ export class ModelViewer {
 
         if (object.isMesh) {
             this.sceneController.addMesh(object.mesh);
-            // this.meshArray.push(object.mesh);
         }
 
         this.loopController.addToUpdate(object);
