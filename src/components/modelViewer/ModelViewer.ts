@@ -143,8 +143,10 @@ export class ModelViewer {
         // }
 
         this.transformControls = new TransformControls(this.camera, this.canvas);
+        // Adjust gizmo pos to be in centre of model.
         this.transformControls.position.x -= .1;
         this.transformControls.position.y += .6;
+
         // this.transformControls.showY = false;
         console.log("this.transformControls ", this.transformControls);
 
@@ -152,11 +154,9 @@ export class ModelViewer {
         const matColorY = new THREE.MeshBasicMaterial({ color: 0xe2eab8, opacity: 1 });
         const matColorZ = new THREE.MeshBasicMaterial({ color: 0x0e73e6, opacity: 1 });
 
-        console.log("this.transformControls.children[0].gizmo.translate ", this.transformControls.children[0].gizmo.translate);
-        // this.transformControls.children[0].gizmo.translate.children[0].material = matColor;
-        // this.transformControls.children[0].gizmo.translate.children[0].scale.x *= 2;
-        this.transformControls.children[0].gizmo.translate.traverse((child: THREE.Mesh) => {
-            if (child.isMesh ) {
+        console.log("this.transformControls.children[0] ", this.transformControls.children[0]);
+        (this.transformControls.children[0] as TransformControlsGizmo).gizmo.translate.traverse((child: THREE.Mesh) => {
+            if (child.isMesh) {
                 // if (child.name === 'X' ) {
                 //     console.log("child.name === 'X' ", child);                    
                 //     // child.material.color.set(0xf47653);
@@ -170,46 +170,16 @@ export class ModelViewer {
                 //     // child.material.color.set(0x0e73e6);
                 //     child.material.opacity = 0.001;
                 // }
-                if (child.name === 'XYZ' ) {
-                    child.material.color.set(0x0e73e6);
+                if (child.name === 'XYZ') {
+                    (child.material as THREE.MeshBasicMaterial).color.set(0x0e73e6);
                     // child.material.opacity = 0.001;
                 }
-                else{
-                    child.material.color.set(0xffffff);
-                    child.material.opacity = 0.00001;
+                else {
+                    (child.material as THREE.MeshBasicMaterial).color.set(0xffffff);
+                    (child.material as THREE.MeshBasicMaterial).opacity = 0.00001;
                 }
             }
         });
-
-        // this.transformControls.traverse((child: THREE.Mesh) => {
-        //         if (child.isMesh) {
-        //             child.material = matColor;
-        //             // child.material.color.set(0xff0000); // Set to red
-        //         }
-        //     });
-
-        // this.transformControls.children[0].children[0].children[1].visible = false;
-        // this.transformControls.children[0].children[0].children[8].visible = false;
-        // const transformControlsGizmo = new TransformControlsGizmo();
-
-        // const translateXHandle = transformControlsGizmo.gizmo['translate'].children.find(child => child.name === 'X');
-        // if (translateXHandle) {
-        //     console.log("translateXHandle ", translateXHandle);
-        //     const matColor = new THREE.MeshBasicMaterial({ color: 0xffffff, opacity: .2 });
-        //     // (translateXHandle as THREE.Mesh).material = matColor;
-        //     // console.log("translateXHandle ", translateXHandle);
-
-        //     const rootParent = this.findParent(translateXHandle as THREE.Mesh);
-        //     console.log("rootParent ", rootParent);
-
-        //     translateXHandle.traverse((child: THREE.Mesh) => {
-        //         // if (child.isMesh) {
-        //             console.log("child ", child);
-        //             child.material = matColor;
-        //             // child.material.color.set(0xff0000); // Set to red
-        //         // }
-        //     });
-        // }
 
         this.scene.add(this.transformControls);
         // this.transformControls.setMode('translate');
@@ -217,39 +187,31 @@ export class ModelViewer {
             if (!this.intersected)
                 return;
 
-            // this.changeColour('#e2eab8');
             this.intersected.position.y = 0;
         });
-        // this.transformControls.addEventListener('dragging-changed', (event: any) => {this.controlsController.controls.enabled = ! event.value;});
-        document.addEventListener('click', (e) => {
-            if (!this.intersected)
-                return;
 
-            // transformControlsGizmo.attach(this.intersected);
-            // this.controlsController.controls.enabled = false;
-            // this.transformControls.attach(this.intersected);
-            // this.changeColour('#e2eab8');
-        });
+        // document.addEventListener('click', (e) => {
+        //     if (!this.intersected)
+        //         return;
+
+        //     // transformControlsGizmo.attach(this.intersected);
+        //     // this.controlsController.controls.enabled = false;
+        //     // this.transformControls.attach(this.intersected);
+        //     // this.changeColour('#e2eab8');
+        // });
+
         document.addEventListener("pointerdown", () => {
-            // this.controlsController.controls.enabled = false;
             this.changeColour('#f47653');
         });
         document.addEventListener("pointerup", () => {
-            // this.controlsController.controls.enabled = true;
             this.transformControls.detach();
             this.changeColour('#e2eab8');
         });
         this.transformControls.addEventListener("mouseDown", () => {
-            //     // if (!this.intersected)
-            //     //     return;
-            //     // this.transformControls.attach(this.intersected);
             this.controlsController.controls.enabled = false;
-            // this.changeColour('#f47653');
         });
         this.transformControls.addEventListener("mouseUp", () => {
             this.controlsController.controls.enabled = true;
-            // this.transformControls.detach();
-            // this.changeColour('#e2eab8');
         });
 
         // TEST FURNITURE TABLE //
@@ -258,13 +220,8 @@ export class ModelViewer {
         const table2 = new Furniture("furniture", new THREE.Vector3(1, 0, 1));
         table2.initMesh(2, this.scene, this.modelsArray, this.transformControls);
 
-        // this.loopController.addToUpdate(this.table);
-
         // RESIZER //
         const resizer = new Resizer(this.camera, this.renderer);
-
-        // this.group = new THREE.Group();
-        // this.scene.add(this.group);
 
         this.init();
     }
@@ -282,9 +239,8 @@ export class ModelViewer {
         // Add To render loop
         // this.addObject(this.controlsController);
         // this.addObject(this.cameraController);
-        // this.modelsArray = [];
+
         // this.dragControls = new DragControls(this.modelsArray, this.camera, this.canvas);
-        // this.dragControls = new DragControls([... this.modelsArray], this.camera, this.canvas);
         // this.dragControls.transformGroup = true;
 
         // this.dragControls.addEventListener('dragstart', (e) => { this.onDragStart(e) });
@@ -295,123 +251,23 @@ export class ModelViewer {
         // this.dragControls.addEventListener('hoveroff', (e) => { this.onHoverOff(e) });
 
         document.addEventListener("pointermove", (e: PointerEvent) => { this.onPointerMove(e) });
-
-        // document.addEventListener("pointerdown", (e: PointerEvent) => { this.onPointerDown(e) });
-
-        // document.addEventListener("pointerdown", () => { this.controlsController.controls.enabled = false; });
-        // document.addEventListener("pointerup", () => { this.controlsController.controls.enabled = true; });
-
-        // this.dragControls.addEventListener('dragstart', (e) => { this.controlsController.controls.enabled = false;});
-        // this.dragControls.addEventListener('dragend', (e) => { this.controlsController.controls.enabled = true; });
-
-        // document.addEventListener('click', (e) => { this.onClick(e) });
-
-        // window.addEventListener( 'keydown', (e) => { this.onKeyDown(e) });
-        // window.addEventListener( 'keyup', () => { this.onKeyUp() });
-    }
-
-    // onKeyDown(event: any) {
-    //     this.enableSelection = (event.keyCode === 16) ? true : false;
-    // }
-    // onKeyUp() {
-    //     this.enableSelection = false;
-    // }
-
-    onClick(event: MouseEvent) {
-        event.preventDefault();
-
-        // if (this.enableSelection === true) {
-
-        let draggableObjects = this.dragControls.getObjects();
-        draggableObjects = [];
-        // this.modelsArray = [];
-
-        // Convert mouse position to NDC for raycasting
-        this.pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
-        this.pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
-        this.raycaster.setFromCamera(this.pointer, this.camera);
-
-        // Find intersected objects
-        const intersections = this.raycaster.intersectObjects(this.modelsArray, true);
-
-        if (intersections.length > 0) {
-            const selectedObject = intersections[0].object;
-            draggableObjects = [selectedObject]; // Update draggableObjects to contain only the selected object
-            this.dragControls.transformGroup = false; // Ensure individual object transformation
-        }
-
-        // if (!this.intersected) {
-
-        // this.pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
-        // this.pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
-
-        // this.raycaster.setFromCamera(this.pointer, this.camera);
-
-        // const intersections = this.raycaster.intersectObjects(this.modelsArray, true);
-
-        // if (intersections.length > 0) {
-        // const object = intersections[0].object as THREE.Mesh;
-        // const split = intersections[0].object.name.split('-');
-        // const id = split[split.length - 1];
-        // this.intersected = findModelParent(intersections[0].object as THREE.Mesh, id);
-        // draggableObjects = [this.intersected]; // Update draggableObjects to contain only the selected object
-        // this.modelsArray = [this.intersected]; // Update draggableObjects to contain only the selected object
-        // this.dragControls.transformGroup = false;
-
-
-        // } else { 
-
-        // if (this.group.children.includes(this.intersected) === true) {
-        //     // (object.material as THREE.MeshToonMaterial).emissive.set(0x000000);
-        //     this.scene.attach(this.intersected);
-
-        // } else {
-        //     // (object.material as THREE.MeshToonMaterial).emissive.set(0xaaaaaa);
-        //     this.group.attach(this.intersected);
-        // }
-
-        // // this.dragControls.transformGroup = true;
-        // draggableObjects.push(this.group);
-        // }
-        // }
-
-        // if (this.group.children.length === 0) {
-        //     // this.dragControls.transformGroup = true;
-        //     draggableObjects.push(...this.modelsArray);
-        // }
-        // }
-        // this.render();
     }
 
     onHoverOn(event: any) {
-        console.log("onHoverOn => event.object ", event.object);
         const split = event.object.name.split('-');
         const id = split[split.length - 1];
         this.intersected = findModelParent(event.object as THREE.Mesh, id);
-        console.log("onHoverOn => this.intersected ", this.intersected);
-        // this.intersection();
 
         this.changeColour('#f47653');
     }
     onHoverOff(event: any) {
-        // setTimeout(()=>{
         this.changeColour('#e2eab8');
-        // this.intersected = null;
-        // },100);
     }
 
     onDragStart(event: any) {
         this.controlsController.controls.enabled = false;
 
-        // console.log("onDragStart => event.object ", event.object);
-        // this.intersected = findModelParent(event.object as THREE.Mesh);
-        // this.intersection();
-        console.log("onDragStart => this.intersected ", this.intersected);
-
-        // this.intersected = findModelParent(event.object as THREE.Mesh);
-
         this.changeColour('#f47653');
-        // ( (this.intersected as THREE.Mesh).material as THREE.MeshToonMaterial).emissive.set( 0xaaaaaa );
     }
 
 
@@ -420,9 +276,8 @@ export class ModelViewer {
     }
     onDragEnd(event: any) {
         this.controlsController.controls.enabled = true;
+
         this.changeColour('#e2eab8');
-        // this.intersected = null;
-        // ( (this.intersected as THREE.Mesh).material as THREE.MeshToonMaterial).emissive.set( 0x000000 );
     }
 
     onPointerMove(event: PointerEvent) {
@@ -434,13 +289,10 @@ export class ModelViewer {
         }
         else {
             this.changeColour('#e2eab8');
-            // this.transformControls.detach();
         }
     }
 
     // onPointerDown(event: PointerEvent) {
-    // if (this.intersection())
-    // this.changePosition();
     // }
 
     updatePointerMode(event: PointerEvent) {
@@ -488,6 +340,7 @@ export class ModelViewer {
     //     });
     //     // console.log(this.intersected.position);
     // }
+
     calculateClosestGridPosition(pickedPoint: THREE.Vector3) {
         const snappedX = Math.round(pickedPoint.x / GRID_SIZE) * GRID_SIZE;
         // const snappedY = Math.round(pickedPoint.y / GRID_SIZE) * GRID_SIZE;
