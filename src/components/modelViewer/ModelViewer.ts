@@ -231,6 +231,7 @@ export class ModelViewer {
         document.addEventListener("pointerup", () => {
             this.transformControls.detach();
             this.changeColour('#e2eab8');
+            // this.intersected = null;
         });
 
         // FOR DEV ONLY, later models will be spwaned from a menu into the scene.
@@ -315,6 +316,7 @@ export class ModelViewer {
         }
         else {
             this.changeColour('#e2eab8');
+            // this.intersected = null;
         }
 
         // Stop the abillity to lift the model
@@ -334,6 +336,9 @@ export class ModelViewer {
     }
 
     intersection(): boolean {
+        if(this.intersected)
+            return;
+
         try {
             this.raycaster.setFromCamera(this.pointer, this.camera);
         }
