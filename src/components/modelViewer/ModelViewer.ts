@@ -285,10 +285,10 @@ export class ModelViewer {
         this.changeColour('#f47653');
     }
 
-
     onDrag(event: any) {
-        event.object.position.y = 0;
+        this.intersected.position.y = 0;
     }
+    
     onDragEnd(event: any) {
         this.controlsController.controls.enabled = true;
 
