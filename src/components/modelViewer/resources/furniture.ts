@@ -96,8 +96,8 @@ export class Furniture extends Mesh {
       this.boxHelper.update();
 
       // If you want a visible bounding box
-      // scene.add(this.scene);
-      scene.add(this.scene, this.boxHelper);
+      scene.add(this.scene);
+      // scene.add(this.scene, this.boxHelper);
       modelsArray.push(this.scene);
     });
   }
