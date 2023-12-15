@@ -28,7 +28,13 @@ export class LoopController {
       return;
 
     for (let i = 0; i < furnitureArray.length; ++i) {
+      if (!furnitureArray[i].scene)
+        return;
+
       for (let j = 0; j < furnitureArray.length; ++j) {
+        if (!furnitureArray[j].scene)
+        return;
+
         // Don't collide with itself.
         if(j == i)
           continue;

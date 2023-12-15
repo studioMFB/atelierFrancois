@@ -80,9 +80,6 @@ export class Furniture extends Mesh {
 
           child.name += "-model-" + id;
           child.geometry.computeBoundingBox();
-
-
-          // modelsArray.push(child);
         }
       });
 

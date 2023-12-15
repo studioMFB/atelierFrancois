@@ -25,7 +25,9 @@ import { Furniture, findModelParent } from './resources/furniture';
 
 const GRID_SIZE = 5;
 const GRID_DIVISION = 10;
-const GRID_CELL_SIZE = 2;
+// const GRID_SIZE = 20;
+// const GRID_DIVISION = 40;
+const GRID_CELL_SIZE = GRID_DIVISION / GRID_SIZE;
 const GRID_CELL_MID_SIZE = GRID_CELL_SIZE * .5;
 
 const TERRAIN_SIZE = new THREE.Vector3(2, .5, 2);
@@ -59,8 +61,10 @@ export class ModelViewer {
     private pointer: THREE.Vector2;
     private modelsArray: THREE.Group<THREE.Object3DEventMap>[];
 
+    private intersect: THREE.Intersection<THREE.Object3D<THREE.Object3DEventMap>>;
     private intersected: THREE.Group<THREE.Object3DEventMap>;
-    // private terrainGhost: TerrainGhost;
+
+    private terrainGhost: TerrainGhost;
 
     private furnitureArray: Furniture[];
 
@@ -120,12 +124,12 @@ export class ModelViewer {
         this.scene.add(this.planeController.shadowGround);
 
         // Ghost Terrain //
-        // this.terrainGhost = new TerrainGhost("T-Ghost", TERRAIN_SIZE, new THREE.Vector3(50, 1, 50), new THREE.Vector3(0, 0, 0));
-        // this.terrainGhost.initMesh(new THREE.Color(0xff0000), .5);
-        // if (this.terrainGhost.mesh) {
-        //     this.sceneController.addMesh(this.terrainGhost.mesh);
-        //     this.loopController.addToUpdate(this.terrainGhost);
-        // }
+        this.terrainGhost = new TerrainGhost("T-Ghost", TERRAIN_SIZE, new THREE.Vector3(50, 1, 50), new THREE.Vector3(0, 0, 0));
+        this.terrainGhost.initMesh(new THREE.Color(0xff0000), .5);
+        if (this.terrainGhost.mesh) {
+            this.sceneController.addMesh(this.terrainGhost.mesh);
+            this.loopController.addToUpdate(this.terrainGhost);
+        }
 
         // MOVE TO OWN CLASS
         this.transformControls = new TransformControls(this.camera, this.canvas);
@@ -238,7 +242,13 @@ export class ModelViewer {
         // this.dragControls.addEventListener('drag', (e) => { this.onDrag(e) });
         // this.dragControls.addEventListener('dragend', (e) => { this.onDragEnd(e) });
 
+        // Pointer
         document.addEventListener("pointermove", (e: PointerEvent) => { this.onPointerMove(e) });
+        document.addEventListener("pointerdown", (e: PointerEvent) => { this.onPointerDown() });
+
+        // Keys
+        document.addEventListener('keydown', (e: KeyboardEvent) => { this.onDocumentKeyDown(e) });
+        document.addEventListener('keyup', (e: KeyboardEvent) => { this.onDocumentKeyUp(e) })
     }
 
     onPointerMove(event: PointerEvent) {
@@ -255,6 +265,38 @@ export class ModelViewer {
         // Stop the abillity to lift the model
         if (this.intersected)
             this.intersected.position.y = 0;
+    }
+
+    async onPointerDown() {
+        if (!this.intersected)
+            return;
+
+        // delete Terrain //
+        if (this.isShiftDown) {
+        //     this.scene.remove(this.intersected);
+        //     this.modelsArray.splice(this.modelsArray.indexOf(this.intersected), 1);
+        // } else {
+            
+        // create Terrain
+        // ADD Key to Spwan Model.
+        const table = new Furniture("furniture", new THREE.Vector3(0, 0, 3));
+        await table.initMesh(3, this.scene, this.modelsArray, this.transformControls);
+        this.loopController.addToUpdate(table);
+        this.furnitureArray.push(table);
+
+        // Move to function
+        // Render a red square to show where the model would land.
+        // if (table && table.mesh && this.intersect && this.intersect.face) {
+        //     table.mesh.position.copy(this.intersect.point).add(this.intersect.face.normal);
+        //     table.mesh.position.divideScalar(GRID_CELL_SIZE).floor().multiplyScalar(GRID_CELL_SIZE).addScalar(GRID_CELL_MID_SIZE);
+        //     table.mesh.position.y = TERRAIN_OFFSET;
+        // }
+
+        }
+
+        // this.render();
+        // this.controlsController.controls.enabled = true;
+        // document.removeEventListener("pointermove", this.onPointerMove);
     }
 
 
@@ -279,8 +321,16 @@ export class ModelViewer {
             const split = intersects[0].object.name.split('-');
             const id = split[split.length - 1];
 
-            this.intersected = findModelParent(intersects[0].object as THREE.Mesh, id);
+            this.intersect = intersects[0];
+            this.intersected = findModelParent(this.intersect.object as THREE.Mesh, id);
 
+            // Move to function
+            // Render a red square to show where the model would land.
+            // if (this.terrainGhost && this.terrainGhost.mesh && this.intersect && this.intersect.face) {
+            //     this.terrainGhost.mesh.position.copy(this.intersect.point).add(this.intersect.face.normal);
+            //     this.terrainGhost.mesh.position.divideScalar(GRID_CELL_SIZE).floor().multiplyScalar(GRID_CELL_SIZE).addScalar(GRID_CELL_MID_SIZE);
+            //     this.terrainGhost.mesh.position.y = GHOST_OFFSET;
+            // }
             return true;
         }
         else {
