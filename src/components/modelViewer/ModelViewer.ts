@@ -146,8 +146,41 @@ export class ModelViewer {
         this.transformControls.position.x -= .1;
         this.transformControls.position.y += .6;
         // this.transformControls.showY = false;
-        
-        // const matColor = new THREE.MeshBasicMaterial({ color: 0xf47653, opacity: 1 });
+        console.log("this.transformControls ", this.transformControls);
+
+        const matColorX = new THREE.MeshBasicMaterial({ color: 0xf47653, opacity: 1 });
+        const matColorY = new THREE.MeshBasicMaterial({ color: 0xe2eab8, opacity: 1 });
+        const matColorZ = new THREE.MeshBasicMaterial({ color: 0x0e73e6, opacity: 1 });
+
+        console.log("this.transformControls.children[0].gizmo.translate ", this.transformControls.children[0].gizmo.translate);
+        // this.transformControls.children[0].gizmo.translate.children[0].material = matColor;
+        // this.transformControls.children[0].gizmo.translate.children[0].scale.x *= 2;
+        this.transformControls.children[0].gizmo.translate.traverse((child: THREE.Mesh) => {
+            if (child.isMesh ) {
+                // if (child.name === 'X' ) {
+                //     console.log("child.name === 'X' ", child);                    
+                //     // child.material.color.set(0xf47653);
+                //     child.material.opacity = 0.001;
+                // }
+                // else if (child.name === 'Y' ) {
+                //     // child.material.color.set(0xe2eab8);
+                //     child.material.opacity = 0.001;
+                // }
+                // else if (child.name === 'Z' ) {
+                //     // child.material.color.set(0x0e73e6);
+                //     child.material.opacity = 0.001;
+                // }
+                if (child.name === 'XYZ' ) {
+                    child.material.color.set(0x0e73e6);
+                    // child.material.opacity = 0.001;
+                }
+                else{
+                    child.material.color.set(0xffffff);
+                    child.material.opacity = 0.00001;
+                }
+            }
+        });
+
         // this.transformControls.traverse((child: THREE.Mesh) => {
         //         if (child.isMesh) {
         //             child.material = matColor;
@@ -193,9 +226,9 @@ export class ModelViewer {
                 return;
 
             // transformControlsGizmo.attach(this.intersected);
-            this.transformControls.attach(this.intersected);
             // this.controlsController.controls.enabled = false;
-            this.changeColour('#e2eab8');
+            // this.transformControls.attach(this.intersected);
+            // this.changeColour('#e2eab8');
         });
         document.addEventListener("pointerdown", () => {
             // this.controlsController.controls.enabled = false;
@@ -397,7 +430,7 @@ export class ModelViewer {
 
         if (this.intersection()) {
             this.changeColour('#f47653');
-            // this.transformControls.attach(this.intersected);
+            this.transformControls.attach(this.intersected);
         }
         else {
             this.changeColour('#e2eab8');
