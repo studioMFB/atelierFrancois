@@ -8,7 +8,7 @@ import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
 import { FXAAShader } from "three/examples/jsm/shaders/FXAAShader";
 
 import { DragControls } from 'three/examples/jsm/controls/DragControls.js';
-import { TransformControls, TransformControlsGizmo } from 'three/examples/jsm/controls/TransformControls.js';
+import { TransformControls, TransformControlsGizmo, TransformControlsPlane } from 'three/examples/jsm/controls/TransformControls.js';
 
 import { ControlsController } from './settings/ControlsController';
 import { CameraController } from "./settings/CameraController";
@@ -136,12 +136,13 @@ export class ModelViewer {
         // this.transformControls.showY = false;
         console.log("this.transformControls ", this.transformControls);
 
-        const matColorX = new THREE.MeshBasicMaterial({ color: 0xf47653, opacity: 1 });
-        const matColorY = new THREE.MeshBasicMaterial({ color: 0xe2eab8, opacity: 1 });
-        const matColorZ = new THREE.MeshBasicMaterial({ color: 0x0e73e6, opacity: 1 });
+        // const matColorX = new THREE.MeshBasicMaterial({ color: 0xf47653, opacity: 1 });
+        // const matColorY = new THREE.MeshBasicMaterial({ color: 0xe2eab8, opacity: 1 });
+        // const matColorZ = new THREE.MeshBasicMaterial({ color: 0x0e73e6, opacity: 1 });
 
-        console.log("this.transformControls.children[0] ", this.transformControls.children[0]);
-        (this.transformControls.children[0] as TransformControlsGizmo).gizmo.translate.traverse((child: THREE.Mesh) => {
+        console.log("(this.transformControls.children[0] as TransformControlsGizmo).helper.translate ", (this.transformControls.children[0] as TransformControlsGizmo).helper.translate);
+        // Main gizmo, arrows and squares
+        (this.transformControls.children[0] as TransformControlsGizmo).gizmo.translate.traverse((child: any) => {
             if (child.isMesh) {
                 // if (child.name === 'X' ) {
                 //     console.log("child.name === 'X' ", child);                    
@@ -164,6 +165,19 @@ export class ModelViewer {
                     (child.material as THREE.MeshBasicMaterial).color.set(0xffffff);
                     (child.material as THREE.MeshBasicMaterial).opacity = 0.00001;
                 }
+            }
+            // else{
+                // (child.material as THREE.MeshBasicMaterial).opacity = 0.00001;
+            // }
+        });
+
+        (this.transformControls.children[0] as TransformControlsGizmo).helper.translate.traverse((child: any) => {
+            // if (child.isMesh) {
+            //     (child.material as THREE.MeshBasicMaterial).color.set(0xf47653);
+            //     (child.material as THREE.MeshBasicMaterial).opacity = 0.00001;
+            // }
+            if (child.isLine) {
+                (child.material as THREE.MeshBasicMaterial).opacity = 0.00001;
             }
         });
 
