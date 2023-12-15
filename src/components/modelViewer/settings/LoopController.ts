@@ -35,7 +35,6 @@ export class LoopController {
 
         if (furnitureArray[i].boundingBox.intersectsBox(furnitureArray[j].boundingBox)) {
           // Handle collision
-          console.warn("Collision detected");
           this.resolveOverlap(furnitureArray[i].scene, furnitureArray[i].boundingBox, furnitureArray[j].scene, furnitureArray[j].boundingBox);
         }
       }
