@@ -126,20 +126,20 @@ export class ModelViewer {
         //     this.sceneController.addMesh(this.terrainGhost.mesh);
         //     this.loopController.addToUpdate(this.terrainGhost);
         // }
-        
+
         // MOVE TO OWN CLASS
         this.transformControls = new TransformControls(this.camera, this.canvas);
         this.scene.add(this.transformControls);
 
         // Find a way to switch between modes and apply the custom flags.
         // this.transformControls.setMode('translate');
-        // this.transformControls.showY = false;
-        
-        // this.transformControls.setMode('rotate');
+        // this.transformControls.showY = false; // Idealy don't show the Y arrow, but this removes the centre square.
+
+        // this.transformControls.setMode('rotate'); // rotate only around the Y axis.
         // this.transformControls.showX = false;
         // this.transformControls.showZ = false;
 
-        // this.transformControls.setMode('scale');
+        // this.transformControls.setMode('scale'); // Desable scaling.
         // this.transformControls.showX = false;
         // this.transformControls.showY = false;
         // this.transformControls.showZ = false;
@@ -149,7 +149,7 @@ export class ModelViewer {
         this.transformControls.position.y += .6;
 
         console.log("this.transformControls ", this.transformControls);
-        console.log("(this.transformControls.children[0] as TransformControlsGizmo).gizmo.translate ", (this.transformControls.children[0] as TransformControlsGizmo).gizmo.translate);
+        console.log("(this.transformControls.children[0] as TransformControlsGizmo).picker.translate ", (this.transformControls.children[0] as TransformControlsGizmo).picker.translate);
 
         // Main gizmo, arrows and squares
         (this.transformControls.children[0] as TransformControlsGizmo).gizmo.translate.traverse((child: any) => {
@@ -164,7 +164,7 @@ export class ModelViewer {
                     (child.material as THREE.MeshBasicMaterial).opacity = 0.00001;
                 }
             }
-            else{
+            else {
                 // (child.material as THREE.MeshBasicMaterial).opacity = 0.00001;
                 // console.log("child not a mesh ", child);    
                 // Scaling somewhat changes the position of the gizmos from the model not in an even way.
@@ -173,12 +173,21 @@ export class ModelViewer {
                 // child.scale.x *= 0.5;            
                 // child.scale.y *= 0.5;            
                 // child.scale.z *= 0.5; 
-                
+
                 // child.position.x -= .1;
                 // child.position.y += .6;
                 // child.position.z = 0;
             }
         });
+
+        // Pickers
+        // Not sure it does much.
+        // (this.transformControls.children[0] as TransformControlsGizmo).picker.translate.traverse((child: any) => {
+        //     if (child.isMesh) {
+        //         (child.material as THREE.MeshBasicMaterial).color.set(0xffffff);
+        //     }
+        //     console.log("child ", child);
+        // });
 
         // Helper transform lines axis
         (this.transformControls.children[0] as TransformControlsGizmo).helper.translate.traverse((child: any) => {
