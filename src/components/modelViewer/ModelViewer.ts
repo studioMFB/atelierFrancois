@@ -18,10 +18,8 @@ import { SceneController } from "./settings/SceneController";
 import { Resizer } from "./settings/Resizer";
 import { GridController } from './settings/GridControlller';
 import { PlaneController } from './resources/PlaneController';
-import { Terrain } from './resources/Terrain';
 import { TerrainGhost } from './resources/TerrainGhost';
 import { EventHub } from './../EventHub';
-import { type Texture } from './../../interfaces/Texture';
 import { Furniture, findModelParent } from './resources/furniture';
 
 
@@ -60,29 +58,18 @@ export class ModelViewer {
     private raycaster: THREE.Raycaster;
     private pointer: THREE.Vector2;
     private modelsArray: THREE.Group<THREE.Object3DEventMap>[];
-    // private modelsArray: RootNodeObject[];
-    private group: THREE.Group;
-    private enableSelection = false;
 
     private intersected: THREE.Group<THREE.Object3DEventMap>;
-    // private intersectedArray: any[];
-
     // private terrainGhost: TerrainGhost;
 
-    private table: Furniture;
-
-    private meshArray: THREE.Mesh[];
+    // private meshArray: THREE.Mesh[];
 
     private isShiftDown: boolean;
 
-    // private terrainsList: Map<string, Terrain> = new Map();
-
 
     constructor(container: HTMLElement) {
-        this.meshArray = [];
+        // this.meshArray = [];
         this.modelsArray = [];
-        // this.intersectedArray = [];
-        // this.isShiftDown = false;
 
         // Scene //
         this.sceneController = new SceneController();
@@ -98,7 +85,6 @@ export class ModelViewer {
         container.appendChild(this.canvas);
 
         // Camera //
-        // this.cameraController = new CameraController(new THREE.Vector3(-2, 2, 2));
         this.cameraController = new CameraController(new THREE.Vector3(-3, 4.5, 3));
         this.camera = this.cameraController.init();
         (this.camera as THREE.PerspectiveCamera).zoom = 2.2;
@@ -108,7 +94,6 @@ export class ModelViewer {
         this.controlsController.init();
 
         // Light //
-        // const hLight = new THREE.HemisphereLight(new THREE.Color(0xded6d8), null, 1.3);
         const hLight = new THREE.HemisphereLight(new THREE.Color(0xffffff), null, 1.05);
         this.scene.add(hLight);
         const lightController = new LightController();
@@ -142,6 +127,7 @@ export class ModelViewer {
         //     this.loopController.addToUpdate(this.terrainGhost);
         // }
 
+        // MOVE TO OWN CLASS
         this.transformControls = new TransformControls(this.camera, this.canvas);
         // Adjust gizmo pos to be in centre of model.
         this.transformControls.position.x -= .1;
@@ -214,6 +200,7 @@ export class ModelViewer {
             this.controlsController.controls.enabled = true;
         });
 
+        // FOR DEV ONLY, later models will be spwaned from a menu into the scene.
         // TEST FURNITURE TABLE //
         const table1 = new Furniture("furniture", new THREE.Vector3(0, 0, 0));
         table1.initMesh(1, this.scene, this.modelsArray, this.transformControls);
@@ -240,6 +227,7 @@ export class ModelViewer {
         // this.addObject(this.controlsController);
         // this.addObject(this.cameraController);
 
+        // MOVE TO OWN CLASS
         // this.dragControls = new DragControls(this.modelsArray, this.camera, this.canvas);
         // this.dragControls.transformGroup = true;
 
@@ -382,7 +370,7 @@ export class ModelViewer {
 
         if (object.mesh) {
             this.sceneController.addMesh(object.mesh);
-            this.meshArray.push(object.mesh);
+            // this.meshArray.push(object.mesh);
         }
 
         this.loopController.addToUpdate(object);
