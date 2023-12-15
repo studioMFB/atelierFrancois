@@ -126,63 +126,67 @@ export class ModelViewer {
         //     this.sceneController.addMesh(this.terrainGhost.mesh);
         //     this.loopController.addToUpdate(this.terrainGhost);
         // }
-
+        
         // MOVE TO OWN CLASS
         this.transformControls = new TransformControls(this.camera, this.canvas);
+        this.scene.add(this.transformControls);
+
+        // Find a way to switch between modes and apply the custom flags.
+        // this.transformControls.setMode('translate');
+        // this.transformControls.showY = false;
+        
+        // this.transformControls.setMode('rotate');
+        // this.transformControls.showX = false;
+        // this.transformControls.showZ = false;
+
+        // this.transformControls.setMode('scale');
+        // this.transformControls.showX = false;
+        // this.transformControls.showY = false;
+        // this.transformControls.showZ = false;
+
         // Adjust gizmo pos to be in centre of model.
         this.transformControls.position.x -= .1;
         this.transformControls.position.y += .6;
 
-        // this.transformControls.showY = false;
         console.log("this.transformControls ", this.transformControls);
+        console.log("(this.transformControls.children[0] as TransformControlsGizmo).gizmo.translate ", (this.transformControls.children[0] as TransformControlsGizmo).gizmo.translate);
 
-        // const matColorX = new THREE.MeshBasicMaterial({ color: 0xf47653, opacity: 1 });
-        // const matColorY = new THREE.MeshBasicMaterial({ color: 0xe2eab8, opacity: 1 });
-        // const matColorZ = new THREE.MeshBasicMaterial({ color: 0x0e73e6, opacity: 1 });
-
-        console.log("(this.transformControls.children[0] as TransformControlsGizmo).helper.translate ", (this.transformControls.children[0] as TransformControlsGizmo).helper.translate);
         // Main gizmo, arrows and squares
         (this.transformControls.children[0] as TransformControlsGizmo).gizmo.translate.traverse((child: any) => {
             if (child.isMesh) {
-                // if (child.name === 'X' ) {
-                //     console.log("child.name === 'X' ", child);                    
-                //     // child.material.color.set(0xf47653);
-                //     child.material.opacity = 0.001;
-                // }
-                // else if (child.name === 'Y' ) {
-                //     // child.material.color.set(0xe2eab8);
-                //     child.material.opacity = 0.001;
-                // }
-                // else if (child.name === 'Z' ) {
-                //     // child.material.color.set(0x0e73e6);
-                //     child.material.opacity = 0.001;
-                // }
+                // The square in the centre of the gizmos,
+                // with which you can move the model in any direction.
                 if (child.name === 'XYZ') {
                     (child.material as THREE.MeshBasicMaterial).color.set(0x0e73e6);
-                    // child.material.opacity = 0.001;
                 }
                 else {
                     (child.material as THREE.MeshBasicMaterial).color.set(0xffffff);
                     (child.material as THREE.MeshBasicMaterial).opacity = 0.00001;
                 }
             }
-            // else{
+            else{
                 // (child.material as THREE.MeshBasicMaterial).opacity = 0.00001;
-            // }
+                // console.log("child not a mesh ", child);    
+                // Scaling somewhat changes the position of the gizmos from the model not in an even way.
+                // Making repositioning all gizmos to the centre of there model impossible. 
+                // Investigate at a later time.
+                // child.scale.x *= 0.5;            
+                // child.scale.y *= 0.5;            
+                // child.scale.z *= 0.5; 
+                
+                // child.position.x -= .1;
+                // child.position.y += .6;
+                // child.position.z = 0;
+            }
         });
 
+        // Helper transform lines axis
         (this.transformControls.children[0] as TransformControlsGizmo).helper.translate.traverse((child: any) => {
-            // if (child.isMesh) {
-            //     (child.material as THREE.MeshBasicMaterial).color.set(0xf47653);
-            //     (child.material as THREE.MeshBasicMaterial).opacity = 0.00001;
-            // }
             if (child.isLine) {
                 (child.material as THREE.MeshBasicMaterial).opacity = 0.00001;
             }
         });
 
-        this.scene.add(this.transformControls);
-        // this.transformControls.setMode('translate');
         this.transformControls.addEventListener('dragging-changed', (event: any) => {
             if (!this.intersected)
                 return;
@@ -216,7 +220,7 @@ export class ModelViewer {
 
         // FOR DEV ONLY, later models will be spwaned from a menu into the scene.
         // TEST FURNITURE TABLE //
-        const table1 = new Furniture("furniture", new THREE.Vector3(0, 0, 0));
+        const table1 = new Furniture("furniture", new THREE.Vector3(0, 0, -1));
         table1.initMesh(1, this.scene, this.modelsArray, this.transformControls);
         const table2 = new Furniture("furniture", new THREE.Vector3(1, 0, 1));
         table2.initMesh(2, this.scene, this.modelsArray, this.transformControls);
