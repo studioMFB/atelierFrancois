@@ -1,17 +1,18 @@
-import { Clock, Scene, Camera, WebGLRenderer, Vector3 } from "three";
+import { Clock, Scene, WebGLRenderer, Vector3, PerspectiveCamera } from "three";
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
 import { Furniture } from "../resources/furniture";
 
 
 export class LoopController {
 
   clock: Clock;
-  camera: Camera;
+  camera: PerspectiveCamera;
   scene: Scene;
   renderer: WebGLRenderer;
   updatables: any[];
 
 
-  constructor(camera: Camera, scene: Scene, renderer: WebGLRenderer) {
+  constructor(camera: PerspectiveCamera, scene: Scene, renderer: WebGLRenderer) {
     this.clock = new Clock();
     this.camera = camera;
     this.scene = scene;
@@ -33,10 +34,10 @@ export class LoopController {
 
       for (let j = 0; j < furnitureArray.length; ++j) {
         if (!furnitureArray[j].scene)
-        return;
+          return;
 
         // Don't collide with itself.
-        if(j == i)
+        if (j == i)
           continue;
 
         if (furnitureArray[i].boundingBox.intersectsBox(furnitureArray[j].boundingBox)) {
@@ -49,33 +50,33 @@ export class LoopController {
 
   resolveOverlap(object1, box1, object2, box2) {
     if (box1.intersectsBox(box2)) {
-        // Calculate overlap on each axis
-        const overlapX = Math.min(box1.max.x, box2.max.x) - Math.max(box1.min.x, box2.min.x);
-        const overlapY = Math.min(box1.max.y, box2.max.y) - Math.max(box1.min.y, box2.min.y);
-        const overlapZ = Math.min(box1.max.z, box2.max.z) - Math.max(box1.min.z, box2.min.z);
+      // Calculate overlap on each axis
+      const overlapX = Math.min(box1.max.x, box2.max.x) - Math.max(box1.min.x, box2.min.x);
+      const overlapY = Math.min(box1.max.y, box2.max.y) - Math.max(box1.min.y, box2.min.y);
+      const overlapZ = Math.min(box1.max.z, box2.max.z) - Math.max(box1.min.z, box2.min.z);
 
-        // Determine the minimum overlap direction
-        const overlapMin = Math.min(overlapX, Math.min(overlapY, overlapZ));
+      // Determine the minimum overlap direction
+      const overlapMin = Math.min(overlapX, Math.min(overlapY, overlapZ));
 
-        // Create a vector for the resolution movement
-        const move = new Vector3();
+      // Create a vector for the resolution movement
+      const move = new Vector3();
 
-        // Depending on the minimum overlap, move on the corresponding axis
-        if (overlapMin === overlapX) {
-            move.setX(overlapX * (object1.position.x > object2.position.x ? 1 : -1));
-        } else if (overlapMin === overlapY) {
-            move.setY(overlapY * (object1.position.y > object2.position.y ? 1 : -1));
-        } else { // overlapMin == overlapZ
-            move.setZ(overlapZ * (object1.position.z > object2.position.z ? 1 : -1));
-        }
+      // Depending on the minimum overlap, move on the corresponding axis
+      if (overlapMin === overlapX) {
+        move.setX(overlapX * (object1.position.x > object2.position.x ? 1 : -1));
+      } else if (overlapMin === overlapY) {
+        move.setY(overlapY * (object1.position.y > object2.position.y ? 1 : -1));
+      } else { // overlapMin == overlapZ
+        move.setZ(overlapZ * (object1.position.z > object2.position.z ? 1 : -1));
+      }
 
-        // Adjust the position to resolve the overlap
-        object1.position.add(move.multiplyScalar(0.5)); // Adjusting both objects by half the overlap
-        object2.position.sub(move.multiplyScalar(0.5));
+      // Adjust the position to resolve the overlap
+      object1.position.add(move.multiplyScalar(0.5)); // Adjusting both objects by half the overlap
+      object2.position.sub(move.multiplyScalar(0.5));
     }
-}
+  }
 
-  start(furnitureArray: Furniture[]) {
+  start(furnitureArray: Furniture[], composer: EffectComposer) {
     this.renderer.setAnimationLoop(() => {
 
       this.tick();
@@ -83,6 +84,8 @@ export class LoopController {
       this.checkCollision(furnitureArray);
 
       this.renderer.render(this.scene, this.camera);
+      // Render using composer if using post-processing
+      // composer.render();
     });
   }
 

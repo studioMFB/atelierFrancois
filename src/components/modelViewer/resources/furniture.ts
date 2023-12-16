@@ -66,9 +66,10 @@ export class Furniture extends Mesh {
 
     loader.load(gltfUrl, (gltf: GLTF) => {
 
+      // this.scene = new Group();
       this.scene = gltf.scene;
 
-      this.scene.traverse((child: any) => {
+      gltf.scene.traverse((child: any) => {
         if (child.isMesh) {
           if (child.name.toLowerCase().includes("outline")) {
             child.material = matColor;
@@ -80,6 +81,9 @@ export class Furniture extends Mesh {
 
           child.name += "-model-" + id;
           child.geometry.computeBoundingBox();
+
+          // this.scene.attach(child);
+          // this.scene.add(child);
         }
       });
 

@@ -1,4 +1,4 @@
-import { Camera } from "three";
+import { PerspectiveCamera } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 
@@ -7,7 +7,7 @@ export class ControlsController {
     controls: OrbitControls;
 
 
-    constructor(camera: Camera, canvas: HTMLElement) {
+    constructor(camera: PerspectiveCamera, canvas: HTMLElement) {
         this.controls = new OrbitControls(camera, canvas);
     }
     

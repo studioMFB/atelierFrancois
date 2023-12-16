@@ -8,7 +8,7 @@ import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
 import { FXAAShader } from "three/examples/jsm/shaders/FXAAShader";
 
 import { DragControls } from 'three/examples/jsm/controls/DragControls.js';
-import { TransformControls, TransformControlsGizmo, TransformControlsPlane } from 'three/examples/jsm/controls/TransformControls.js';
+import { TransformControls, TransformControlsGizmo } from 'three/examples/jsm/controls/TransformControls.js';
 
 import { ControlsController } from './settings/ControlsController';
 import { CameraController } from "./settings/CameraController";
@@ -52,7 +52,7 @@ export class ModelViewer {
     private transformControls: TransformControls;
 
     private cameraController: CameraController;
-    private camera: THREE.Camera;
+    private camera: THREE.PerspectiveCamera;
 
     private gridController: GridController;
     private planeController: PlaneController;
@@ -60,6 +60,9 @@ export class ModelViewer {
     private raycaster: THREE.Raycaster;
     private pointer: THREE.Vector2;
     private modelsArray: THREE.Group<THREE.Object3DEventMap>[];
+
+    private composer: EffectComposer;
+    private outlinePass: OutlinePass;
 
     private intersect: THREE.Intersection<THREE.Object3D<THREE.Object3DEventMap>>;
     private intersected: THREE.Group<THREE.Object3DEventMap>;
@@ -97,6 +100,22 @@ export class ModelViewer {
         this.controlsController = new ControlsController(this.camera, this.canvas)
         this.controlsController.init();
 
+        // COMPOSER //
+        // MOVE TO OWN CLASS //
+        this.composer = new EffectComposer(this.renderer);
+        const renderPass = new RenderPass(this.scene, this.camera);
+        this.composer.addPass(renderPass);
+
+        this.outlinePass = new OutlinePass(new THREE.Vector2(window.innerWidth, window.innerHeight), this.scene, this.camera);
+        this.composer.addPass(this.outlinePass);
+
+        this.outlinePass.edgeStrength = 3;
+        this.outlinePass.edgeGlow = 0.7;
+        this.outlinePass.edgeThickness = 1;
+        this.outlinePass.pulsePeriod = 2;
+        this.outlinePass.visibleEdgeColor.set('#ff0000'); // red color
+        this.outlinePass.hiddenEdgeColor.set('#190a05');
+
         // Light //
         const hLight = new THREE.HemisphereLight(new THREE.Color(0xffffff), null, 1.05);
         this.scene.add(hLight);
@@ -131,6 +150,7 @@ export class ModelViewer {
             this.loopController.addToUpdate(this.terrainGhost);
         }
 
+        // GIZMOS //
         // MOVE TO OWN CLASS
         this.transformControls = new TransformControls(this.camera, this.canvas);
         this.scene.add(this.transformControls);
@@ -257,9 +277,17 @@ export class ModelViewer {
         if (this.intersection()) {
             this.changeColour('#f47653');
             this.transformControls.attach(this.intersected);
+
+            // try{
+            //     this.outlinePass.selectedObjects = [this.intersected];
+            // }
+            // catch (e: any) {
+            //     throw new Error(e.toString());
+            // }
         }
         else {
             this.changeColour('#e2eab8');
+            // this.outlinePass.selectedObjects = [];
         }
 
         // Stop the abillity to lift the model
@@ -273,24 +301,24 @@ export class ModelViewer {
 
         // delete Terrain //
         if (this.isShiftDown) {
-        //     this.scene.remove(this.intersected);
-        //     this.modelsArray.splice(this.modelsArray.indexOf(this.intersected), 1);
-        // } else {
-            
-        // create Terrain
-        // ADD Key to Spwan Model.
-        const table = new Furniture("furniture", new THREE.Vector3(0, 0, 3));
-        await table.initMesh(3, this.scene, this.modelsArray, this.transformControls);
-        this.loopController.addToUpdate(table);
-        this.furnitureArray.push(table);
+            //     this.scene.remove(this.intersected);
+            //     this.modelsArray.splice(this.modelsArray.indexOf(this.intersected), 1);
+            // } else {
 
-        // Move to function
-        // Render a red square to show where the model would land.
-        // if (table && table.mesh && this.intersect && this.intersect.face) {
-        //     table.mesh.position.copy(this.intersect.point).add(this.intersect.face.normal);
-        //     table.mesh.position.divideScalar(GRID_CELL_SIZE).floor().multiplyScalar(GRID_CELL_SIZE).addScalar(GRID_CELL_MID_SIZE);
-        //     table.mesh.position.y = TERRAIN_OFFSET;
-        // }
+            // create Terrain
+            // ADD Key to Spwan Model.
+            const table = new Furniture("furniture", new THREE.Vector3(0, 0, 3));
+            await table.initMesh(3, this.scene, this.modelsArray, this.transformControls);
+            this.loopController.addToUpdate(table);
+            this.furnitureArray.push(table);
+
+            // Move to function
+            // Render a red square to show where the model would land.
+            // if (table && table.mesh && this.intersect && this.intersect.face) {
+            //     table.mesh.position.copy(this.intersect.point).add(this.intersect.face.normal);
+            //     table.mesh.position.divideScalar(GRID_CELL_SIZE).floor().multiplyScalar(GRID_CELL_SIZE).addScalar(GRID_CELL_MID_SIZE);
+            //     table.mesh.position.y = TERRAIN_OFFSET;
+            // }
 
         }
 
@@ -312,17 +340,18 @@ export class ModelViewer {
         }
         catch (e: any) {
             throw new Error(e.toString());
-            return;
         }
 
         const intersects = this.raycaster.intersectObjects(this.modelsArray, true);
 
         if (intersects.length > 0) {
+
             const split = intersects[0].object.name.split('-');
             const id = split[split.length - 1];
 
             this.intersect = intersects[0];
             this.intersected = findModelParent(this.intersect.object as THREE.Mesh, id);
+            // const selectedObject = intersects[0].object;
 
             // Move to function
             // Render a red square to show where the model would land.
@@ -356,7 +385,7 @@ export class ModelViewer {
     }
 
     start() {
-        this.loopController.start(this.furnitureArray);
+        this.loopController.start(this.furnitureArray, this.composer);
     }
 
     stop() {

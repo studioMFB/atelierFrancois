@@ -1,10 +1,9 @@
-import { Camera, PerspectiveCamera, Vector3, OrthographicCamera } from 'three';
-import * as THREE from 'three';
+import { PerspectiveCamera, Vector3, OrthographicCamera } from 'three';
 
 
 export class CameraController {
 
-    private camera?: Camera
+    private camera?: PerspectiveCamera
 
     private pos: Vector3;
 
@@ -13,7 +12,7 @@ export class CameraController {
         this.pos = position;
     }
 
-    init(): Camera {
+    init(): PerspectiveCamera {
         this.camera = new PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.1, 100);
 
         // const rathio = 5.2;
