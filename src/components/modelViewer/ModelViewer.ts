@@ -129,6 +129,8 @@ export class ModelViewer {
 
         this.loopController = new LoopController(this.camera, this.scene, this.renderer);
 
+        // Stop Models from leaving the grid.
+
         // Grid //
         this.gridController = new GridController(GRID_SIZE, GRID_DIVISION);
         this.gridController.init(this.scene, "#888888");
