@@ -139,7 +139,7 @@ export class ModelViewer {
 
         // Plane // 
         this.planeController = new PlaneController("Plane", new THREE.Vector2(GRID_SIZE, GRID_SIZE), new THREE.Vector2(1, 1), new THREE.Vector3(0, 0, 0));
-        this.planeController.initMesh(false);
+        this.planeController.initMesh(false, this.scene);
         // this.addObject(this.planeController);
         this.scene.add(this.planeController.ground);
         this.scene.add(this.planeController.shadowGround);
