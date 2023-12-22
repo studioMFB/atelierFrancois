@@ -88,7 +88,7 @@ export class Furniture extends Mesh {
       });
 
       this.scene.name = 'root_model-' + id;
-      this.scene.position.set(this.pos.x, this.pos.y, this.pos.z)
+      this.scene.position.set(this.pos.x, this.pos.y, this.pos.z);      
       this.scene.scale.set(1, 1, 1);
 
       this.boxHelper = new BoxHelper(this.scene, 0xff0000);
@@ -97,8 +97,8 @@ export class Furniture extends Mesh {
       this.boxHelper.update();
 
       // If you want a visible bounding box
-      scene.add(this.scene);
-      // scene.add(this.scene, this.boxHelper);
+      // scene.add(this.scene);
+      scene.add(this.scene, this.boxHelper);
       modelsArray.push(this.scene);
     });
   }

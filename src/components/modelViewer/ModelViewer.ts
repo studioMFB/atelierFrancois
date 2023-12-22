@@ -71,12 +71,17 @@ export class ModelViewer {
 
     private furnitureArray: Furniture[];
 
+    // Key, Mouse Controlls
     private isShiftDown: boolean;
-
+    private isLeftMouseButtonDown: boolean;
+    private rotationDelta: number;
 
     constructor(container: HTMLElement) {
         this.furnitureArray = [];
         this.modelsArray = [];
+
+        this.isLeftMouseButtonDown = false;
+        this.rotationDelta = 0;
 
         // Scene //
         this.sceneController = new SceneController();
@@ -207,16 +212,23 @@ export class ModelViewer {
             }
         });
 
-        this.transformControls.addEventListener("mouseDown", () => { this.controlsController.controls.enabled = false; });
-        this.transformControls.addEventListener("mouseUp", () => { this.controlsController.controls.enabled = true; });
-
-        document.addEventListener("pointerdown", () => {
-            this.changeColour('#f47653');
+        this.transformControls.addEventListener("mouseDown", (event: Event) => {
+            // this.changeColour('#f47653');
+            this.controlsController.controls.enabled = false;
+            
+            // if (event.button === 0) {
+                this.isLeftMouseButtonDown = true;
+                console.log("DOWN this.isLeftMouseButtonDown ", this.isLeftMouseButtonDown );
+            // }
         });
-        document.addEventListener("pointerup", () => {
-            this.transformControls.detach();
-            this.changeColour('#e2eab8');
-            // this.intersected = null;
+        this.transformControls.addEventListener("mouseUp", (event: Event) => {
+            // this.changeColour('#e2eab8');
+            this.controlsController.controls.enabled = true;
+
+            // if (event.button === 0) {
+                this.isLeftMouseButtonDown = false;
+                console.log("UP this.isLeftMouseButtonDown ", this.isLeftMouseButtonDown );
+            // }
         });
 
         // FOR DEV ONLY, later models will be spwaned from a menu into the scene.
@@ -266,30 +278,35 @@ export class ModelViewer {
 
         // Pointer
         document.addEventListener("pointermove", (e: PointerEvent) => { this.onPointerMove(e) });
-        document.addEventListener("pointerdown", (e: PointerEvent) => { this.onPointerDown() });
+        this.canvas.addEventListener("pointerdown", (e: PointerEvent) => { this.onPointerDown(e) });
+        this.canvas.addEventListener("pointerup", (e: PointerEvent) => { this.onPointerUp(e) });
+
+        document.addEventListener('wheel', (e: WheelEvent) => { this.onWheel(e) });
 
         // Keys
-        document.addEventListener('keydown', (e: KeyboardEvent) => { this.onDocumentKeyDown(e) });
-        document.addEventListener('keyup', (e: KeyboardEvent) => { this.onDocumentKeyUp(e) })
+        this.canvas.addEventListener('keydown', (e: KeyboardEvent) => { this.onDocumentKeyDown(e) });
+        this.canvas.addEventListener('keyup', (e: KeyboardEvent) => { this.onDocumentKeyUp(e) })
+
+        this.canvas.addEventListener("pointerdown", () => { this.changeColour('#f47653'); });
+
+        this.canvas.addEventListener("pointerup", () => {
+            this.transformControls.detach();
+            this.changeColour('#e2eab8');
+            // this.intersected = null;
+        });
     }
 
     onPointerMove(event: PointerEvent) {
         this.updatePointerMode(event);
 
+        this.changeColour('#e2eab8');
+
         if (this.intersection()) {
             this.changeColour('#f47653');
             this.transformControls.attach(this.intersected);
-
-            // try{
-            //     this.outlinePass.selectedObjects = [this.intersected];
-            // }
-            // catch (e: any) {
-            //     throw new Error(e.toString());
-            // }
         }
         else {
             this.changeColour('#e2eab8');
-            // this.outlinePass.selectedObjects = [];
         }
 
         // Stop the abillity to lift the model
@@ -297,7 +314,11 @@ export class ModelViewer {
             this.intersected.position.y = 0;
     }
 
-    async onPointerDown() {
+    onPointerDown(event: PointerEvent) {
+        // if (event.button === 0) {
+        //     this.isLeftMouseButtonDown = true;
+        // }
+
         if (!this.intersected)
             return;
 
@@ -310,9 +331,10 @@ export class ModelViewer {
             // create Terrain
             // ADD Key to Spwan Model.
             const table = new Furniture("furniture", new THREE.Vector3(0, 0, 3));
-            await table.initMesh(3, this.scene, this.modelsArray, this.transformControls);
-            this.loopController.addToUpdate(table);
-            this.furnitureArray.push(table);
+            table.initMesh(3, this.scene, this.modelsArray, this.transformControls).then(() => {
+                this.loopController.addToUpdate(table);
+                this.furnitureArray.push(table);
+            });
 
             // Move to function
             // Render a red square to show where the model would land.
@@ -321,12 +343,31 @@ export class ModelViewer {
             //     table.mesh.position.divideScalar(GRID_CELL_SIZE).floor().multiplyScalar(GRID_CELL_SIZE).addScalar(GRID_CELL_MID_SIZE);
             //     table.mesh.position.y = TERRAIN_OFFSET;
             // }
-
         }
 
         // this.render();
         // this.controlsController.controls.enabled = true;
         // document.removeEventListener("pointermove", this.onPointerMove);
+    }
+
+    onPointerUp(event: PointerEvent) {
+        // if (event.button === 0) {
+        //     this.isLeftMouseButtonDown = false;
+        // }
+    }
+
+    onWheel(event: WheelEvent) {
+        // Rotate the model by increment of 90'.
+        if (this.isLeftMouseButtonDown) {
+            // Determine the scroll direction and amount
+            const delta = Math.sign(event.deltaY);
+            // Define the rotation speed
+            const rotationSpeed = Math.PI / 2;
+            // Update the rotation delta
+            this.rotationDelta = delta * rotationSpeed;
+
+            this.intersected.rotation.y += this.rotationDelta;
+        }
     }
 
 
