@@ -56,6 +56,7 @@ export class LoopController {
       const overlapZ = Math.min(box1.max.z, box2.max.z) - Math.max(box1.min.z, box2.min.z);
 
       // Determine the minimum overlap direction
+      // const overlapMin = Math.min(overlapX, Math.min(overlapZ));
       const overlapMin = Math.min(overlapX, Math.min(overlapY, overlapZ));
 
       // Create a vector for the resolution movement
@@ -64,11 +65,17 @@ export class LoopController {
       // Depending on the minimum overlap, move on the corresponding axis
       if (overlapMin === overlapX) {
         move.setX(overlapX * (object1.position.x > object2.position.x ? 1 : -1));
-      } else if (overlapMin === overlapY) {
-        move.setY(overlapY * (object1.position.y > object2.position.y ? 1 : -1));
-      } else { // overlapMin == overlapZ
+      }
+      //  else if (overlapMin === overlapY) {
+      //   move.setY(overlapY * (object1.position.y > object2.position.y ? 1 : -1));
+        // move.setY(-1);
+    // } 
+      else { // overlapMin == overlapZ
         move.setZ(overlapZ * (object1.position.z > object2.position.z ? 1 : -1));
       }
+
+      object1.position.y = 0;
+      object2.position.y = 0;
 
       // Adjust the position to resolve the overlap
       object1.position.add(move.multiplyScalar(0.5)); // Adjusting both objects by half the overlap

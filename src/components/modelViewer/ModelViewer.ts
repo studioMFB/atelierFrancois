@@ -34,6 +34,10 @@ const TERRAIN_SIZE = new THREE.Vector3(2, .5, 2);
 const GHOST_OFFSET = 0;
 const TERRAIN_OFFSET = .25;
 
+// Colour //
+const COLOUR_SELECTED = '#f47653';
+const COLOUR_UNSELECTED = '#e2eab8';
+
 export let c_event: CustomEvent;
 export const eventHub = EventHub.createEventHub();
 
@@ -212,23 +216,21 @@ export class ModelViewer {
             }
         });
 
-        this.transformControls.addEventListener("mouseDown", (event: Event) => {
-            // this.changeColour('#f47653');
-            this.controlsController.controls.enabled = false;
-            
-            // if (event.button === 0) {
-                this.isLeftMouseButtonDown = true;
-                console.log("DOWN this.isLeftMouseButtonDown ", this.isLeftMouseButtonDown );
-            // }
-        });
-        this.transformControls.addEventListener("mouseUp", (event: Event) => {
-            // this.changeColour('#e2eab8');
-            this.controlsController.controls.enabled = true;
+        this.transformControls.addEventListener("mouseDown", () => {
+            // this.changeColour(COLOUR_SELECTED);
 
-            // if (event.button === 0) {
-                this.isLeftMouseButtonDown = false;
-                console.log("UP this.isLeftMouseButtonDown ", this.isLeftMouseButtonDown );
-            // }
+            // Desable camera controls.
+            this.controlsController.controls.enabled = false;
+            // enable rotating selected model on mouse wheel input.
+            this.isLeftMouseButtonDown = true;
+        });
+        this.transformControls.addEventListener("mouseUp", () => {
+            // this.changeColour(COLOUR_UNSELECTED);
+
+            // Enable camera controls.
+            this.controlsController.controls.enabled = true;
+            // Desable rotating selected model on mouse wheel input.
+            this.isLeftMouseButtonDown = false;
         });
 
         // FOR DEV ONLY, later models will be spwaned from a menu into the scene.
@@ -279,7 +281,7 @@ export class ModelViewer {
         // Pointer
         document.addEventListener("pointermove", (e: PointerEvent) => { this.onPointerMove(e) });
         this.canvas.addEventListener("pointerdown", (e: PointerEvent) => { this.onPointerDown(e) });
-        this.canvas.addEventListener("pointerup", (e: PointerEvent) => { this.onPointerUp(e) });
+        // this.canvas.addEventListener("pointerup", (e: PointerEvent) => { this.onPointerUp(e) });
 
         document.addEventListener('wheel', (e: WheelEvent) => { this.onWheel(e) });
 
@@ -291,7 +293,7 @@ export class ModelViewer {
 
         this.canvas.addEventListener("pointerup", () => {
             this.transformControls.detach();
-            this.changeColour('#e2eab8');
+            this.changeColour(COLOUR_UNSELECTED);
             // this.intersected = null;
         });
     }
@@ -299,14 +301,14 @@ export class ModelViewer {
     onPointerMove(event: PointerEvent) {
         this.updatePointerMode(event);
 
-        this.changeColour('#e2eab8');
+        this.changeColour(COLOUR_UNSELECTED);
 
         if (this.intersection()) {
-            this.changeColour('#f47653');
+            this.changeColour(COLOUR_SELECTED);
             this.transformControls.attach(this.intersected);
         }
         else {
-            this.changeColour('#e2eab8');
+            this.changeColour(COLOUR_UNSELECTED);
         }
 
         // Stop the abillity to lift the model
@@ -315,10 +317,6 @@ export class ModelViewer {
     }
 
     onPointerDown(event: PointerEvent) {
-        // if (event.button === 0) {
-        //     this.isLeftMouseButtonDown = true;
-        // }
-
         if (!this.intersected)
             return;
 
@@ -350,11 +348,11 @@ export class ModelViewer {
         // document.removeEventListener("pointermove", this.onPointerMove);
     }
 
-    onPointerUp(event: PointerEvent) {
-        // if (event.button === 0) {
-        //     this.isLeftMouseButtonDown = false;
-        // }
-    }
+    // onPointerUp(event: PointerEvent) {
+    // if (event.button === 0) {
+    //     this.isLeftMouseButtonDown = false;
+    // }
+    // }
 
     onWheel(event: WheelEvent) {
         // Rotate the model by increment of 90'.
@@ -369,7 +367,6 @@ export class ModelViewer {
             this.intersected.rotation.y += this.rotationDelta;
         }
     }
-
 
     updatePointerMode(event: PointerEvent) {
         event.preventDefault();
