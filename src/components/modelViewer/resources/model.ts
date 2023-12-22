@@ -1,7 +1,5 @@
 import { Mesh, Vector3, Scene, Group, MeshToonMaterial, Color, Object3DEventMap, MeshBasicMaterial, BoxHelper, Box3 } from "three";
 import { GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
-import * as THREE from "three"
 
 
 export function findModelParent(mesh: any): Group<Object3DEventMap> {
@@ -13,8 +11,6 @@ export function findModelParent(mesh: any): Group<Object3DEventMap> {
   const rootName = 'root_model_scene';
   // If the parent is an instance of GameObject, return it
   if (mesh.parent.name === rootName) {
-    console.log("Mesh parent ", mesh.parent);
-
     return mesh.parent as Group<Object3DEventMap>;
   }
 
@@ -52,13 +48,13 @@ export class Model extends Mesh {
     this.scene.traverse((child: Mesh) => {
       if (child.isMesh) {
         if (!child.name.toLowerCase().includes("outline")) {
-          (child.material as MeshToonMaterial).color = new THREE.Color(colour);
+          (child.material as MeshToonMaterial).color = new Color(colour);
         }
       }
     });
   }
 
-  async initMesh(scene: Scene, modelsArray: Group<Object3DEventMap>[], transformControls: TransformControls): Promise<void> {
+  async initMesh(scene: Scene, modelsArray: Group<Object3DEventMap>[]): Promise<void> {
     const loader = new GLTFLoader();
 
     const parameters = {
@@ -75,17 +71,18 @@ export class Model extends Mesh {
       
       gltf.scene.traverse((child: any) => {
         if (child.isMesh) {
-          if (child.name.toLowerCase().includes("outline")) {
-            child.material = matColor;
-          }
-          else {
-            child.material = matToon;
-            child.castShadow = true;
-          }
-          
-          child.name += "-model";
           child.geometry.computeBoundingBox();
         }
+
+        if (child.name.toLowerCase().includes("outline")) {
+          child.material = matColor;
+        }
+        else {
+          child.material = matToon;
+          child.castShadow = true;
+        }
+
+        child.name += "-model";
       });
       
       this.scene.name = 'root_model_scene';
@@ -97,9 +94,6 @@ export class Model extends Mesh {
       this.boundingBox = new Box3().setFromObject(this.boxHelper);
       this.boxHelper.update();
       
-      console.log("this.scene ", this.scene);
-
-      // transformControls.attach(this.scene);
       // If you want a visible bounding box
       scene.add(this.scene);
       // scene.add(this.scene, this.boxHelper);
@@ -113,19 +107,6 @@ export class Model extends Mesh {
     this.boxHelper.update();
 
     this.boundingBox.setFromObject(this.scene);
-
-    // this.scene.updateMatrix();
-    // this.scene.updateMatrixWorld(true);
-
-    // this.scene.traverse((child: any) => {
-    //   if (child.isMesh) {
-    //     child.updateMatrix();
-    //     child.updateMatrixWorld(true);
-    //     this.boundingBox.copy(child.geometry.boundingBox);
-    //   }
-    // });
-
-    // this.boundingBox.applyMatrix4(this.scene.matrixWorld);
   }
 
   tick(delta: any): void {

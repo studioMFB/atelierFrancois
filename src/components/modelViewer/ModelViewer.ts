@@ -94,6 +94,7 @@ export class ModelViewer {
     // Key, Mouse Controlls
     private isShiftDown: boolean;
     private isKeyGDown: boolean;
+    private isKeyRDown: boolean;
 
     private isLeftMouseButtonDown: boolean;
     private rotationDelta: number;
@@ -202,9 +203,13 @@ export class ModelViewer {
         // this.transformControls.showY = false;
         // this.transformControls.showZ = false;
 
-        // Adjust gizmo pos to be in centre of model.
-        // this.transformControls.position.x -= .1;
-        // this.transformControls.position.y += .6;
+
+        // FIND A FIX TO ADJUST GIZMO POSITION FOR ALL MODELS
+        // Adjust gizmo pos to be in centre of Table model.
+        this.transformControls.position.x -= .1;
+        this.transformControls.position.y += .6;
+        // this.transformControls.position.x = 0;
+        // this.transformControls.position.y = 0;
 
         // console.log("this.transformControls ", this.transformControls);
         // console.log("(this.transformControls.children[1] as TransformControlsGizmo) ", (this.transformControls.children[1] as TransformControlsGizmo));
@@ -267,25 +272,16 @@ export class ModelViewer {
         // FOR DEV ONLY, later models will be spwaned from a menu into the scene.
         // TEST FURNITURE TABLE //
         // const table1 = new Model("table", new THREE.Vector3(0, 0, -1), 1, GLTF_TABLE);
-        // table1.initMesh(1, this.scene, this.allModelsArray, this.transformControls).then(() => {
+        // table1.initMesh(1, this.scene, this.allModelsArray).then(() => {
         //     this.loopController.addToUpdate(table1);
         //     this.furnitureArray.push(table1);
         // });
 
         // const table2 = new Model("table", new THREE.Vector3(1, 0, 1), 1, GLTF_TABLE);
-        // table2.initMesh(2, this.scene, this.allModelsArray, this.transformControls).then(() => {
+        // table2.initMesh(2, this.scene, this.allModelsArray).then(() => {
         //     this.loopController.addToUpdate(table2);
         //     this.furnitureArray.push(table2);
         // });
-
-        // this.transformControls.position.x += .1;
-        this.transformControls.position.z += .7;
-        this.transformControls.position.y += .8;
-        const table2 = new Model("garlic", new THREE.Vector3(1, -.1, 1), 10, GLTF_GARLIC);
-        table2.initMesh(this.scene, this.allModelsArray, this.transformControls).then(() => {
-            this.loopController.addToUpdate(table2);
-            this.furnitureArray.push(table2);
-        });
 
         // RESIZER //
         const resizer = new Resizer(this.camera, this.renderer);
@@ -329,10 +325,7 @@ export class ModelViewer {
 
         if (this.intersection()) {
             this.changeColour(COLOUR_SELECTED);
-            console.log("this.intersected ", this.intersected);
-            // console.log("this.intersect.object ", this.intersect.object);
             this.transformControls.attach(this.intersected);
-            // this.transformControls.attach(this.intersect.object);
         }
         // else if(!this.isSelected) {
         //     this.changeColour(COLOUR_UNSELECTED);
@@ -365,13 +358,16 @@ export class ModelViewer {
 
         // Add Table
         if (this.isShiftDown) {
-            // console.log("isShiftDown Add table");
             //     this.scene.remove(this.intersected);
             //     this.modelsArray.splice(this.modelsArray.indexOf(this.intersected), 1);
             // } else {
 
+            // Custom position for the gizmo.
+            // this.transformControls.position.x -= .1;
+            // this.transformControls.position.y += .6;
+
             const table = new Model("table", new THREE.Vector3(0, 0, 0), 1, GLTF_TABLE);
-            table.initMesh(this.scene, this.allModelsArray, this.transformControls).then(() => {
+            table.initMesh(this.scene, this.allModelsArray).then(() => {
                 this.loopController.addToUpdate(table);
                 this.furnitureArray.push(table);
             });
@@ -385,15 +381,25 @@ export class ModelViewer {
             // }
         }
         else if (this.isKeyGDown) {
-            // const garlic = new Model("garlic", new THREE.Vector3(0, 0, 0), 10, GLTF_GARLIC);
-            // garlic.initMesh(this.scene, this.allModelsArray, this.transformControls).then(() => {
-            //     this.loopController.addToUpdate(garlic);
-            //     this.furnitureArray.push(garlic);
-            //     // this.ornamentArray.push(garlic);
-            // });
+            // Custom position for the gizmo.
+            // this.transformControls.position.x -= .95;
+            // this.transformControls.position.y += .1;
+            // this.transformControls.position.z -= .3;
+
+            const garlic = new Model("garlic", new THREE.Vector3(0, 0, 0), 10, GLTF_GARLIC);
+            garlic.initMesh(this.scene, this.allModelsArray).then(() => {
+                this.loopController.addToUpdate(garlic);
+                this.furnitureArray.push(garlic);
+                // this.ornamentArray.push(garlic);
+            });
+        }
+        else if (this.isKeyRDown) {
+            // Custom position for the gizmo.
+            // this.transformControls.position.x -= .1;
+            // this.transformControls.position.y += .6;
 
             const stone = new Model("stone", new THREE.Vector3(0, 0, 0), 1, GLTF_STONE);
-            stone.initMesh(this.scene, this.allModelsArray, this.transformControls).then(() => {
+            stone.initMesh(this.scene, this.allModelsArray).then(() => {
                 this.loopController.addToUpdate(stone);
                 this.furnitureArray.push(stone);
                 // this.ornamentArray.push(stone);
@@ -442,13 +448,9 @@ export class ModelViewer {
         const intersects = this.raycaster.intersectObjects(this.allModelsArray, true);
 
         if (intersects.length > 0) {
-
-            // const split = intersects[0].object.name.split('-');
-            // const id = split[split.length - 1];
-
             this.intersect = intersects[0];
             this.intersected = findModelParent(this.intersect.object as THREE.Mesh);
-            // debugger;
+
             // const selectedObject = intersects[0].object;
 
             // Move to function
@@ -474,10 +476,10 @@ export class ModelViewer {
             if (!c.name.toLowerCase().includes("outline")) {
                 const mat = (c.material as THREE.MeshToonMaterial);
 
-                if(mat)
-                (c.material as THREE.MeshToonMaterial).color = new THREE.Color(colour);
-
-                return;
+                if (mat) {
+                    (c.material as THREE.MeshToonMaterial).color = new THREE.Color(colour);
+                    return;
+                }
             }
         });
     }
@@ -511,6 +513,7 @@ export class ModelViewer {
         switch (event.keyCode) {
             case 16: this.isShiftDown = true; break;
             case 71: this.isKeyGDown = true; break;
+            case 82: this.isKeyRDown = true; break;
         }
     }
 
@@ -518,6 +521,7 @@ export class ModelViewer {
         switch (event.keyCode) {
             case 16: this.isShiftDown = false; break;
             case 71: this.isKeyGDown = false; break;
+            case 82: this.isKeyRDown = false; break;
         }
     }
 
