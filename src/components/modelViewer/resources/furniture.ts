@@ -66,7 +66,6 @@ export class Furniture extends Mesh {
 
     loader.load(gltfUrl, (gltf: GLTF) => {
 
-      // this.scene = new Group();
       this.scene = gltf.scene;
 
       gltf.scene.traverse((child: any) => {
@@ -81,9 +80,6 @@ export class Furniture extends Mesh {
 
           child.name += "-model-" + id;
           child.geometry.computeBoundingBox();
-
-          // this.scene.attach(child);
-          // this.scene.add(child);
         }
       });
 
@@ -95,6 +91,8 @@ export class Furniture extends Mesh {
       this.boxHelper.name = 'boxHelper_model-' + id;
       this.boundingBox = new Box3().setFromObject(this.boxHelper);
       this.boxHelper.update();
+
+      this.scene.parent = this.boxHelper;
 
       // If you want a visible bounding box
       // scene.add(this.scene);

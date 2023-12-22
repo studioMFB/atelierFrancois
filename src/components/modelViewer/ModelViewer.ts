@@ -21,6 +21,7 @@ import { PlaneController } from './resources/PlaneController';
 import { TerrainGhost } from './resources/TerrainGhost';
 import { EventHub } from './../EventHub';
 import { Furniture, findModelParent } from './resources/furniture';
+import { Group, Object3DEventMap } from 'three';
 
 
 const GRID_SIZE = 5;
@@ -38,9 +39,16 @@ const TERRAIN_OFFSET = .25;
 const COLOUR_SELECTED = '#f47653';
 const COLOUR_UNSELECTED = '#e2eab8';
 
-export let c_event: CustomEvent;
-export const eventHub = EventHub.createEventHub();
+const gridLimits = {
+    minX: -GRID_SIZE / 2,  // Minimum X value
+    maxX: GRID_SIZE / 2,   // Maximum X value
+    minY: 0,    // Minimum Y value (assuming Y is up)
+    maxY: 0,   // Maximum Y value
+    minZ: -GRID_SIZE / 2,  // Minimum Z value
+    maxZ: GRID_SIZE / 2    // Maximum Z value
+};
 
+export const eventHub = EventHub.createEventHub();
 
 export class ModelViewer {
 
@@ -80,12 +88,16 @@ export class ModelViewer {
     private isLeftMouseButtonDown: boolean;
     private rotationDelta: number;
 
+    private isSelected: boolean;
+
     constructor(container: HTMLElement) {
         this.furnitureArray = [];
         this.modelsArray = [];
 
         this.isLeftMouseButtonDown = false;
         this.rotationDelta = 0;
+
+        this.isSelected = false;
 
         // Scene //
         this.sceneController = new SceneController();
@@ -223,6 +235,8 @@ export class ModelViewer {
             this.controlsController.controls.enabled = false;
             // enable rotating selected model on mouse wheel input.
             this.isLeftMouseButtonDown = true;
+            // Lock selected colour (on).
+            this.isSelected = true;
         });
         this.transformControls.addEventListener("mouseUp", () => {
             // this.changeColour(COLOUR_UNSELECTED);
@@ -231,6 +245,8 @@ export class ModelViewer {
             this.controlsController.controls.enabled = true;
             // Desable rotating selected model on mouse wheel input.
             this.isLeftMouseButtonDown = false;
+            // UnLock selected colour (off).
+            this.isSelected = false;
         });
 
         // FOR DEV ONLY, later models will be spwaned from a menu into the scene.
@@ -263,21 +279,6 @@ export class ModelViewer {
     }
 
     private init(): void {
-        // Add To render loop
-        // this.addObject(this.controlsController);
-        // this.addObject(this.cameraController);
-
-        // MOVE TO OWN CLASS
-        // this.dragControls = new DragControls(this.modelsArray, this.camera, this.canvas);
-        // this.dragControls.transformGroup = true;
-
-        // this.dragControls.addEventListener('hoveron', (e) => { this.onHoverOn(e) });
-        // this.dragControls.addEventListener('hoveroff', (e) => { this.onHoverOff(e) });
-
-        // this.dragControls.addEventListener('dragstart', (e) => { this.onDragStart(e) });
-        // this.dragControls.addEventListener('drag', (e) => { this.onDrag(e) });
-        // this.dragControls.addEventListener('dragend', (e) => { this.onDragEnd(e) });
-
         // Pointer
         document.addEventListener("pointermove", (e: PointerEvent) => { this.onPointerMove(e) });
         this.canvas.addEventListener("pointerdown", (e: PointerEvent) => { this.onPointerDown(e) });
@@ -294,26 +295,50 @@ export class ModelViewer {
         this.canvas.addEventListener("pointerup", () => {
             this.transformControls.detach();
             this.changeColour(COLOUR_UNSELECTED);
-            // this.intersected = null;
         });
     }
 
     onPointerMove(event: PointerEvent) {
         this.updatePointerMode(event);
 
-        this.changeColour(COLOUR_UNSELECTED);
+        if(!this.isSelected)
+            this.changeColour(COLOUR_UNSELECTED);
 
         if (this.intersection()) {
             this.changeColour(COLOUR_SELECTED);
             this.transformControls.attach(this.intersected);
         }
-        else {
-            this.changeColour(COLOUR_UNSELECTED);
-        }
+        // else if(!this.isSelected) {
+        //     this.changeColour(COLOUR_UNSELECTED);
+        // }
 
+        this.restricMoveToBoundaries()
+    }
+
+    restricMoveToBoundaries() {
         // Stop the abillity to lift the model
-        if (this.intersected)
+        if (this.intersected) {
+            // const boundingBox = this.intersect.object.parent.parent.;
+            // console.log("bounding box ", boundingBox);
+            // Constrain X position
+            // this.intersected.position.x = Math.max(gridLimits.minX, Math.min(gridLimits.maxX, boundingBox.position.x));
+            this.intersected.position.x = Math.max(gridLimits.minX, Math.min(gridLimits.maxX, this.intersected.position.x));
+
+            // Constrain Y position (if the model can move vertically)
+            // this.intersected.position.y = Math.max(gridLimits.minY, Math.min(gridLimits.maxY, this.intersected.position.y));
             this.intersected.position.y = 0;
+
+            // Constrain Z position
+            // this.intersected.position.z = Math.max(gridLimits.minZ, Math.min(gridLimits.maxZ, boundingBox.position.z));
+            this.intersected.position.z = Math.max(gridLimits.minZ, Math.min(gridLimits.maxZ, this.intersected.position.z));
+
+            // console.log("this.intersected.position ", this.intersected.position);
+
+
+            // this.intersected.position.x = Math.min(gridLimits.minX, boundingBox) - Math.max(box1.min.x, box2.min.x);
+            // const overlapY = Math.min(box1.max.y, box2.max.y) - Math.max(box1.min.y, box2.min.y);
+            // const overlapZ = Math.min(box1.max.z, box2.max.z) - Math.max(box1.min.z, box2.min.z);
+        }
     }
 
     onPointerDown(event: PointerEvent) {
