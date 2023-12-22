@@ -42,6 +42,7 @@ const COLOUR_UNSELECTED = '#e2eab8';
 // GLTF //
 const GLTF_TABLE = new URL('./models/table/1/littlewood_furniture.gltf', import.meta.url).toString();
 const GLTF_GARLIC = new URL('./models/garlic/scene.gltf', import.meta.url).toString();
+const GLTF_STONE = new URL('./models/piedra/scene.gltf', import.meta.url).toString();
 
 
 const gridLimits = {
@@ -189,7 +190,7 @@ export class ModelViewer {
         this.scene.add(this.transformControls);
 
         // Find a way to switch between modes and apply the custom flags.
-        // this.transformControls.setMode('translate');
+        this.transformControls.setMode('translate');
         // this.transformControls.showY = false; // Idealy don't show the Y arrow, but this removes the centre square.
 
         // this.transformControls.setMode('rotate'); // rotate only around the Y axis.
@@ -202,8 +203,8 @@ export class ModelViewer {
         // this.transformControls.showZ = false;
 
         // Adjust gizmo pos to be in centre of model.
-        this.transformControls.position.x -= .1;
-        this.transformControls.position.y += .6;
+        // this.transformControls.position.x -= .1;
+        // this.transformControls.position.y += .6;
 
         // console.log("this.transformControls ", this.transformControls);
         // console.log("(this.transformControls.children[1] as TransformControlsGizmo) ", (this.transformControls.children[1] as TransformControlsGizmo));
@@ -265,17 +266,26 @@ export class ModelViewer {
 
         // FOR DEV ONLY, later models will be spwaned from a menu into the scene.
         // TEST FURNITURE TABLE //
-        const table1 = new Model("table", new THREE.Vector3(0, 0, -1), 1, GLTF_TABLE);
-        table1.initMesh(1, this.scene, this.allModelsArray, this.transformControls).then(() => {
-            this.loopController.addToUpdate(table1);
-            this.furnitureArray.push(table1);
-        });
+        // const table1 = new Model("table", new THREE.Vector3(0, 0, -1), 1, GLTF_TABLE);
+        // table1.initMesh(1, this.scene, this.allModelsArray, this.transformControls).then(() => {
+        //     this.loopController.addToUpdate(table1);
+        //     this.furnitureArray.push(table1);
+        // });
 
-        // const table2 = new Model("table", new THREE.Vector3(1, 0, 3), 1, GLTF_TABLE);
+        // const table2 = new Model("table", new THREE.Vector3(1, 0, 1), 1, GLTF_TABLE);
         // table2.initMesh(2, this.scene, this.allModelsArray, this.transformControls).then(() => {
         //     this.loopController.addToUpdate(table2);
         //     this.furnitureArray.push(table2);
         // });
+
+        // this.transformControls.position.x += .1;
+        this.transformControls.position.z += .7;
+        this.transformControls.position.y += .8;
+        const table2 = new Model("garlic", new THREE.Vector3(1, -.1, 1), 10, GLTF_GARLIC);
+        table2.initMesh(this.scene, this.allModelsArray, this.transformControls).then(() => {
+            this.loopController.addToUpdate(table2);
+            this.furnitureArray.push(table2);
+        });
 
         // RESIZER //
         const resizer = new Resizer(this.camera, this.renderer);
@@ -319,7 +329,10 @@ export class ModelViewer {
 
         if (this.intersection()) {
             this.changeColour(COLOUR_SELECTED);
+            console.log("this.intersected ", this.intersected);
+            // console.log("this.intersect.object ", this.intersect.object);
             this.transformControls.attach(this.intersected);
+            // this.transformControls.attach(this.intersect.object);
         }
         // else if(!this.isSelected) {
         //     this.changeColour(COLOUR_UNSELECTED);
@@ -358,8 +371,7 @@ export class ModelViewer {
             // } else {
 
             const table = new Model("table", new THREE.Vector3(0, 0, 0), 1, GLTF_TABLE);
-            // table.initMesh(3, this.scene, this.modelsArray, this.transformControls);
-            table.initMesh(3, this.scene, this.allModelsArray, this.transformControls).then(() => {
+            table.initMesh(this.scene, this.allModelsArray, this.transformControls).then(() => {
                 this.loopController.addToUpdate(table);
                 this.furnitureArray.push(table);
             });
@@ -373,12 +385,18 @@ export class ModelViewer {
             // }
         }
         else if (this.isKeyGDown) {
-            const garlic = new Model("garlic", new THREE.Vector3(0, 0, 0), 10, GLTF_GARLIC);
-            // await table.initMesh(1, this.scene, this.modelsArray, this.transformControls);
-            garlic.initMesh(0, this.scene, this.allModelsArray, this.transformControls).then(() => {
-                this.loopController.addToUpdate(garlic);
-                this.furnitureArray.push(garlic);
-                // this.ornamentArray.push(garlic);
+            // const garlic = new Model("garlic", new THREE.Vector3(0, 0, 0), 10, GLTF_GARLIC);
+            // garlic.initMesh(this.scene, this.allModelsArray, this.transformControls).then(() => {
+            //     this.loopController.addToUpdate(garlic);
+            //     this.furnitureArray.push(garlic);
+            //     // this.ornamentArray.push(garlic);
+            // });
+
+            const stone = new Model("stone", new THREE.Vector3(0, 0, 0), 1, GLTF_STONE);
+            stone.initMesh(this.scene, this.allModelsArray, this.transformControls).then(() => {
+                this.loopController.addToUpdate(stone);
+                this.furnitureArray.push(stone);
+                // this.ornamentArray.push(stone);
             });
         }
 
@@ -425,11 +443,12 @@ export class ModelViewer {
 
         if (intersects.length > 0) {
 
-            const split = intersects[0].object.name.split('-');
-            const id = split[split.length - 1];
+            // const split = intersects[0].object.name.split('-');
+            // const id = split[split.length - 1];
 
             this.intersect = intersects[0];
-            this.intersected = findModelParent(this.intersect.object as THREE.Mesh, id);
+            this.intersected = findModelParent(this.intersect.object as THREE.Mesh);
+            // debugger;
             // const selectedObject = intersects[0].object;
 
             // Move to function
@@ -453,7 +472,11 @@ export class ModelViewer {
         this.intersected.children.forEach(child => {
             const c = child as THREE.Mesh;
             if (!c.name.toLowerCase().includes("outline")) {
+                const mat = (c.material as THREE.MeshToonMaterial);
+
+                if(mat)
                 (c.material as THREE.MeshToonMaterial).color = new THREE.Color(colour);
+
                 return;
             }
         });

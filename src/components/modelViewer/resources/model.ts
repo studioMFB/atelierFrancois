@@ -4,20 +4,22 @@ import { TransformControls } from 'three/examples/jsm/controls/TransformControls
 import * as THREE from "three"
 
 
-export function findModelParent(mesh: Mesh, id: string): Group<Object3DEventMap> {
+export function findModelParent(mesh: any): Group<Object3DEventMap> {
   // If the mesh has no parent, return null
   if (!mesh.parent) {
     return null;
   }
 
-  const rootName = 'root_model-' + id;
+  const rootName = 'root_model_scene';
   // If the parent is an instance of GameObject, return it
-  // if (mesh.parent.name.includes('root_model-')) {
   if (mesh.parent.name === rootName) {
+    console.log("Mesh parent ", mesh.parent);
+
     return mesh.parent as Group<Object3DEventMap>;
   }
+
   // Otherwise, recursively call the function with the parent as the argument
-  // return this.findModelParent(mesh.parent as Mesh);
+  return findModelParent(mesh.parent);
 }
 
 export class Model extends Mesh {
@@ -56,7 +58,7 @@ export class Model extends Mesh {
     });
   }
 
-  async initMesh(id: number, scene: Scene, modelsArray: Group<Object3DEventMap>[], transformControls: TransformControls): Promise<void> {
+  async initMesh(scene: Scene, modelsArray: Group<Object3DEventMap>[], transformControls: TransformControls): Promise<void> {
     const loader = new GLTFLoader();
 
     const parameters = {
@@ -70,7 +72,7 @@ export class Model extends Mesh {
     loader.load(this.gltfUrl, (gltf: GLTF) => {
 
       this.scene = gltf.scene;
-
+      
       gltf.scene.traverse((child: any) => {
         if (child.isMesh) {
           if (child.name.toLowerCase().includes("outline")) {
@@ -80,27 +82,29 @@ export class Model extends Mesh {
             child.material = matToon;
             child.castShadow = true;
           }
-
-          child.name += "-model-" + id;
+          
+          child.name += "-model";
           child.geometry.computeBoundingBox();
         }
       });
-
-      this.scene.name = 'root_model-' + id;
+      
+      this.scene.name = 'root_model_scene';
       this.scene.scale.multiplyScalar(this.scaleRatio);
       this.scene.position.set(this.pos.x, this.pos.y, this.pos.z);      
-
+      
       this.boxHelper = new BoxHelper(this.scene, 0xff0000);
-      this.boxHelper.name = 'boxHelper_model-' + id;
+      this.boxHelper.name = 'boxHelper_model';
       this.boundingBox = new Box3().setFromObject(this.boxHelper);
       this.boxHelper.update();
+      
+      console.log("this.scene ", this.scene);
 
-      this.scene.parent = this.boxHelper;
-
+      // transformControls.attach(this.scene);
       // If you want a visible bounding box
-      // scene.add(this.scene);
-      scene.add(this.scene, this.boxHelper);
+      scene.add(this.scene);
+      // scene.add(this.scene, this.boxHelper);
       modelsArray.push(this.scene);
+
     });
   }
 
