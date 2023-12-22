@@ -20,7 +20,7 @@ import { GridController } from './settings/GridControlller';
 import { PlaneController } from './resources/PlaneController';
 import { TerrainGhost } from './resources/TerrainGhost';
 import { EventHub } from './../EventHub';
-import { Furniture, findModelParent } from './resources/furniture';
+import { Model, findModelParent } from './resources/model';
 import { Group, Object3DEventMap } from 'three';
 
 
@@ -38,6 +38,11 @@ const TERRAIN_OFFSET = .25;
 // Colour //
 const COLOUR_SELECTED = '#f47653';
 const COLOUR_UNSELECTED = '#e2eab8';
+
+// GLTF //
+const GLTF_TABLE = new URL('./models/table/1/littlewood_furniture.gltf', import.meta.url).toString();
+const GLTF_GARLIC = new URL('./models/garlic/scene.gltf', import.meta.url).toString();
+
 
 const gridLimits = {
     minX: -GRID_SIZE / 2,  // Minimum X value
@@ -71,7 +76,10 @@ export class ModelViewer {
 
     private raycaster: THREE.Raycaster;
     private pointer: THREE.Vector2;
-    private modelsArray: THREE.Group<THREE.Object3DEventMap>[];
+
+    private allModelsArray: THREE.Group<THREE.Object3DEventMap>[];
+    private furnitureArray: Model[];
+    private ornamentArray: Model[];
 
     private composer: EffectComposer;
     private outlinePass: OutlinePass;
@@ -81,18 +89,20 @@ export class ModelViewer {
 
     private terrainGhost: TerrainGhost;
 
-    private furnitureArray: Furniture[];
 
     // Key, Mouse Controlls
     private isShiftDown: boolean;
+    private isKeyGDown: boolean;
+
     private isLeftMouseButtonDown: boolean;
     private rotationDelta: number;
 
     private isSelected: boolean;
 
     constructor(container: HTMLElement) {
+        this.allModelsArray = [];
         this.furnitureArray = [];
-        this.modelsArray = [];
+        this.ornamentArray = [];
 
         this.isLeftMouseButtonDown = false;
         this.rotationDelta = 0;
@@ -237,6 +247,10 @@ export class ModelViewer {
             this.isLeftMouseButtonDown = true;
             // Lock selected colour (on).
             this.isSelected = true;
+
+            // Adjust gizmo pos to be in centre of model.
+            //   this.transformControls.position.x -= .1;
+            //   this.transformControls.position.y += -.1;
         });
         this.transformControls.addEventListener("mouseUp", () => {
             // this.changeColour(COLOUR_UNSELECTED);
@@ -251,21 +265,20 @@ export class ModelViewer {
 
         // FOR DEV ONLY, later models will be spwaned from a menu into the scene.
         // TEST FURNITURE TABLE //
-        const table1 = new Furniture("furniture", new THREE.Vector3(0, 0, -1));
-        table1.initMesh(1, this.scene, this.modelsArray, this.transformControls).then(() => {
+        const table1 = new Model("table", new THREE.Vector3(0, 0, -1), 1, GLTF_TABLE);
+        table1.initMesh(1, this.scene, this.allModelsArray, this.transformControls).then(() => {
             this.loopController.addToUpdate(table1);
             this.furnitureArray.push(table1);
         });
 
-        const table2 = new Furniture("furniture", new THREE.Vector3(1, 0, 1));
-        table2.initMesh(2, this.scene, this.modelsArray, this.transformControls).then(() => {
-            this.loopController.addToUpdate(table2);
-            this.furnitureArray.push(table2);
-        });
+        // const table2 = new Model("table", new THREE.Vector3(1, 0, 3), 1, GLTF_TABLE);
+        // table2.initMesh(2, this.scene, this.allModelsArray, this.transformControls).then(() => {
+        //     this.loopController.addToUpdate(table2);
+        //     this.furnitureArray.push(table2);
+        // });
 
         // RESIZER //
         const resizer = new Resizer(this.camera, this.renderer);
-
         this.init();
     }
 
@@ -281,16 +294,16 @@ export class ModelViewer {
     private init(): void {
         // Pointer
         document.addEventListener("pointermove", (e: PointerEvent) => { this.onPointerMove(e) });
-        this.canvas.addEventListener("pointerdown", (e: PointerEvent) => { this.onPointerDown(e) });
+        document.addEventListener("pointerdown", (e: PointerEvent) => { this.onPointerDown(e) });
         // this.canvas.addEventListener("pointerup", (e: PointerEvent) => { this.onPointerUp(e) });
 
         document.addEventListener('wheel', (e: WheelEvent) => { this.onWheel(e) });
 
         // Keys
-        this.canvas.addEventListener('keydown', (e: KeyboardEvent) => { this.onDocumentKeyDown(e) });
-        this.canvas.addEventListener('keyup', (e: KeyboardEvent) => { this.onDocumentKeyUp(e) })
+        document.addEventListener('keydown', (e: KeyboardEvent) => { this.onDocumentKeyDown(e) });
+        document.addEventListener('keyup', (e: KeyboardEvent) => { this.onDocumentKeyUp(e) })
 
-        this.canvas.addEventListener("pointerdown", () => { this.changeColour('#f47653'); });
+        // document.addEventListener("pointerdown", () => { this.changeColour('#f47653'); });
 
         this.canvas.addEventListener("pointerup", () => {
             this.transformControls.detach();
@@ -301,7 +314,7 @@ export class ModelViewer {
     onPointerMove(event: PointerEvent) {
         this.updatePointerMode(event);
 
-        if(!this.isSelected)
+        if (!this.isSelected)
             this.changeColour(COLOUR_UNSELECTED);
 
         if (this.intersection()) {
@@ -316,45 +329,37 @@ export class ModelViewer {
     }
 
     restricMoveToBoundaries() {
-        // Stop the abillity to lift the model
+        // This is currently missing the min and max of the boundary box.
+        // This is needed to stop the model accuratly.
+
         if (this.intersected) {
-            // const boundingBox = this.intersect.object.parent.parent.;
-            // console.log("bounding box ", boundingBox);
             // Constrain X position
-            // this.intersected.position.x = Math.max(gridLimits.minX, Math.min(gridLimits.maxX, boundingBox.position.x));
             this.intersected.position.x = Math.max(gridLimits.minX, Math.min(gridLimits.maxX, this.intersected.position.x));
 
-            // Constrain Y position (if the model can move vertically)
-            // this.intersected.position.y = Math.max(gridLimits.minY, Math.min(gridLimits.maxY, this.intersected.position.y));
+            // Stop the lifting the model up.
             this.intersected.position.y = 0;
 
             // Constrain Z position
-            // this.intersected.position.z = Math.max(gridLimits.minZ, Math.min(gridLimits.maxZ, boundingBox.position.z));
             this.intersected.position.z = Math.max(gridLimits.minZ, Math.min(gridLimits.maxZ, this.intersected.position.z));
-
-            // console.log("this.intersected.position ", this.intersected.position);
-
-
-            // this.intersected.position.x = Math.min(gridLimits.minX, boundingBox) - Math.max(box1.min.x, box2.min.x);
-            // const overlapY = Math.min(box1.max.y, box2.max.y) - Math.max(box1.min.y, box2.min.y);
-            // const overlapZ = Math.min(box1.max.z, box2.max.z) - Math.max(box1.min.z, box2.min.z);
         }
     }
 
     onPointerDown(event: PointerEvent) {
-        if (!this.intersected)
-            return;
+        // if (!this.intersected)
+        //     return;
 
-        // delete Terrain //
+        // this.changeColour('#f47653');
+
+        // Add Table
         if (this.isShiftDown) {
+            // console.log("isShiftDown Add table");
             //     this.scene.remove(this.intersected);
             //     this.modelsArray.splice(this.modelsArray.indexOf(this.intersected), 1);
             // } else {
 
-            // create Terrain
-            // ADD Key to Spwan Model.
-            const table = new Furniture("furniture", new THREE.Vector3(0, 0, 3));
-            table.initMesh(3, this.scene, this.modelsArray, this.transformControls).then(() => {
+            const table = new Model("table", new THREE.Vector3(0, 0, 0), 1, GLTF_TABLE);
+            // table.initMesh(3, this.scene, this.modelsArray, this.transformControls);
+            table.initMesh(3, this.scene, this.allModelsArray, this.transformControls).then(() => {
                 this.loopController.addToUpdate(table);
                 this.furnitureArray.push(table);
             });
@@ -366,6 +371,15 @@ export class ModelViewer {
             //     table.mesh.position.divideScalar(GRID_CELL_SIZE).floor().multiplyScalar(GRID_CELL_SIZE).addScalar(GRID_CELL_MID_SIZE);
             //     table.mesh.position.y = TERRAIN_OFFSET;
             // }
+        }
+        else if (this.isKeyGDown) {
+            const garlic = new Model("garlic", new THREE.Vector3(0, 0, 0), 10, GLTF_GARLIC);
+            // await table.initMesh(1, this.scene, this.modelsArray, this.transformControls);
+            garlic.initMesh(0, this.scene, this.allModelsArray, this.transformControls).then(() => {
+                this.loopController.addToUpdate(garlic);
+                this.furnitureArray.push(garlic);
+                // this.ornamentArray.push(garlic);
+            });
         }
 
         // this.render();
@@ -407,7 +421,7 @@ export class ModelViewer {
             throw new Error(e.toString());
         }
 
-        const intersects = this.raycaster.intersectObjects(this.modelsArray, true);
+        const intersects = this.raycaster.intersectObjects(this.allModelsArray, true);
 
         if (intersects.length > 0) {
 
@@ -473,12 +487,14 @@ export class ModelViewer {
     private onDocumentKeyDown(event: KeyboardEvent) {
         switch (event.keyCode) {
             case 16: this.isShiftDown = true; break;
+            case 71: this.isKeyGDown = true; break;
         }
     }
 
     private onDocumentKeyUp(event: KeyboardEvent) {
         switch (event.keyCode) {
             case 16: this.isShiftDown = false; break;
+            case 71: this.isKeyGDown = false; break;
         }
     }
 

@@ -20,9 +20,9 @@ export function findModelParent(mesh: Mesh, id: string): Group<Object3DEventMap>
   // return this.findModelParent(mesh.parent as Mesh);
 }
 
-export class Furniture extends Mesh {
+export class Model extends Mesh {
 
-  // dim: Vector3;
+  scaleRatio: number;
   pos: Vector3;
 
   group?: Group;
@@ -33,13 +33,17 @@ export class Furniture extends Mesh {
   boundingBox: Box3;
   boxHelper: BoxHelper;
 
+  gltfUrl: string;
 
-  constructor(name: string, pos: Vector3) {
+
+  constructor(name: string, pos: Vector3, scaleRatio: number, gltfUrl: string) {
     super()
 
     this.name = name;
-    // this.dim = dim;
+    this.scaleRatio = scaleRatio;
     this.pos = pos;
+
+    this.gltfUrl = gltfUrl;
   }
 
   changeColour(colour: string) {
@@ -54,7 +58,6 @@ export class Furniture extends Mesh {
 
   async initMesh(id: number, scene: Scene, modelsArray: Group<Object3DEventMap>[], transformControls: TransformControls): Promise<void> {
     const loader = new GLTFLoader();
-    const gltfUrl = new URL('./../models/table/1/littlewood_furniture.gltf', import.meta.url).toString();
 
     const parameters = {
       color: new Color(0xe2eab8)
@@ -64,7 +67,7 @@ export class Furniture extends Mesh {
     matToon.opacity = .005;
     const matColor = new MeshBasicMaterial({ color: 0x3c3c3c });
 
-    loader.load(gltfUrl, (gltf: GLTF) => {
+    loader.load(this.gltfUrl, (gltf: GLTF) => {
 
       this.scene = gltf.scene;
 
@@ -84,8 +87,8 @@ export class Furniture extends Mesh {
       });
 
       this.scene.name = 'root_model-' + id;
+      this.scene.scale.multiplyScalar(this.scaleRatio);
       this.scene.position.set(this.pos.x, this.pos.y, this.pos.z);      
-      this.scene.scale.set(1, 1, 1);
 
       this.boxHelper = new BoxHelper(this.scene, 0xff0000);
       this.boxHelper.name = 'boxHelper_model-' + id;

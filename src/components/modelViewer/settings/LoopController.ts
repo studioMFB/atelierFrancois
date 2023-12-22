@@ -1,6 +1,17 @@
 import { Clock, Scene, WebGLRenderer, Vector3, PerspectiveCamera } from "three";
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
-import { Furniture } from "../resources/furniture";
+import { Model } from "../resources/model";
+
+
+const GRID_SIZE = 5;
+const gridLimits = {
+  minX: -GRID_SIZE / 2,  // Minimum X value
+  maxX: GRID_SIZE / 2,   // Maximum X value
+  minY: 0,    // Minimum Y value (assuming Y is up)
+  maxY: 0,   // Maximum Y value
+  minZ: -GRID_SIZE / 2,  // Minimum Z value
+  maxZ: GRID_SIZE / 2    // Maximum Z value
+};
 
 
 export class LoopController {
@@ -24,14 +35,15 @@ export class LoopController {
     this.updatables.push(object);
   }
 
-  checkCollision(furnitureArray: Furniture[]) {
-    if (!furnitureArray[0].scene)
+  checkCollision(furnitureArray: Model[]) {
+    if (furnitureArray.length == 0 || !furnitureArray[0].scene)
       return;
 
     for (let i = 0; i < furnitureArray.length; ++i) {
       if (!furnitureArray[i].scene)
         return;
 
+      // this.restricMoveToBoundaries(furnitureArray[i].scene, furnitureArray[i].boundingBox);
       for (let j = 0; j < furnitureArray.length; ++j) {
         if (!furnitureArray[j].scene)
           return;
@@ -68,22 +80,43 @@ export class LoopController {
       }
       //  else if (overlapMin === overlapY) {
       //   move.setY(overlapY * (object1.position.y > object2.position.y ? 1 : -1));
-        // move.setY(-1);
-    // } 
+      // move.setY(-1);
+      // } 
       else { // overlapMin == overlapZ
         move.setZ(overlapZ * (object1.position.z > object2.position.z ? 1 : -1));
       }
 
-      object1.position.y = 0;
-      object2.position.y = 0;
+      // object1.position.y = 0;
+      // object2.position.y = 0;
 
       // Adjust the position to resolve the overlap
       object1.position.add(move.multiplyScalar(0.5)); // Adjusting both objects by half the overlap
       object2.position.sub(move.multiplyScalar(0.5));
+
+      this.restricMoveToBoundaries(object1, box1);
+      this.restricMoveToBoundaries(object2, box2);
     }
   }
 
-  start(furnitureArray: Furniture[], composer: EffectComposer) {
+  restricMoveToBoundaries(object, box) {
+    // Constrain X position
+    // object1.position.x = Math.max(gridLimits.minX, Math.min(gridLimits.maxX, object1.position.x));
+    // object1.position.x = Math.max(gridLimits.minX, Math.min(gridLimits.maxX, box1.min.x));
+    // object1.position.x = Math.min(gridLimits.maxX, box1.max.x) - Math.max(gridLimits.minX, box1.min.x);
+
+    // Stop the lifting the model up.
+    object.position.y = 0;
+
+    // Constrain Z position
+    // object1.position.z = Math.max(gridLimits.minZ, Math.min(gridLimits.maxZ, object1.position.z));
+    // object1.position.z = Math.max(gridLimits.minZ, Math.min(gridLimits.maxZ, box1.min.z));
+    // object1.position.z = Math.min(gridLimits.maxZ, box1.max.z) - Math.max(gridLimits.minZ, box1.min.z);
+
+    object.position.x = Math.max(gridLimits.minX, Math.min(gridLimits.maxX, object.position.x));
+    object.position.z = Math.max(gridLimits.minZ, Math.min(gridLimits.maxZ, object.position.z));
+  }
+
+  start(furnitureArray: Model[], composer: EffectComposer) {
     this.renderer.setAnimationLoop(() => {
 
       this.tick();
