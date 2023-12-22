@@ -173,7 +173,6 @@ export class ModelViewer {
         // Plane // 
         this.planeController = new PlaneController("Plane", new THREE.Vector2(GRID_SIZE, GRID_SIZE), new THREE.Vector2(1, 1), new THREE.Vector3(0, 0, 0));
         this.planeController.initMesh(false, this.scene);
-        // this.addObject(this.planeController);
         this.scene.add(this.planeController.ground);
         this.scene.add(this.planeController.shadowGround);
 
@@ -188,31 +187,13 @@ export class ModelViewer {
         // GIZMOS //
         // MOVE TO OWN CLASS
         this.transformControls = new TransformControls(this.camera, this.canvas);
-        this.scene.add(this.transformControls);
-
-        // Find a way to switch between modes and apply the custom flags.
         this.transformControls.setMode('translate');
-        // this.transformControls.showY = false; // Idealy don't show the Y arrow, but this removes the centre square.
-
-        // this.transformControls.setMode('rotate'); // rotate only around the Y axis.
-        // this.transformControls.showX = false;
-        // this.transformControls.showZ = false;
-
-        // this.transformControls.setMode('scale'); // Desable scaling.
-        // this.transformControls.showX = false;
-        // this.transformControls.showY = false;
-        // this.transformControls.showZ = false;
-
+        this.scene.add(this.transformControls);
 
         // FIND A FIX TO ADJUST GIZMO POSITION FOR ALL MODELS
         // Adjust gizmo pos to be in centre of Table model.
-        this.transformControls.position.x -= .1;
-        this.transformControls.position.y += .6;
-        // this.transformControls.position.x = 0;
-        // this.transformControls.position.y = 0;
-
-        // console.log("this.transformControls ", this.transformControls);
-        // console.log("(this.transformControls.children[1] as TransformControlsGizmo) ", (this.transformControls.children[1] as TransformControlsGizmo));
+        // this.transformControls.position.x -= .1;
+        // this.transformControls.position.y += .6;
 
         // Main gizmo, arrows and squares
         (this.transformControls.children[0] as TransformControlsGizmo).gizmo.translate.traverse((child: any) => {
@@ -245,22 +226,14 @@ export class ModelViewer {
         });
 
         this.transformControls.addEventListener("mouseDown", () => {
-            // this.changeColour(COLOUR_SELECTED);
-
             // Desable camera controls.
             this.controlsController.controls.enabled = false;
             // enable rotating selected model on mouse wheel input.
             this.isLeftMouseButtonDown = true;
             // Lock selected colour (on).
             this.isSelected = true;
-
-            // Adjust gizmo pos to be in centre of model.
-            //   this.transformControls.position.x -= .1;
-            //   this.transformControls.position.y += -.1;
         });
         this.transformControls.addEventListener("mouseUp", () => {
-            // this.changeColour(COLOUR_UNSELECTED);
-
             // Enable camera controls.
             this.controlsController.controls.enabled = true;
             // Desable rotating selected model on mouse wheel input.
@@ -268,20 +241,6 @@ export class ModelViewer {
             // UnLock selected colour (off).
             this.isSelected = false;
         });
-
-        // FOR DEV ONLY, later models will be spwaned from a menu into the scene.
-        // TEST FURNITURE TABLE //
-        // const table1 = new Model("table", new THREE.Vector3(0, 0, -1), 1, GLTF_TABLE);
-        // table1.initMesh(1, this.scene, this.allModelsArray).then(() => {
-        //     this.loopController.addToUpdate(table1);
-        //     this.furnitureArray.push(table1);
-        // });
-
-        // const table2 = new Model("table", new THREE.Vector3(1, 0, 1), 1, GLTF_TABLE);
-        // table2.initMesh(2, this.scene, this.allModelsArray).then(() => {
-        //     this.loopController.addToUpdate(table2);
-        //     this.furnitureArray.push(table2);
-        // });
 
         // RESIZER //
         const resizer = new Resizer(this.camera, this.renderer);
@@ -312,7 +271,7 @@ export class ModelViewer {
         // document.addEventListener("pointerdown", () => { this.changeColour('#f47653'); });
 
         this.canvas.addEventListener("pointerup", () => {
-            this.transformControls.detach();
+            // this.transformControls.detach();
             this.changeColour(COLOUR_UNSELECTED);
         });
     }
@@ -325,11 +284,11 @@ export class ModelViewer {
 
         if (this.intersection()) {
             this.changeColour(COLOUR_SELECTED);
+
+            // this.adjustGizmoPosition(this.intersected, this.transformControls);
+
             this.transformControls.attach(this.intersected);
         }
-        // else if(!this.isSelected) {
-        //     this.changeColour(COLOUR_UNSELECTED);
-        // }
 
         this.restricMoveToBoundaries()
     }
@@ -351,8 +310,9 @@ export class ModelViewer {
     }
 
     onPointerDown(event: PointerEvent) {
-        // if (!this.intersected)
-        //     return;
+        // if (this.intersected){
+        //     this.adjustGizmoPosition(this.intersected, this.transformControls);
+        // }
 
         // this.changeColour('#f47653');
 
@@ -368,9 +328,13 @@ export class ModelViewer {
 
             const table = new Model("table", new THREE.Vector3(0, 0, 0), 1, GLTF_TABLE);
             table.initMesh(this.scene, this.allModelsArray).then(() => {
+
+                this.adjustGizmoPosition(table.scene, this.transformControls);
+
                 this.loopController.addToUpdate(table);
                 this.furnitureArray.push(table);
             });
+
 
             // Move to function
             // Render a red square to show where the model would land.
@@ -388,6 +352,9 @@ export class ModelViewer {
 
             const garlic = new Model("garlic", new THREE.Vector3(0, 0, 0), 10, GLTF_GARLIC);
             garlic.initMesh(this.scene, this.allModelsArray).then(() => {
+
+                this.adjustGizmoPosition(garlic.scene, this.transformControls);
+
                 this.loopController.addToUpdate(garlic);
                 this.furnitureArray.push(garlic);
                 // this.ornamentArray.push(garlic);
@@ -400,6 +367,9 @@ export class ModelViewer {
 
             const stone = new Model("stone", new THREE.Vector3(0, 0, 0), 1, GLTF_STONE);
             stone.initMesh(this.scene, this.allModelsArray).then(() => {
+
+                this.adjustGizmoPosition(stone.scene, this.transformControls);
+
                 this.loopController.addToUpdate(stone);
                 this.furnitureArray.push(stone);
                 // this.ornamentArray.push(stone);
@@ -451,6 +421,8 @@ export class ModelViewer {
             this.intersect = intersects[0];
             this.intersected = findModelParent(this.intersect.object as THREE.Mesh);
 
+            // this.adjustGizmoPosition(this.intersected);
+
             // const selectedObject = intersects[0].object;
 
             // Move to function
@@ -465,6 +437,26 @@ export class ModelViewer {
         else {
             return false;
         }
+    }
+
+    adjustGizmoPosition(model: any, transformControls: TransformControls): void {
+        const bbox = new THREE.Box3().setFromObject(model);
+
+        const bboxCenter = new THREE.Vector3();
+        bbox.getCenter(bboxCenter);
+        const bboxSize = new THREE.Vector3();
+        bbox.getSize(bboxSize);
+
+        const topCenterPosition = new THREE.Vector3(
+            bboxCenter.x,
+            bboxCenter.y + bboxSize.y / 2,
+            bboxCenter.z
+        );
+
+        transformControls.position.copy(topCenterPosition);
+
+        transformControls.attach(model);
+        // scene.add(transformControls);
     }
 
     changeColour(colour: string) {
