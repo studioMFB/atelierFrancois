@@ -192,8 +192,8 @@ export class ModelViewer {
 
         // FIND A FIX TO ADJUST GIZMO POSITION FOR ALL MODELS
         // Adjust gizmo pos to be in centre of Table model.
-        // this.transformControls.position.x -= .1;
-        // this.transformControls.position.y += .6;
+        this.transformControls.position.x -= .1;
+        this.transformControls.position.y += .6;
 
         // Main gizmo, arrows and squares
         (this.transformControls.children[0] as TransformControlsGizmo).gizmo.translate.traverse((child: any) => {
