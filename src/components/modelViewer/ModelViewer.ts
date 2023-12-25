@@ -26,7 +26,7 @@ import { Model, findModelParent } from './resources/model';
 // GRID in meters
 const GRID_SIZE = 5;
 const GRID_DIVISION = 0.5;
-const GRID_CELL_SIZE =  GRID_SIZE / GRID_DIVISION;
+const GRID_CELL_SIZE = GRID_SIZE / GRID_DIVISION;
 
 const TERRAIN_SIZE = new THREE.Vector3(2, .5, 2);
 
@@ -106,6 +106,10 @@ export class ModelViewer {
 
         this.isSelected = false;
 
+        this.isShiftDown = false;
+        this.isKeyGDown = false;
+        this.isKeyRDown = false;
+
         // Scene //
         this.sceneController = new SceneController();
         this.scene = this.sceneController.init(new THREE.Color(0xded6d8));
@@ -183,7 +187,7 @@ export class ModelViewer {
         // MOVE TO OWN CLASS
         this.transformControls = new TransformControls(this.camera, this.canvas);
         this.transformControls.setMode('translate');
-        this.transformControls.translationSnap = 0.5; // Snaps to 500mm increments.
+        // this.transformControls.translationSnap = 0.5; // Snaps to 500mm increments.
         this.scene.add(this.transformControls);
 
         // FIND A FIX TO ADJUST GIZMO POSITION FOR ALL MODELS
@@ -246,28 +250,28 @@ export class ModelViewer {
 
             this.loopController.addToUpdate(table);
             this.furnitureArray.push(table);
-            
+
             // GHOST //        
             // // const bbox = new THREE.Box3().setFromObject(table.scene); 
             // const bboxSize = new THREE.Vector3();
             const bboxSize = new THREE.Vector3(1.5, 0, 0.55);
             // bbox.getSize(bboxSize);
 
-            const geometry = new THREE.PlaneGeometry(bboxSize.x, bboxSize.z, 1,1);
+            const geometry = new THREE.PlaneGeometry(bboxSize.x, bboxSize.z, 1, 1);
             geometry.rotateX(- Math.PI / 2);
             geometry.rotateY(- Math.PI / 2);
 
-            // const material = new THREE.MeshStandardMaterial({
-            //   color: new THREE.Color(COLOUR_SELECTED),
-            //   visible: true,
-            //   opacity:0.4,
-            // });
-            const material = new THREE.ShadowMaterial({
-                opacity: .5,
-                color: COLOUR_SELECTED,
-                side: THREE.DoubleSide,
-                transparent: false
-              });
+            const material = new THREE.MeshStandardMaterial({
+                color: new THREE.Color(COLOUR_SELECTED),
+                visible: true,
+                opacity: 0.4,
+            });
+            // const material = new THREE.ShadowMaterial({
+            //     opacity: .5,
+            //     color: COLOUR_SELECTED,
+            //     side: THREE.DoubleSide,
+            //     transparent: false
+            //   });
             this.ghost = new THREE.Mesh(geometry, material);
             this.ghost.name = "ghost";
             this.ghost.receiveShadow = true;
@@ -276,13 +280,11 @@ export class ModelViewer {
 
             this.transformControls.addEventListener('change', () => {
                 if (this.transformControls.mode === 'translate') {
-                    // Get position of the model
-                    const position = this.transformControls.object.position;
                     // Snap position to grid
-                    position.x = Math.round(position.x / 0.5) * 0.5; // Assuming 50 cm grid
-                    position.z = Math.round(position.z / 0.5) * 0.5;
+                    // position.x = Math.round(position.x / 0.5) * 0.5; // Assuming 50 cm grid
+                    // position.z = Math.round(position.z / 0.5) * 0.5;
                     // Update the position of the plane
-                    this.ghost.position.set(position.x, 0, position.z);
+                    this.ghost.position.set(this.intersected.position.x, 0, this.intersected.position.z);
                 }
             });
         });
@@ -313,10 +315,8 @@ export class ModelViewer {
         document.addEventListener('keydown', (e: KeyboardEvent) => { this.onDocumentKeyDown(e) });
         document.addEventListener('keyup', (e: KeyboardEvent) => { this.onDocumentKeyUp(e) })
 
-        // document.addEventListener("pointerdown", () => { this.changeColour('#f47653'); });
-
         this.canvas.addEventListener("pointerup", () => {
-            // this.transformControls.detach();
+            this.transformControls.detach();
             this.changeColour(COLOUR_UNSELECTED);
         });
     }
@@ -328,7 +328,7 @@ export class ModelViewer {
             this.changeColour(COLOUR_UNSELECTED);
 
         if (this.intersection()) {
-            this.changeColour(COLOUR_SELECTED); 
+            this.changeColour(COLOUR_SELECTED);
             // this.adjustGizmoPosition(this.intersected, this.transformControls);
             this.transformControls.attach(this.intersected);
         }
@@ -353,11 +353,10 @@ export class ModelViewer {
     }
 
     onPointerDown(event: PointerEvent) {
-        // if (this.intersected){
-        //     this.adjustGizmoPosition(this.intersected, this.transformControls);
-        // }
-
-        // this.changeColour('#f47653');
+        console.log("Pointer Down");
+        console.log("this.isShiftDown ", this.isShiftDown);
+        console.log("this.isKeyGDown ", this.isKeyGDown);
+        console.log("this.isKeyRDown ", this.isKeyRDown);
 
         // Add Table
         if (this.isShiftDown) {
@@ -365,17 +364,12 @@ export class ModelViewer {
             //     this.modelsArray.splice(this.modelsArray.indexOf(this.intersected), 1);
             // } else {
 
-            // Custom position for the gizmo.
-            // this.transformControls.position.x -= .1;
-            // this.transformControls.position.y += .6;
-
             const table = new Model("table", new THREE.Vector3(-0.5, 0, -0.5), 1, GLTF_TABLE);
             table.initMesh(this.scene, this.allModelsArray).then(() => {
                 // this.adjustGizmoPosition(table.scene, this.transformControls);
                 this.loopController.addToUpdate(table);
                 this.furnitureArray.push(table);
             });
-
 
             // Move to function
             // Render a red square to show where the model would land.
@@ -385,12 +379,8 @@ export class ModelViewer {
             //     table.mesh.position.y = TERRAIN_OFFSET;
             // }
         }
-        else if (this.isKeyGDown) {
-            // Custom position for the gizmo.
-            // this.transformControls.position.x -= .95;
-            // this.transformControls.position.y += .1;
-            // this.transformControls.position.z -= .3;
-
+        if (this.isKeyGDown) {
+            console.log("G");
             const garlic = new Model("garlic", new THREE.Vector3(0, 0, 0), 10, GLTF_GARLIC);
             garlic.initMesh(this.scene, this.allModelsArray).then(() => {
                 // this.adjustGizmoPosition(garlic.scene, this.transformControls);
@@ -399,12 +389,9 @@ export class ModelViewer {
                 // this.ornamentArray.push(garlic);
             });
         }
-        else if (this.isKeyRDown) {
-            // Custom position for the gizmo.
-            // this.transformControls.position.x -= .1;
-            // this.transformControls.position.y += .6;
-
-            const stone = new Model("stone", new THREE.Vector3(0, 0, 0), 1, GLTF_STONE);
+        if (this.isKeyRDown) {
+            console.log("R");
+            const stone = new Model("stone", new THREE.Vector3(0, 0, 0), 0.5, GLTF_STONE);
             stone.initMesh(this.scene, this.allModelsArray).then(() => {
                 // this.adjustGizmoPosition(stone.scene, this.transformControls);
                 this.loopController.addToUpdate(stone);
@@ -412,10 +399,6 @@ export class ModelViewer {
                 // this.ornamentArray.push(stone);
             });
         }
-
-        // this.render();
-        // this.controlsController.controls.enabled = true;
-        // document.removeEventListener("pointermove", this.onPointerMove);
     }
 
     // onPointerUp(event: PointerEvent) {
@@ -540,17 +523,17 @@ export class ModelViewer {
 
     private onDocumentKeyDown(event: KeyboardEvent) {
         switch (event.keyCode) {
-            case 16: this.isShiftDown = true; break;
-            case 71: this.isKeyGDown = true; break;
-            case 82: this.isKeyRDown = true; break;
+            case 16: this.isShiftDown = true; console.log("SHIFT down"); break;
+            case 71: this.isKeyGDown = true; console.log("G down"); break;
+            case 82: this.isKeyRDown = true; console.log("R down"); break;
         }
     }
 
     private onDocumentKeyUp(event: KeyboardEvent) {
         switch (event.keyCode) {
-            case 16: this.isShiftDown = false; break;
-            case 71: this.isKeyGDown = false; break;
-            case 82: this.isKeyRDown = false; break;
+            case 16: this.isShiftDown = false; console.log("SHIFT up"); break;
+            case 71: this.isKeyGDown = false; console.log("G up"); break;
+            case 82: this.isKeyRDown = false; console.log("R up"); break;
         }
     }
 
