@@ -21,19 +21,14 @@ import { PlaneController } from './resources/PlaneController';
 import { TerrainGhost } from './resources/TerrainGhost';
 import { EventHub } from './../EventHub';
 import { Model, findModelParent } from './resources/model';
-import { Group, Object3DEventMap } from 'three';
 
 
+// GRID in meters
 const GRID_SIZE = 5;
-const GRID_DIVISION = 10;
-// const GRID_SIZE = 20;
-// const GRID_DIVISION = 40;
-const GRID_CELL_SIZE = GRID_DIVISION / GRID_SIZE;
-const GRID_CELL_MID_SIZE = GRID_CELL_SIZE * .5;
+const GRID_DIVISION = 0.5;
+const GRID_CELL_SIZE =  GRID_SIZE / GRID_DIVISION;
 
 const TERRAIN_SIZE = new THREE.Vector3(2, .5, 2);
-const GHOST_OFFSET = 0;
-const TERRAIN_OFFSET = .25;
 
 // Colour //
 const COLOUR_SELECTED = '#f47653';
@@ -165,7 +160,7 @@ export class ModelViewer {
         // Stop Models from leaving the grid.
 
         // Grid //
-        this.gridController = new GridController(GRID_SIZE, GRID_DIVISION);
+        this.gridController = new GridController(GRID_SIZE, GRID_CELL_SIZE);
         this.gridController.init(this.scene, "#888888");
         this.raycaster = new THREE.Raycaster();
         this.pointer = new THREE.Vector2();
@@ -188,6 +183,7 @@ export class ModelViewer {
         // MOVE TO OWN CLASS
         this.transformControls = new TransformControls(this.camera, this.canvas);
         this.transformControls.setMode('translate');
+        this.transformControls.translationSnap = 0.5; // Snaps to 500mm increments.
         this.scene.add(this.transformControls);
 
         // FIND A FIX TO ADJUST GIZMO POSITION FOR ALL MODELS
@@ -240,6 +236,16 @@ export class ModelViewer {
             this.isLeftMouseButtonDown = false;
             // UnLock selected colour (off).
             this.isSelected = false;
+        });
+
+        // DEVELOPMENT ONLY
+        const table = new Model("table", new THREE.Vector3(0.4, 0, -0.25), 1, GLTF_TABLE);
+        table.initMesh(this.scene, this.allModelsArray).then(() => {
+
+            this.adjustGizmoPosition(table.scene, this.transformControls);
+
+            this.loopController.addToUpdate(table);
+            this.furnitureArray.push(table);
         });
 
         // RESIZER //
@@ -326,7 +332,7 @@ export class ModelViewer {
             // this.transformControls.position.x -= .1;
             // this.transformControls.position.y += .6;
 
-            const table = new Model("table", new THREE.Vector3(0, 0, 0), 1, GLTF_TABLE);
+            const table = new Model("table", new THREE.Vector3(-0.5, 0, -0.5), 1, GLTF_TABLE);
             table.initMesh(this.scene, this.allModelsArray).then(() => {
 
                 this.adjustGizmoPosition(table.scene, this.transformControls);
