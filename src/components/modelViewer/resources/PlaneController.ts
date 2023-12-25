@@ -20,13 +20,14 @@ export class PlaneController extends Mesh {
     this.pos = pos;
   }
 
-  initMesh(isVisible: boolean, scene: Scene, colour?: Color): void {
+  initMesh(isVisible: boolean, scene: Scene, opacity:number, colour?: Color): void {
     // GROUND //
     this.geometry = new PlaneGeometry(this.dim.x, this.dim.y, this.seg.x, this.seg.y);
     this.geometry.rotateX(- Math.PI / 2);
     this.material = new MeshStandardMaterial({
       color: colour || new Color(0xff0000),
       visible: isVisible,
+      opacity:opacity,
     });
     this.ground = new Mesh(this.geometry, this.material);
     this.ground.name = this.name;

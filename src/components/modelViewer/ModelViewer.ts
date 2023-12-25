@@ -84,7 +84,7 @@ export class ModelViewer {
     private intersected: THREE.Group<THREE.Object3DEventMap>;
 
     private terrainGhost: TerrainGhost;
-
+    private ghost: THREE.Mesh;
 
     // Key, Mouse Controlls
     private isShiftDown: boolean;
@@ -167,17 +167,17 @@ export class ModelViewer {
 
         // Plane // 
         this.planeController = new PlaneController("Plane", new THREE.Vector2(GRID_SIZE, GRID_SIZE), new THREE.Vector2(1, 1), new THREE.Vector3(0, 0, 0));
-        this.planeController.initMesh(false, this.scene);
+        this.planeController.initMesh(false, this.scene, 1);
         this.scene.add(this.planeController.ground);
         this.scene.add(this.planeController.shadowGround);
 
         // Ghost Terrain //
-        this.terrainGhost = new TerrainGhost("T-Ghost", TERRAIN_SIZE, new THREE.Vector3(50, 1, 50), new THREE.Vector3(0, 0, 0));
-        this.terrainGhost.initMesh(new THREE.Color(0xff0000), .5);
-        if (this.terrainGhost.mesh) {
-            this.sceneController.addMesh(this.terrainGhost.mesh);
-            this.loopController.addToUpdate(this.terrainGhost);
-        }
+        // this.terrainGhost = new TerrainGhost("T-Ghost", TERRAIN_SIZE, new THREE.Vector3(50, 1, 50), new THREE.Vector3(0, 0, 0));
+        // this.terrainGhost.initMesh(new THREE.Color(0xff0000), .5);
+        // if (this.terrainGhost.mesh) {
+        //     this.sceneController.addMesh(this.terrainGhost.mesh);
+        //     this.loopController.addToUpdate(this.terrainGhost);
+        // }
 
         // GIZMOS //
         // MOVE TO OWN CLASS
@@ -239,13 +239,52 @@ export class ModelViewer {
         });
 
         // DEVELOPMENT ONLY
-        const table = new Model("table", new THREE.Vector3(0.4, 0, -0.25), 1, GLTF_TABLE);
+        const table = new Model("table", new THREE.Vector3(0, 0, 0), 1, GLTF_TABLE);
         table.initMesh(this.scene, this.allModelsArray).then(() => {
 
-            this.adjustGizmoPosition(table.scene, this.transformControls);
+            // this.adjustGizmoPosition(table.scene, this.transformControls);
 
             this.loopController.addToUpdate(table);
             this.furnitureArray.push(table);
+            
+            // GHOST //        
+            // // const bbox = new THREE.Box3().setFromObject(table.scene); 
+            // const bboxSize = new THREE.Vector3();
+            const bboxSize = new THREE.Vector3(1.5, 0, 0.55);
+            // bbox.getSize(bboxSize);
+
+            const geometry = new THREE.PlaneGeometry(bboxSize.x, bboxSize.z, 1,1);
+            geometry.rotateX(- Math.PI / 2);
+            geometry.rotateY(- Math.PI / 2);
+
+            // const material = new THREE.MeshStandardMaterial({
+            //   color: new THREE.Color(COLOUR_SELECTED),
+            //   visible: true,
+            //   opacity:0.4,
+            // });
+            const material = new THREE.ShadowMaterial({
+                opacity: .5,
+                color: COLOUR_SELECTED,
+                side: THREE.DoubleSide,
+                transparent: false
+              });
+            this.ghost = new THREE.Mesh(geometry, material);
+            this.ghost.name = "ghost";
+            this.ghost.receiveShadow = true;
+            this.ghost.position.set(-0.1, 0, 0);
+            this.scene.add(this.ghost);
+
+            this.transformControls.addEventListener('change', () => {
+                if (this.transformControls.mode === 'translate') {
+                    // Get position of the model
+                    const position = this.transformControls.object.position;
+                    // Snap position to grid
+                    position.x = Math.round(position.x / 0.5) * 0.5; // Assuming 50 cm grid
+                    position.z = Math.round(position.z / 0.5) * 0.5;
+                    // Update the position of the plane
+                    this.ghost.position.set(position.x, 0, position.z);
+                }
+            });
         });
 
         // RESIZER //
@@ -289,10 +328,8 @@ export class ModelViewer {
             this.changeColour(COLOUR_UNSELECTED);
 
         if (this.intersection()) {
-            this.changeColour(COLOUR_SELECTED);
-
+            this.changeColour(COLOUR_SELECTED); 
             // this.adjustGizmoPosition(this.intersected, this.transformControls);
-
             this.transformControls.attach(this.intersected);
         }
 
@@ -334,9 +371,7 @@ export class ModelViewer {
 
             const table = new Model("table", new THREE.Vector3(-0.5, 0, -0.5), 1, GLTF_TABLE);
             table.initMesh(this.scene, this.allModelsArray).then(() => {
-
-                this.adjustGizmoPosition(table.scene, this.transformControls);
-
+                // this.adjustGizmoPosition(table.scene, this.transformControls);
                 this.loopController.addToUpdate(table);
                 this.furnitureArray.push(table);
             });
@@ -358,9 +393,7 @@ export class ModelViewer {
 
             const garlic = new Model("garlic", new THREE.Vector3(0, 0, 0), 10, GLTF_GARLIC);
             garlic.initMesh(this.scene, this.allModelsArray).then(() => {
-
-                this.adjustGizmoPosition(garlic.scene, this.transformControls);
-
+                // this.adjustGizmoPosition(garlic.scene, this.transformControls);
                 this.loopController.addToUpdate(garlic);
                 this.furnitureArray.push(garlic);
                 // this.ornamentArray.push(garlic);
@@ -373,9 +406,7 @@ export class ModelViewer {
 
             const stone = new Model("stone", new THREE.Vector3(0, 0, 0), 1, GLTF_STONE);
             stone.initMesh(this.scene, this.allModelsArray).then(() => {
-
-                this.adjustGizmoPosition(stone.scene, this.transformControls);
-
+                // this.adjustGizmoPosition(stone.scene, this.transformControls);
                 this.loopController.addToUpdate(stone);
                 this.furnitureArray.push(stone);
                 // this.ornamentArray.push(stone);
