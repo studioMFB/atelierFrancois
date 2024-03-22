@@ -1,0 +1,56 @@
+:root {
+  --menu__title--txt: rgb(65, 62, 58);
+  --menu--bkg: #2b2c31;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --menu__title--txt: rgb(61, 61, 61);
+    --menu--bkg: #2b2c31;
+  }
+}
+
+
+html {
+  box-sizing:border-box;
+}
+
+body {
+  width: 100%;
+  height: 100%;
+  font-family: 'Lato', sans-serif;
+  font-size: 14px;
+  background:#e5e0d8;
+  overflow: hidden;
+}
+
+a{
+  text-decoration: none;
+}
+
+.app {
+  width: 100%;
+  height: 100%;
+  
+  // canvas{
+  //   position: fixed;
+  //   top:4rem;
+  //   // left: 2rem;
+  //   width: 96% !important;
+  //   height: 100% !important;
+  //   border: none;
+  //   border-radius: 10px;
+  //   margin: 0 2rem;
+  //   background:#e5e0d8;
+  // }
+}
+
+// .modelViewer {
+//   /* grid-area: main; */
+//   width: 50%;
+//   height: 100%;
+//   border: none;
+//   border-radius: 10px;
+//   margin: 0 auto;
+//   background: #ffffff;
+// }

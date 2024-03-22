@@ -1,0 +1,48 @@
+{
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    },
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.vitest.json"
+    }
+  ],
+  "compilerOptions": {
+    "lib": [
+      "ESNext",
+      "dom",
+      "dom.iterable"
+    ],
+    "types": [
+      "node",
+      "cypress",
+      "mocha"
+    ],
+    "baseUrl": "./src",
+    "paths": {
+      "~/*": [
+        "./*"
+      ]
+    },
+    "module": "es2022",
+    "moduleResolution": "Node",
+    "target": "ESNext",
+    "declaration": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "allowJs": false,
+    "noImplicitAny": false,
+    "strict": false,
+    "noEmit": true,
+    "inlineSourceMap": true,
+    "isolatedModules": true,
+    "noUncheckedIndexedAccess": true
+  }
+
+}
