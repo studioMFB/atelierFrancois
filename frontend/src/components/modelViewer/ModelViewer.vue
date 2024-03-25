@@ -85,7 +85,7 @@ const gridLimits = {
 
     let isSelected: boolean;
 
-    onBeforeMount(()=>{
+    onMounted(()=>{
         allModelsArray = [];
         furnitureArray = [];
 
@@ -103,13 +103,12 @@ const gridLimits = {
         scene = sceneController.init(new THREE.Color(0xded6d8));
 
         // Renderer //
-        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer = new THREE.WebGLRenderer({ antialias: true, canvas: canvasRef.value });
         renderer.setPixelRatio(window.devicePixelRatio);
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         renderer.shadowMap.enabled = true;
 
-        canvasRef.value = renderer.domElement;
 
         console.log("renderer.domElement ", renderer.domElement);
         console.log("canvas ", canvasRef.value);
@@ -284,15 +283,16 @@ const gridLimits = {
 
         // RESIZER //
         const resizer = new Resizer(camera, renderer);
+
+        // init();
     });
 
     
-    onMounted(()=>{ 
-        console.log("canvas before init() ", canvasRef.value);
-        init();
-        console.log("canvas after init() ", canvasRef.value);
-    });
-
+    // onMounted(()=>{ 
+    //     console.log("canvas before init() ", canvasRef.value);
+    //     console.log("canvas after init() ", canvasRef.value);
+    // });
+    
 
     function  findParent(mesh: THREE.Mesh): THREE.Mesh {
         // If the mesh has no parent, return null
@@ -540,7 +540,12 @@ const gridLimits = {
             case 71: isKeyGDown = false; console.log("G up"); break;
             case 82: isKeyRDown = false; console.log("R up"); break;
         }
-    }   
+    }  
+    
+    
+
+            // console.log("canvas after init() ", canvasRef.value);
+
 </script>
 
 <template>
