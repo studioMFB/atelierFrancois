@@ -4,7 +4,7 @@ import vue from '@vitejs/plugin-vue';
 import vueJsx from '@vitejs/plugin-vue-jsx';
 
 
-process.env.NODE_ENV = 'production';
+process.env.NODE_ENV = 'development';
 process.env.ASSET_URL = `/dist/`;
 
 export default defineConfig({

@@ -20,16 +20,16 @@ export class SceneController {
     //     return this.scene;
     // }
 
-    addMesh(mesh: Mesh) {
-        if (!mesh) {
-            console.log("Mesh is null or undifined and will not be added to the scene!");
-            return;
-        }
-        if (mesh instanceof Mesh) {
-            this.scene.add(mesh);
-            return;
-        }
-        console.log("This parameter is not a Mesh and will not be added to the scene!");
+    // addMesh(mesh: Mesh) {
+    //     if (!mesh) {
+    //         console.log("Mesh is null or undifined and will not be added to the scene!");
+    //         return;
+    //     }
+    //     if (mesh instanceof Mesh) {
+    //         this.scene.add(mesh);
+    //         return;
+    //     }
+    //     console.log("This parameter is not a Mesh and will not be added to the scene!");
 
-    }
+    // }
 }

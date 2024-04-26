@@ -20,16 +20,16 @@ const router = createRouter({
           name: RouteProviders.Home,
           path: RouteProviders.Home,
           components: {
-            Content: () => import("./views/HomePage.vue"),
+            Background: () => import("./views/HomePage.vue"),
           },
         },
-        {
-          name: RouteProviders.Testimony,
-          path: RouteProviders.Testimony,
-          components: {
-            Content: () => import("./views/TestimonyPage.vue"),
-          },
-        }
+        // {
+        //   name: RouteProviders.Testimony,
+        //   path: RouteProviders.Testimony,
+        //   components: {
+        //     Content: () => import("./views/TestimonyPage.vue"),
+        //   },
+        // }
       ]
     }
   ]

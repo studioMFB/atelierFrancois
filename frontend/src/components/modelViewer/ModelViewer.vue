@@ -109,9 +109,8 @@ const gridLimits = {
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         renderer.shadowMap.enabled = true;
 
-
-        console.log("renderer.domElement ", renderer.domElement);
-        console.log("canvas ", canvasRef.value);
+        // console.log("renderer.domElement ", renderer.domElement);
+        // console.log("canvas ", canvasRef.value);
 
         // Camera //
         cameraController = new CameraController(new THREE.Vector3(-3, 4.5, 3));
@@ -124,19 +123,19 @@ const gridLimits = {
 
         // COMPOSER //
         // MOVE TO OWN CLASS //
-        composer = new EffectComposer(renderer);
-        const renderPass = new RenderPass(scene, camera);
-        composer.addPass(renderPass);
+        // composer = new EffectComposer(renderer);
+        // const renderPass = new RenderPass(scene, camera);
+        // composer.addPass(renderPass);
 
-        outlinePass = new OutlinePass(new THREE.Vector2(window.innerWidth, window.innerHeight), scene, camera);
-        composer.addPass(outlinePass);
+        // outlinePass = new OutlinePass(new THREE.Vector2(window.innerWidth, window.innerHeight), scene, camera);
+        // composer.addPass(outlinePass);
 
-        outlinePass.edgeStrength = 3;
-        outlinePass.edgeGlow = 0.7;
-        outlinePass.edgeThickness = 1;
-        outlinePass.pulsePeriod = 2;
-        outlinePass.visibleEdgeColor.set('#ff0000'); // red color
-        outlinePass.hiddenEdgeColor.set('#190a05');
+        // outlinePass.edgeStrength = 3;
+        // outlinePass.edgeGlow = 0.7;
+        // outlinePass.edgeThickness = 1;
+        // outlinePass.pulsePeriod = 2;
+        // outlinePass.visibleEdgeColor.set('#ff0000'); // red color
+        // outlinePass.hiddenEdgeColor.set('#190a05');
 
         // Light //
         const hLight = new THREE.HemisphereLight(new THREE.Color(0xffffff), undefined, 1.05);
@@ -156,8 +155,8 @@ const gridLimits = {
         // Grid //
         gridController = new GridController(GRID_SIZE, GRID_CELL_SIZE);
         gridController.init(scene, "#888888");
-        raycaster = new THREE.Raycaster();
-        pointer = new THREE.Vector2();
+        // raycaster = new THREE.Raycaster();
+        // pointer = new THREE.Vector2();
 
         // Plane // 
         planeController = new PlaneController("Plane", new THREE.Vector2(GRID_SIZE, GRID_SIZE), new THREE.Vector2(1, 1), new THREE.Vector3(0, 0, 0));
@@ -175,116 +174,116 @@ const gridLimits = {
 
         // GIZMOS //
         // MOVE TO OWN CLASS
-        transformControls = new TransformControls(camera, canvasRef.value);
-        transformControls.setMode('translate');
-        // transformControls.translationSnap = 0.5; // Snaps to 500mm increments.
-        scene.add(transformControls);
+        // transformControls = new TransformControls(camera, canvasRef.value);
+        // transformControls.setMode('translate');
+        // // transformControls.translationSnap = 0.5; // Snaps to 500mm increments.
+        // scene.add(transformControls);
 
         // FIND A FIX TO ADJUST GIZMO POSITION FOR ALL MODELS
         // Adjust gizmo pos to be in centre of Table model.
-        transformControls.position.x -= .1;
-        transformControls.position.y += .6;
+        // transformControls.position.x -= .1;
+        // transformControls.position.y += .6;
 
-        // Main gizmo, arrows and squares
-        (transformControls.children[0] as TransformControlsGizmo).gizmo.translate.traverse((child: any) => {
-            if (child.isMesh) {
-                // The square in the centre of the gizmos,
-                // with which you can move the model in any direction.
-                if (child.name === 'XYZ') {
-                    (child.material as THREE.MeshBasicMaterial).color.set(0x0e73e6);
-                    (child.material as THREE.MeshBasicMaterial).opacity = 0.5;
-                }
-                else {
-                    (child.material as THREE.MeshBasicMaterial).visible = false;
-                }
-            }
-        });
+        // // Main gizmo, arrows and squares
+        // (transformControls.children[0] as TransformControlsGizmo).gizmo.translate.traverse((child: any) => {
+        //     if (child.isMesh) {
+        //         // The square in the centre of the gizmos,
+        //         // with which you can move the model in any direction.
+        //         if (child.name === 'XYZ') {
+        //             (child.material as THREE.MeshBasicMaterial).color.set(0x0e73e6);
+        //             (child.material as THREE.MeshBasicMaterial).opacity = 0.5;
+        //         }
+        //         else {
+        //             (child.material as THREE.MeshBasicMaterial).visible = false;
+        //         }
+        //     }
+        // });
 
-        // Pickers
-        // Not sure it does much.
-        (transformControls.children[0] as TransformControlsGizmo).picker.translate.traverse((child: any) => {
-            if (child.isMesh) {
-                (child.material as THREE.MeshBasicMaterial).visible = false;
-            }
-        });
+        // // Pickers
+        // // Not sure it does much.
+        // (transformControls.children[0] as TransformControlsGizmo).picker.translate.traverse((child: any) => {
+        //     if (child.isMesh) {
+        //         (child.material as THREE.MeshBasicMaterial).visible = false;
+        //     }
+        // });
 
-        // Helper transform lines axis
-        (transformControls.children[0] as TransformControlsGizmo).helper.translate.traverse((child: any) => {
-            if (child.isLine) {
-                (child.material as THREE.MeshBasicMaterial).visible = false;
-            }
-        });
+        // // Helper transform lines axis
+        // (transformControls.children[0] as TransformControlsGizmo).helper.translate.traverse((child: any) => {
+        //     if (child.isLine) {
+        //         (child.material as THREE.MeshBasicMaterial).visible = false;
+        //     }
+        // });
 
-        transformControls.addEventListener("mouseDown", () => {
-            // Desable camera controls.
-            controlsController.controls.enabled = false;
-            // enable rotating selected model on mouse wheel input.
-            isLeftMouseButtonDown = true;
-            // Lock selected colour (on).
-            isSelected = true;
-        });
-        transformControls.addEventListener("mouseUp", () => {
-            // Enable camera controls.
-            controlsController.controls.enabled = true;
-            // Desable rotating selected model on mouse wheel input.
-            isLeftMouseButtonDown = false;
-            // UnLock selected colour (off).
-            isSelected = false;
-        });
+        // transformControls.addEventListener("mouseDown", () => {
+        //     // Desable camera controls.
+        //     controlsController.controls.enabled = false;
+        //     // enable rotating selected model on mouse wheel input.
+        //     isLeftMouseButtonDown = true;
+        //     // Lock selected colour (on).
+        //     isSelected = true;
+        // });
+        // transformControls.addEventListener("mouseUp", () => {
+        //     // Enable camera controls.
+        //     controlsController.controls.enabled = true;
+        //     // Desable rotating selected model on mouse wheel input.
+        //     isLeftMouseButtonDown = false;
+        //     // UnLock selected colour (off).
+        //     isSelected = false;
+        // });
 
         // DEVELOPMENT ONLY
-        const table = new Model("table", new THREE.Vector3(0, 0, 0), 1, GLTF_TABLE);
-        table.initMesh(scene, allModelsArray).then(() => {
+        // const table = new Model("table", new THREE.Vector3(0, 0, 0), 1, GLTF_TABLE);
+        // table.initMesh(scene, allModelsArray).then(() => {
 
-            // adjustGizmoPosition(table.scene, transformControls);
+        //     // adjustGizmoPosition(table.scene, transformControls);
 
-            loopController.addToUpdate(table);
-            furnitureArray.push(table);
+        //     loopController.addToUpdate(table);
+        //     furnitureArray.push(table);
 
-            // GHOST //        
-            // // const bbox = new THREE.Box3().setFromObject(table.scene); 
-            // const bboxSize = new THREE.Vector3();
-            const bboxSize = new THREE.Vector3(1.5, 0, 0.55);
-            // bbox.getSize(bboxSize);
+        //     // GHOST //        
+        //     // // const bbox = new THREE.Box3().setFromObject(table.scene); 
+        //     // const bboxSize = new THREE.Vector3();
+        //     const bboxSize = new THREE.Vector3(1.5, 0, 0.55);
+        //     // bbox.getSize(bboxSize);
 
-            const geometry = new THREE.PlaneGeometry(bboxSize.x, bboxSize.z, 1, 1);
-            geometry.rotateX(- Math.PI / 2);
-            geometry.rotateY(- Math.PI / 2);
+        //     const geometry = new THREE.PlaneGeometry(bboxSize.x, bboxSize.z, 1, 1);
+        //     geometry.rotateX(- Math.PI / 2);
+        //     geometry.rotateY(- Math.PI / 2);
 
-            const material = new THREE.MeshStandardMaterial({
-                color: new THREE.Color(COLOUR_SELECTED),
-                visible: true,
-                opacity: 0.4,
-            });
-            // const material = new THREE.ShadowMaterial({
-            //     opacity: .5,
-            //     color: COLOUR_SELECTED,
-            //     side: THREE.DoubleSide,
-            //     transparent: false
-            //   });
+        //     const material = new THREE.MeshStandardMaterial({
+        //         color: new THREE.Color(COLOUR_SELECTED),
+        //         visible: true,
+        //         opacity: 0.4,
+        //     });
+        //     // const material = new THREE.ShadowMaterial({
+        //     //     opacity: .5,
+        //     //     color: COLOUR_SELECTED,
+        //     //     side: THREE.DoubleSide,
+        //     //     transparent: false
+        //     //   });
             
-            // ghost = new THREE.Mesh(geometry, material);
-            // ghost.name = "ghost";
-            // ghost.receiveShadow = true;
-            // ghost.position.set(-0.1, 0, 0);
-            // scene.add(ghost);
+        //     // ghost = new THREE.Mesh(geometry, material);
+        //     // ghost.name = "ghost";
+        //     // ghost.receiveShadow = true;
+        //     // ghost.position.set(-0.1, 0, 0);
+        //     // scene.add(ghost);
 
-            transformControls.addEventListener('change', () => {
-                if (transformControls.mode === 'translate') {
-                    // Snap position to grid
-                    // position.x = Math.round(position.x / 0.5) * 0.5; // Assuming 50 cm grid
-                    // position.z = Math.round(position.z / 0.5) * 0.5;
-                    // Update the position of the plane
-                    if(ghost && intersected)
-                        ghost.position.set(intersected.position.x, 0, intersected.position.z);
-                }
-            });
-        });
+        //     transformControls.addEventListener('change', () => {
+        //         if (transformControls.mode === 'translate') {
+        //             // Snap position to grid
+        //             // position.x = Math.round(position.x / 0.5) * 0.5; // Assuming 50 cm grid
+        //             // position.z = Math.round(position.z / 0.5) * 0.5;
+        //             // Update the position of the plane
+        //             if(ghost && intersected)
+        //                 ghost.position.set(intersected.position.x, 0, intersected.position.z);
+        //         }
+        //     });
+        // });
 
-        // RESIZER //
-        const resizer = new Resizer(camera, renderer);
+        // // RESIZER //
+        // const resizer = new Resizer(camera, renderer);
 
-        // init();
+        // // init();
     });
 
     
@@ -513,18 +512,18 @@ const gridLimits = {
         loopController.stop();
     }
 
-    function addObject(object: any) {
-        if (!object) {
-            console.log("Object is null or undifined and will not be added to the scene!");
-            return;
-        }
+    // function addObject(object: any) {
+    //     if (!object) {
+    //         console.log("Object is null or undifined and will not be added to the scene!");
+    //         return;
+    //     }
 
-        if (object.isMesh) {
-            sceneController.addMesh(object.mesh);
-        }
+    //     // if (object.isMesh) {
+    //     //     sceneController.addMesh(object.mesh);
+    //     // }
 
-        loopController.addToUpdate(object);
-    }
+    //     loopController.addToUpdate(object);
+    // }
 
     function onDocumentKeyDown(event: KeyboardEvent) {
         switch (event.keyCode) {

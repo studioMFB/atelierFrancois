@@ -9,10 +9,9 @@ import { RouteProviders, PageNameProviders } from '@/providers';
       {{ PageNameProviders.Home }}
     </router-link>
 
-    <router-link :to="{name: RouteProviders.Testimony}" class="btn-link">
+    <!-- <router-link :to="{name: RouteProviders.Testimony}" class="btn-link">
       {{ PageNameProviders.Testimony }}
-    </router-link>
-
+    </router-link> -->
   </div>
 </template>
 
