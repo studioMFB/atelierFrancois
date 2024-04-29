@@ -13,16 +13,16 @@ const scene: Ref<Scene> = ref(new Scene());
 scene.value.background = new Color(colour.value);
 scene.value.fog = new Fog(colour.value, 200, 1000);
 
-// provide("MainScene", scene.value);
+provide("MainScene", scene.value);
 
-onMounted(() => {
-//     if (scene.value) {
-        console.log("MainScene => scene ", scene.value);
-        provide("MainScene", scene.value);
-    // }
-})
+// onMounted(() => {
+// //     if (scene.value) {
+//         console.log("MainScene => scene ", scene.value);
+//         provide("MainScene", scene.value);
+//     // }
+// })
 </script>
 
-<!-- <template>
+<template>
     <slot></slot>
-</template> -->
+</template>

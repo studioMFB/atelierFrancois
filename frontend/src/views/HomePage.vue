@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, type Ref } from 'vue';
 
-import WebGlRenderer from "@/components/3D/WebGlRenderer.vue";
 import ModelViewer from "@/components/3D/ModelViewer.vue";
 
 
@@ -9,16 +8,15 @@ const canvasElement: Ref<HTMLCanvasElement | undefined> = ref(document.getElemen
 </script>
 
 <template>
-    <h2 style="position:fixed; z-index:1; margin: 10rem; color: blue;">Home</h2>
-
-    <slot></slot>
-    
-    <div v-if="canvasElement">
-        <!-- <suspense> -->
+    <div>
+        <h2 style="position:fixed; z-index:1; margin: 10rem; color: blue;">Home</h2> 
+        <slot></slot> 
+        <canvas id="scene-viewer" class="scene-viewer" ref="canvasElement" ></canvas>
+        <div v-if="canvasElement">
             <ModelViewer :canvas="canvasElement"></ModelViewer>
-        <!-- </suspense> -->
-    </div>
-    <div v-else style="position:fixed; z-index:1; margin: 5rem; color: red;" >
-        Canvas not ready
+        </div>
+        <div v-else style="position:fixed; z-index:1; margin: 5rem; color: red;" >
+            Canvas not ready
+        </div>
     </div>
 </template>

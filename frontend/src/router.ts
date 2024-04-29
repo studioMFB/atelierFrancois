@@ -12,24 +12,23 @@ const router = createRouter({
       path: "/",
       components: {
         NavBar: () => import("./views/navBar.vue"),
-        FullPage: () => import("./FullPage.vue")
+        FullPage: () => import("./FullPage.vue"),
       },
- 
       children: [
         {
           name: RouteProviders.Home,
           path: RouteProviders.Home,
           components: {
-            Background: () => import("./views/HomePage.vue"),
+            Content: () => import("./views/HomePage.vue"),
           },
         },
-        // {
-        //   name: RouteProviders.Testimony,
-        //   path: RouteProviders.Testimony,
-        //   components: {
-        //     Content: () => import("./views/TestimonyPage.vue"),
-        //   },
-        // }
+        {
+          name: RouteProviders.Testimony,
+          path: RouteProviders.Testimony,
+          components: {
+            Content: () => import("./views/TestimonyPage.vue"),
+          },
+        }
       ]
     }
   ]
@@ -41,15 +40,14 @@ router.beforeEach(async (to, from) => {
     // check
   }
 
-  if (from.meta.hasChanges)
-  {
+  if (from.meta.hasChanges) {
     const changeWarning = (from.meta.changeWarningMessage as string) || "The current page has changes that will be lost if you leave, are you sure?";
     const confirmation = window.confirm(changeWarning);
-    if(!confirmation)
-    {
+    
+    if(!confirmation){
       return from;
     }
   }
 })
 
-export default router
+export default router;

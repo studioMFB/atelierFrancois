@@ -5,13 +5,13 @@ import { RouteProviders, PageNameProviders } from '@/providers';
 
 <template>
   <div class="nav-bar">
-    <router-link :to="{name: RouteProviders.Home}" class="btn-link">
+    <router-link :to="{name: PageNameProviders.Home}" class="btn-link">
       {{ PageNameProviders.Home }}
     </router-link>
 
-    <!-- <router-link :to="{name: RouteProviders.Testimony}" class="btn-link">
+    <router-link :to="{name: PageNameProviders.Testimony}" class="btn-link">
       {{ PageNameProviders.Testimony }}
-    </router-link> -->
+    </router-link>
   </div>
 </template>
 
