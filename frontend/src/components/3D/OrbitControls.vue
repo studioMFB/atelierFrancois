@@ -1,8 +1,8 @@
 <script setup lang="ts">
+import { computed, inject } from 'vue';
+
 import { PerspectiveCamera } from 'three';
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-
-import { type Ref, computed, ref, inject } from 'vue';
 
 
 const props = defineProps<{
@@ -12,17 +12,17 @@ const props = defineProps<{
 const camera = computed(() => inject("PerspectiveCamera") as PerspectiveCamera)
 const canvas = computed(() => props.canvas)
 
-const controls: Ref<OrbitControls> = ref(new OrbitControls(camera.value, canvas.value));
-controls.value.enabled = true;
-controls.value.autoRotate = false;
-controls.value.autoRotateSpeed = 1;
+const controls = new OrbitControls(camera.value, canvas.value);
+controls.enabled = true;
+controls.autoRotate = false;
+controls.autoRotateSpeed = 1;
         
-controls.value.enableDamping = true;
-controls.value.enableZoom = true;
-controls.value.enablePan = true;
+controls.enableDamping = true;
+controls.enableZoom = true;
+controls.enablePan = true;
         
-controls.value.minDistance = 2;
-controls.value.maxDistance = 10;
-controls.value.target.set( 0, 0, - 0.2 );
-controls.value.update();
+controls.minDistance = 2;
+controls.maxDistance = 10;
+controls.target.set( 0, 0, - 0.2 );
+controls.update();
 </script>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, inject } from 'vue';
+
 import { Box3, BoxHelper, Color, Group, Mesh, MeshBasicMaterial, MeshStandardMaterial, MeshToonMaterial,
     type Object3DEventMap, PlaneGeometry, Scene, Vector3 } from 'three';
 import { type GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';

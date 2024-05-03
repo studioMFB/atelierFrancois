@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import { computed } from 'vue';
+
 import { Color, type ColorRepresentation, ShadowMaterial, type Side } from 'three';
-import { type Ref, computed, ref } from 'vue';
 
 
 const props = defineProps<{
@@ -15,12 +16,12 @@ const colour = computed(() => props.colour);
 const doubleSide = computed(() => props.doubleSide);
 const transparent = computed(() => props.transparent);
 
-const material: Ref<ShadowMaterial> = ref(new ShadowMaterial({
+const material = new ShadowMaterial({
     color: colour.value || new Color(0xff0000),
     side: doubleSide.value,
     opacity: opacity.value,
     transparent: transparent.value
-}));
+});
 </script>
 
 <template>

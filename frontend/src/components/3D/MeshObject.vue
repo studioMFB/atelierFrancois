@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import { computed } from 'vue';
+
 import { BufferGeometry, Mesh, MeshBasicMaterial, Vector3 } from 'three';
-import { type Ref, computed, ref } from 'vue';
 
 
 const props = defineProps<{
@@ -17,11 +18,10 @@ const geometry = computed(() => props.geometry);
 const material = computed(() => props.material);
 const receiveShadow = computed(() => props.receiveShadow);
 
-const mesh: Ref<Mesh> = ref(new Mesh(geometry.value, material.value));
-
-mesh.value.name = name.value;
-mesh.value.receiveShadow = receiveShadow.value;
-mesh.value.position.set(position.value.x, position.value.y, position.value.z);
+const mesh = new Mesh(geometry.value, material.value);
+mesh.name = name.value;
+mesh.receiveShadow = receiveShadow.value;
+mesh.position.set(position.value.x, position.value.y, position.value.z);
 </script>
 
 <template>

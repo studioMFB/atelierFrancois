@@ -9,13 +9,13 @@ const canvas: Ref<HTMLCanvasElement | undefined> = ref();
 
 <template>
     <div>
-        <h2 style="position:fixed; z-index:1; margin: 10rem; color: blue;">Home</h2> 
-        <!-- <slot></slot>  -->
+        <h2 style="position:fixed; z-index:1; margin: 10rem; color: blue;">Home</h2>
+
         <canvas id="scene-viewer" class="scene-viewer" ref="canvas"></canvas>
         <div v-if="canvas">
-        <ModelViewer :canvas="canvas"></ModelViewer>
+            <ModelViewer :canvas="canvas"></ModelViewer>
         </div>
-        <div v-else style="position:fixed; z-index:1; margin: 5rem; color: red;" >
+        <div v-else style="position:fixed; z-index:1; margin: 5rem; color: red;">
             Canvas not ready
         </div>
     </div>

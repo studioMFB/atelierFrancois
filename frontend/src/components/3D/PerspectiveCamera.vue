@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import { computed, provide } from 'vue';
+
 import { PerspectiveCamera, Vector3 } from 'three';
-import { type Ref, computed, ref, provide } from 'vue';
 
 
 const props = defineProps<{
@@ -11,25 +12,17 @@ const props = defineProps<{
 const position = computed(() => props.position);
 const zoom = computed(() => props.zoom);
 
-let camera: Ref<PerspectiveCamera | undefined> = ref();
+const camera = new PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.1, 100);
 
-function init() {
-    camera = ref(new PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.1, 100));
+camera.position.set(position.value.x, position.value.y, position.value.z);
+if (zoom.value)
+    camera.zoom = zoom.value;
 
-    if(!camera.value)
-        return;
-
-    camera.value.position.set(position.value.x, position.value.y, position.value.z);
-    if (zoom.value)
-        camera.value.zoom = zoom.value;
-}
-
-init();
-// console.log("camera ", camera.value);
-provide("PerspectiveCamera", camera.value);
+// console.log("camera ", camera);
+provide("PerspectiveCamera", camera);
 </script>
 
 <template>
-    <slot></slot>
-    <slot></slot>
+    <slot name="orbitControl"></slot>
+    <slot name="webGlRenderer"></slot>
 </template>

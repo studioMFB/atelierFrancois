@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import { computed, inject } from 'vue';
+
 import { type ColorRepresentation, GridHelper, Scene } from 'three';
-import { type Ref, computed, ref, inject } from 'vue';
 
 
 const props = defineProps<{
@@ -16,7 +17,7 @@ const divisions = computed(() => props.divisions);
 const colour1 = computed(() => props.colour1);
 const colour2 = computed(() => props.colour2);
 
-const grid: Ref<GridHelper> = ref(new GridHelper(size.value, divisions.value, colour1.value, colour2.value));
+const grid = new GridHelper(size.value, divisions.value, colour1.value, colour2.value);
 
-scene.value.add(grid.value);
+scene.value.add(grid);
 </script>

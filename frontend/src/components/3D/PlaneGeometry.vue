@@ -1,6 +1,7 @@
-<script setup lang="ts">
+ <script setup lang="ts">
+import { computed, inject } from 'vue';
+
 import { Color, DoubleSide, ExtrudeGeometry, Mesh, MeshBasicMaterial, MeshStandardMaterial, PlaneGeometry, Scene, ShadowMaterial, Shape, Vector2, Vector3 } from 'three';
-import { type Ref, computed, ref, inject } from 'vue';
 
 
 const props = defineProps<{
@@ -16,15 +17,15 @@ const position = computed(() => props.position);
 
 function initMesh(isVisible: boolean, opacity: number, colour?: Color): void {
     // GROUND //
-    const geometry: Ref<PlaneGeometry> = ref(new PlaneGeometry(dimension.value.x, dimension.value.y, segment.value.x, segment.value.y));
-    geometry.value.rotateX(- Math.PI / 2);
+    const geometry: PlaneGeometry = new PlaneGeometry(dimension.value.x, dimension.value.y, segment.value.x, segment.value.y);
+    geometry.rotateX(- Math.PI / 2);
 
     const material = new MeshStandardMaterial({
         color: colour || new Color(0xff0000),
         visible: isVisible,
         opacity: opacity,
     });
-    const ground = new Mesh(geometry.value, material);
+    const ground = new Mesh(geometry, material);
     ground.name = "Main Plane";
     ground.receiveShadow = false;
 
@@ -42,7 +43,7 @@ function initMesh(isVisible: boolean, opacity: number, colour?: Color): void {
     shadowGround.receiveShadow = true;
     shadowGround.position.set(position.value.x + 0.01, position.value.y + 0.01, position.value.z + 0.01);
 
-    // roundEdgedBox();
+    roundEdgedBox();
 
     scene.value.add(ground as THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes>, THREE.Material | THREE.Material[], THREE.Object3DEventMap>);
     scene.value.add(shadowGround as THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes>, THREE.Material | THREE.Material[], THREE.Object3DEventMap>);

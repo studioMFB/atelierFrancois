@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import { computed } from 'vue';
+
 import { type ColorRepresentation, DirectionalLight, Scene, Vector3 } from 'three';
-import { type Ref, computed, ref } from 'vue';
 
 
 const props = defineProps<{
@@ -15,10 +16,10 @@ const position = computed(() => props.position);
 const colour = computed(() => props.colour);
 const intensity = computed(() => props.intensity);
 
-const light: Ref<DirectionalLight> = ref(new DirectionalLight(colour.value, intensity.value));
+const light = new DirectionalLight(colour.value, intensity.value);
 
 if(position.value)
-    light.value.position.set(position.value.x, position.value.y, position.value.z); //default; light shining from top
+    light.position.set(position.value.x, position.value.y, position.value.z); //default; light shining from top
 
 // light.castShadow = true;
 
@@ -28,7 +29,7 @@ if(position.value)
 // light.value.shadow.camera.near = 0.5; // default
 // light.value.shadow.camera.far = 500; // default
 
-scene.value.add(light.value);
+scene.value.add(light);
 </script>
 
 <template>

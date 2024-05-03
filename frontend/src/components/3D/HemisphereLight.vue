@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import { computed, inject } from 'vue';
+
 import { type ColorRepresentation, HemisphereLight, Scene, Vector3 } from 'three';
-import { type Ref, computed, ref, inject } from 'vue';
 
 
 const props = defineProps<{
@@ -16,8 +17,8 @@ const skyColour = computed(() => props.skyColour);
 const groundColour = computed(() => props.groundColour);
 const intensity = computed(() => props.intensity);
 
-const light: Ref<HemisphereLight> = ref(new HemisphereLight(skyColour.value, groundColour.value, intensity.value));
+const light = new HemisphereLight(skyColour.value, groundColour.value, intensity.value);
 
 // console.log("HemisphereLight => light ", light.value);
-scene.value.add(light.value);
+scene.value.add(light);
 </script>
