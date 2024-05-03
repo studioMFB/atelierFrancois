@@ -11,16 +11,25 @@ const props = defineProps<{
 const position = computed(() => props.position);
 const zoom = computed(() => props.zoom);
 
-const camera: Ref<PerspectiveCamera> = ref(new PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.1, 100));
+let camera: Ref<PerspectiveCamera | undefined> = ref();
 
-camera.value.position.set(position.value.x, position.value.y, position.value.z);
+function init() {
+    camera = ref(new PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.1, 100));
 
-if(zoom.value)
-    camera.value.zoom = zoom.value;
+    if(!camera.value)
+        return;
 
+    camera.value.position.set(position.value.x, position.value.y, position.value.z);
+    if (zoom.value)
+        camera.value.zoom = zoom.value;
+}
+
+init();
+// console.log("camera ", camera.value);
 provide("PerspectiveCamera", camera.value);
 </script>
 
 <template>
-    <slot :camera="camera"></slot>
+    <slot></slot>
+    <slot></slot>
 </template>

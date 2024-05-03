@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<!-- <script setup lang="ts">
 
 import * as THREE from 'three';
 
@@ -286,13 +286,6 @@ const gridLimits = {
         // // init();
     });
 
-    
-    // onMounted(()=>{ 
-    //     console.log("canvas before init() ", canvasRef.value);
-    //     console.log("canvas after init() ", canvasRef.value);
-    // });
-    
-
     function  findParent(mesh: THREE.Mesh): THREE.Mesh {
         // If the mesh has no parent, return null
         if (!mesh.parent) {
@@ -547,9 +540,9 @@ const gridLimits = {
 
 </script>
 
-<template>
+<!-- <template>
     <canvas ref="canvasRef" class="scene-viewer"></canvas>
-</template>
+</template> -->
 
 <style lang="scss">
 .scene-viewer{
@@ -564,4 +557,4 @@ const gridLimits = {
     // background:#e5e0d8;
     background-color: #a26400;
 }
-</style>
+</style> -->

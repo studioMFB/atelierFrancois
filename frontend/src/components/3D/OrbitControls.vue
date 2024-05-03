@@ -6,12 +6,10 @@ import { type Ref, computed, ref, inject } from 'vue';
 
 
 const props = defineProps<{
-    // camera?: PerspectiveCamera,
     canvas?: HTMLElement
 }>();
 
 const camera = computed(() => inject("PerspectiveCamera") as PerspectiveCamera)
-// const camera = computed(() => props.camera)
 const canvas = computed(() => props.canvas)
 
 const controls: Ref<OrbitControls> = ref(new OrbitControls(camera.value, canvas.value));
@@ -28,7 +26,3 @@ controls.value.maxDistance = 10;
 controls.value.target.set( 0, 0, - 0.2 );
 controls.value.update();
 </script>
-
-<template>
-    <slot></slot>
-</template>

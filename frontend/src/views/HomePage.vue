@@ -4,16 +4,16 @@ import { ref, type Ref } from 'vue';
 import ModelViewer from "@/components/3D/ModelViewer.vue";
 
 
-const canvasElement: Ref<HTMLCanvasElement | undefined> = ref(document.getElementById("scene-viewer") as HTMLCanvasElement);
+const canvas: Ref<HTMLCanvasElement | undefined> = ref();
 </script>
 
 <template>
     <div>
         <h2 style="position:fixed; z-index:1; margin: 10rem; color: blue;">Home</h2> 
-        <slot></slot> 
-        <canvas id="scene-viewer" class="scene-viewer" ref="canvasElement" ></canvas>
-        <div v-if="canvasElement">
-            <ModelViewer :canvas="canvasElement"></ModelViewer>
+        <!-- <slot></slot>  -->
+        <canvas id="scene-viewer" class="scene-viewer" ref="canvas"></canvas>
+        <div v-if="canvas">
+        <ModelViewer :canvas="canvas"></ModelViewer>
         </div>
         <div v-else style="position:fixed; z-index:1; margin: 5rem; color: red;" >
             Canvas not ready

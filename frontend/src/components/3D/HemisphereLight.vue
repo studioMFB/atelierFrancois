@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { type ColorRepresentation, HemisphereLight, Scene, Vector3 } from 'three';
-import { type Ref, computed, ref, inject, onMounted } from 'vue';
+import { type Ref, computed, ref, inject } from 'vue';
 
 
 const props = defineProps<{
-    // scene?: Scene,
     position?: Vector3,
     skyColour?: ColorRepresentation,
     groundColour?: ColorRepresentation,
@@ -12,7 +11,6 @@ const props = defineProps<{
 }>();
 
 const scene = computed(() => inject("MainScene") as Scene);
-// const scene = computed(() => props.scene);
 const position = computed(() => props.position);
 const skyColour = computed(() => props.skyColour);
 const groundColour = computed(() => props.groundColour);
@@ -20,14 +18,6 @@ const intensity = computed(() => props.intensity);
 
 const light: Ref<HemisphereLight> = ref(new HemisphereLight(skyColour.value, groundColour.value, intensity.value));
 
-onMounted(() => {
-    // if(scene){
-    console.log("HemisphereLight => light ", light.value);
-    scene.value.add(light.value);
-    // }
-})
+// console.log("HemisphereLight => light ", light.value);
+scene.value.add(light.value);
 </script>
-
-<template>
-    <slot></slot>
-</template>

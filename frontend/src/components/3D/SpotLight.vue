@@ -37,7 +37,3 @@ light.value.shadow.radius = 20;
 
 scene.value.add(light.value);
 </script>
-
-<template>
-    <slot></slot>
-</template>
