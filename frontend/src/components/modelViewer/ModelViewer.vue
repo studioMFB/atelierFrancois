@@ -1,4 +1,4 @@
-<!-- <script setup lang="ts">
+<script setup lang="ts">
 
 import * as THREE from 'three';
 
@@ -281,7 +281,7 @@ const gridLimits = {
         // });
 
         // // RESIZER //
-        // const resizer = new Resizer(camera, renderer);
+        const resizer = new Resizer(camera, renderer);
 
         // // init();
     });
@@ -557,4 +557,4 @@ const gridLimits = {
     // background:#e5e0d8;
     background-color: #a26400;
 }
-</style> -->
+</style>

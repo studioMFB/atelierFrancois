@@ -35,5 +35,6 @@ provide("WebGlrenderer", renderer);
 </script>
 
 <template>
-    <slot></slot>
+    <slot name="GameLoop"></slot>
+    <slot name="EffectComposer"></slot>
 </template>

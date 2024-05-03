@@ -5,7 +5,9 @@ import { Color, Vector2, Vector3 } from 'three';
 
 import MainScene from "@/components/3D/MainScene.vue";
 import WebGlRenderer from "@/components/3D/WebGlRenderer.vue";
-import GameLoop from './GameLoop.vue';
+import GameLoop from '@/components/3D/GameLoop.vue';
+
+import EffectComposer from '@/components/3D/EffectComposer.vue';
 
 import PerspectiveCamera from '@/components/3D/PerspectiveCamera.vue';
 import OrbitControls from '@/components/3D/OrbitControls.vue';
@@ -15,7 +17,7 @@ import PointLight from '@/components/3D/PointLight.vue';
 import SpotLight from '@/components/3D/SpotLight.vue';
 
 import GridHelper from '@/components/3D/GridHelper.vue';
-import PlaneGeometry from './PlaneGeometry.vue';
+import PlaneGeometry from '@/components/3D/PlaneGeometry.vue';
 
 import ModelAsset from "@/components/3D/ModelAsset.vue";
 
@@ -44,7 +46,12 @@ const canvas = computed(() => props.canvas as HTMLCanvasElement);
             </template>
             <template v-slot:webGlRenderer>
                 <WebGlRenderer :canvas="canvas">
-                    <GameLoop></GameLoop>
+                    <template v-slot:GameLoop>
+                        <GameLoop></GameLoop>
+                    </template>
+                    <template v-slot:EffectComposer>
+                        <EffectComposer></EffectComposer>
+                    </template>
                 </WebGlRenderer>
             </template>
         </PerspectiveCamera>
