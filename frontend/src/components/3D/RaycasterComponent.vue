@@ -66,7 +66,7 @@ onMounted(() => {
     document.addEventListener('keyup', (e: KeyboardEvent) => { onDocumentKeyUp(e) })
 
     canvas.value.addEventListener("pointerup", () => {
-        // gizmos.value.detach();
+        gizmos.value.detach();
         changeColour(COLOUR_UNSELECTED);
     });
 })
