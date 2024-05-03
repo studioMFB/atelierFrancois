@@ -37,4 +37,5 @@ provide("WebGlrenderer", renderer);
 <template>
     <slot name="GameLoop"></slot>
     <slot name="EffectComposer"></slot>
+    <slot name="ResizerComponent"></slot>
 </template>

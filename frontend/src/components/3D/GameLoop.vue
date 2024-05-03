@@ -2,7 +2,7 @@
 
 import { Clock, Scene, WebGLRenderer, Vector3, PerspectiveCamera, Group, type Object3DEventMap, Box3 } from "three";
 import { Model } from "@/components/modelViewer/resources/model";
-import { computed, inject } from "vue";
+import { computed, inject, provide } from "vue";
 
 
 const GRID_SIZE = 5;
@@ -21,9 +21,12 @@ const camera = computed(() => inject("PerspectiveCamera") as PerspectiveCamera);
 const clock = new Clock();
 const updatables: any[] = [];
 
-function addToUpdate(object: any) {
-  updatables.push(object);
-}
+provide("GameLoopUpdatables", updatables)
+
+
+// function addToUpdate(object: any) {
+//   updatables.push(object);
+// }
 
 function checkCollision(furnitureArray: Model[]) {
   if (furnitureArray.length == 0 || !furnitureArray[0].modelScene)

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, inject } from 'vue';
+import { computed, inject, provide } from 'vue';
 
 import { PerspectiveCamera, Scene } from 'three';
 import { TransformControls, TransformControlsGizmo } from 'three/examples/jsm/controls/TransformControls.js';
@@ -15,12 +15,16 @@ const scene = computed(() => inject("MainScene") as Scene);
 const camera = computed(() => inject("PerspectiveCamera") as PerspectiveCamera);
 const controls = computed(() => inject("OrbitControls") as OrbitControls);
 
+console.log("OrbitControls ", controls);
+
 let isLeftMouseButtonDown = false;
 let isSelected = false;
 
 const transformControls = new TransformControls(camera.value, canvas.value);
 transformControls.setMode('translate');
 // this.transformControls.translationSnap = 0.5; // Snaps to 500mm increments.
+provide("TransformGizmos", transformControls);
+
 scene.value.add(transformControls);
 
 // FIND A FIX TO ADJUST GIZMO POSITION FOR ALL MODELS
@@ -60,7 +64,8 @@ transformControls.position.y += .6;
 
 transformControls.addEventListener("mouseDown", () => {
     // Desable camera controls.
-    controls.value.enabled = false;
+    if(controls.value)
+        controls.value.enabled = false;
     // enable rotating selected model on mouse wheel input.
     isLeftMouseButtonDown = true;
     // Lock selected colour (on).
@@ -69,7 +74,8 @@ transformControls.addEventListener("mouseDown", () => {
 
 transformControls.addEventListener("mouseUp", () => {
     // Enable camera controls.
-    controls.value.enabled = true;
+    if(controls.value)
+        controls.value.enabled = true;
     // Desable rotating selected model on mouse wheel input.
     isLeftMouseButtonDown = false;
     // UnLock selected colour (off).

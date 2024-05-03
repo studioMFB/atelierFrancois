@@ -28,3 +28,7 @@ controls.update();
 
 provide("OrbitControls", controls);
 </script>
+
+<template>
+    <slot></slot>
+</template>

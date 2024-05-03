@@ -6,11 +6,15 @@ import { Color, Vector2, Vector3 } from 'three';
 import MainScene from "@/components/3D/MainScene.vue";
 import WebGlRenderer from "@/components/3D/WebGlRenderer.vue";
 import GameLoop from '@/components/3D/GameLoop.vue';
+import ResizerComponent from '@/components/3D/ResizerComponent.vue';
 
 import EffectComposer from '@/components/3D/EffectComposer.vue';
 
+import RaycasterComponent from './RaycasterComponent.vue';
+
 import PerspectiveCamera from '@/components/3D/PerspectiveCamera.vue';
 import OrbitControls from '@/components/3D/OrbitControls.vue';
+import TransformGizmos from '@/components/3D/TransformGizmos.vue';
 
 import HemisphereLight from '@/components/3D/HemisphereLight.vue';
 import PointLight from '@/components/3D/PointLight.vue';
@@ -38,11 +42,16 @@ const props = defineProps<{
 const canvas = computed(() => props.canvas as HTMLCanvasElement);
 </script>
 
+
 <template>
     <MainScene :colour="new Color(0xded6d8)">
         <PerspectiveCamera :position="new Vector3(-3, 4.5, 3)" :zoom="2.2">
             <template v-slot:orbitControl>
-                <OrbitControls :canvas="canvas"></OrbitControls>
+                <OrbitControls :canvas="canvas">
+                    <TransformGizmos :canvas="canvas">
+                        <RaycasterComponent :canvas="canvas"></RaycasterComponent>
+                    </TransformGizmos>
+                </OrbitControls>
             </template>
             <template v-slot:webGlRenderer>
                 <WebGlRenderer :canvas="canvas">
@@ -51,6 +60,9 @@ const canvas = computed(() => props.canvas as HTMLCanvasElement);
                     </template>
                     <template v-slot:EffectComposer>
                         <EffectComposer></EffectComposer>
+                    </template>
+                    <template v-slot:ResizerComponent>
+                        <ResizerComponent></ResizerComponent>
                     </template>
                 </WebGlRenderer>
             </template>
@@ -71,6 +83,6 @@ const canvas = computed(() => props.canvas as HTMLCanvasElement);
         <PlaneGeometry :dimension="new Vector2(GRID_SIZE, GRID_SIZE)" :segment="new Vector2(1, 1)"
             :position="new Vector3(0, 0, 0)"></PlaneGeometry>
 
-        <ModelAsset name="table" :position="new Vector3(0, 0, 0)" :scale-ratio="1" :gltf-url="GLTF_TABLE"></ModelAsset>
+        <!-- <ModelAsset name="table" :position="new Vector3(0, 0, 0)" :scale-ratio="1" :gltf-url="GLTF_TABLE"></ModelAsset> -->
     </MainScene>
 </template>

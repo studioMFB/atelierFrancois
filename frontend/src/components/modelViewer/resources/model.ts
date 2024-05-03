@@ -2,21 +2,21 @@ import { Mesh, Vector3, Scene, Group, MeshToonMaterial, Color, type Object3DEven
 import { type GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 
-export function findModelParent(mesh: any): Group<Object3DEventMap> | undefined {
-  // If the mesh has no parent, return null
-  if (!mesh.parent) {
-    return undefined;
-  }
+// export function findModelParent(mesh: any): Group<Object3DEventMap> | undefined {
+//   // If the mesh has no parent, return null
+//   if (!mesh.parent) {
+//     return undefined;
+//   }
 
-  const rootName = 'root_model_scene';
-  // If the parent is an instance of GameObject, return it
-  if (mesh.parent.name === rootName) {
-    return mesh.parent as Group<Object3DEventMap>;
-  }
+//   const rootName = 'root_model_scene';
+//   // If the parent is an instance of GameObject, return it
+//   if (mesh.parent.name === rootName) {
+//     return mesh.parent as Group<Object3DEventMap>;
+//   }
 
-  // Otherwise, recursively call the function with the parent as the argument
-  return findModelParent(mesh.parent);
-}
+//   // Otherwise, recursively call the function with the parent as the argument
+//   return findModelParent(mesh.parent);
+// }
 
 export class Model extends Mesh {
 
@@ -96,6 +96,8 @@ export class Model extends Mesh {
       this.boxHelper.name = 'boxHelper_model';
       this.boundingBox = new Box3().setFromObject(this.boxHelper);
       this.boxHelper.update();
+      
+      console.log("Model => initMesh => scene ", scene);
       
       // If you want a visible bounding box
       scene.add(this.modelScene);
