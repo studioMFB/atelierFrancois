@@ -24,7 +24,7 @@ export class Model extends Mesh {
   pos: Vector3;
 
   group?: Group;
-  scene?: Group<Object3DEventMap>;
+  modelScene?: Group<Object3DEventMap>;
   mesh?: Mesh;
   move?: boolean;
 
@@ -45,10 +45,10 @@ export class Model extends Mesh {
   }
 
   changeColour(colour: string) {
-    if(!this.scene)
+    if(!this.modelScene)
       return;
 
-    this.scene.traverse((child: any) => {
+    this.modelScene.traverse((child: any) => {
       if (child.isMesh) {
         if (!child.name.toLowerCase().includes("outline")) {
           (child.material as MeshToonMaterial).color = new Color(colour);
@@ -70,7 +70,7 @@ export class Model extends Mesh {
 
     loader.load(this.gltfUrl, (gltf: GLTF) => {
 
-      this.scene = gltf.scene;
+      this.modelScene = gltf.scene;
       
       gltf.scene.traverse((child: any) => {
         if (child.isMesh) {
@@ -88,38 +88,38 @@ export class Model extends Mesh {
         child.name += "-model";
       });
       
-      this.scene.name = 'root_model_scene';
-      this.scene.scale.multiplyScalar(this.scaleRatio);
-      this.scene.position.set(this.pos.x, this.pos.y, this.pos.z);      
+      this.modelScene.name = 'root_model_scene';
+      this.modelScene.scale.multiplyScalar(this.scaleRatio);
+      this.modelScene.position.set(this.pos.x, this.pos.y, this.pos.z);      
       
-      this.boxHelper = new BoxHelper(this.scene, 0xff0000);
+      this.boxHelper = new BoxHelper(this.modelScene, 0xff0000);
       this.boxHelper.name = 'boxHelper_model';
       this.boundingBox = new Box3().setFromObject(this.boxHelper);
       this.boxHelper.update();
       
       // If you want a visible bounding box
-      scene.add(this.scene);
+      scene.add(this.modelScene);
       // scene.add(this.scene, this.boxHelper);
-      modelsArray.push(this.scene);
+      modelsArray.push(this.modelScene);
 
     });
   }
 
   updateMatrix() {
-    if(!this.scene)
+    if(!this.modelScene)
       return;
 
       if(this.boxHelper){
-        this.boxHelper.position.set(this.scene.position.x, this.scene.position.y, this.scene.position.z);
+        this.boxHelper.position.set(this.modelScene.position.x, this.modelScene.position.y, this.modelScene.position.z);
         this.boxHelper.update();
       }
 
     if(this.boundingBox)
-      this.boundingBox.setFromObject(this.scene);
+      this.boundingBox.setFromObject(this.modelScene);
   }
 
   tick(delta: any): void {
-    if (!this.scene)
+    if (!this.modelScene)
       return;
 
     this.updateMatrix();

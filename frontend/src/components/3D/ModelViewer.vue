@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import * as THREE from 'three';
-import { computed } from 'vue';
+import { Color, Vector2, Vector3 } from 'three';
 
-import { Color } from 'three';
+import { computed } from 'vue';
 
 import MainScene from "@/components/3D/MainScene.vue";
 import WebGlRenderer from "@/components/3D/WebGlRenderer.vue";
@@ -21,6 +20,13 @@ import { CameraController } from '../modelViewer/settings/CameraController';
 import { ControlsController } from '../modelViewer/settings/ControlsController';
 import { LightController } from '../modelViewer/settings/LightController';
 
+import ModelAsset from "@/components/3D/ModelAsset.vue";
+
+
+// GLTF //
+const GLTF_TABLE = new URL('./../modelViewer/models/table/1/littlewood_furniture.gltf', import.meta.url).toString();
+const GLTF_GARLIC = new URL('./../modelViewer/models/garlic/scene.gltf', import.meta.url).toString();
+const GLTF_STONE = new URL('./../modelViewer/models/piedra/scene.gltf', import.meta.url).toString();
 
 const GRID_SIZE = 5;
 const GRID_RATIO = 0.5;
@@ -31,7 +37,6 @@ const props = defineProps<{
 }>();
 
 const canvas = computed(() => props.canvas as HTMLCanvasElement);
-
 
 // const canvas: Ref<HTMLCanvasElement | undefined> = ref();
 // let renderer: THREE.WebGLRenderer;
@@ -91,60 +96,29 @@ const canvas = computed(() => props.canvas as HTMLCanvasElement);
 //     init();
 //     animate();
 // })
+
 </script>
 
 <template>
     <MainScene :colour="new Color(0xded6d8)">
 
-        <PerspectiveCamera :position="new THREE.Vector3(-3, 4.5, 3)" :zoom="2.2">
+        <PerspectiveCamera :position="new Vector3(-3, 4.5, 3)" :zoom="2.2">
             <OrbitControls :canvas="canvas"></OrbitControls>
             <WebGlRenderer :canvas="canvas"></WebGlRenderer>
         </PerspectiveCamera>
 
         <HemisphereLight :sky-colour="new Color(0xffffff)" :ground-colour="new Color(0xffffff)" :intensity="1.05"></HemisphereLight>
-        <SpotLight :colour="new Color(0xffffff)" :position="new THREE.Vector3(5, 9, 7)"></SpotLight>
+        <SpotLight :colour="new Color(0xffffff)" :position="new Vector3(5, 9, 7)"></SpotLight>
 
-        <PointLight :colour="new Color(0xff0040)" :position="new THREE.Vector3(0, 10.5, 2)"></PointLight>
-        <PointLight :colour="new Color(0x0040ff)" :position="new THREE.Vector3(0, 4.5, 2)"></PointLight>
-        <PointLight :colour="new Color(0x80ff80)" :position="new THREE.Vector3(2, 9.5, -2)"></PointLight>
-        <PointLight :colour="new Color(0xffaa00)" :position="new THREE.Vector3(-2, 6.5, 2)"></PointLight>
+        <PointLight :colour="new Color(0xff0040)" :position="new Vector3(0, 10.5, 2)"></PointLight>
+        <PointLight :colour="new Color(0x0040ff)" :position="new Vector3(0, 4.5, 2)"></PointLight>
+        <PointLight :colour="new Color(0x80ff80)" :position="new Vector3(2, 9.5, -2)"></PointLight>
+        <PointLight :colour="new Color(0xffaa00)" :position="new Vector3(-2, 6.5, 2)"></PointLight>
         
-        <!-- <GridHelper :size="GRID_SIZE" :divisions="GRID_CELL_SIZE" :colour1="new Color(0x888888)":colour2="new Color(0x888888)"></GridHelper> -->
-        <PlaneGeometry :dimension="new THREE.Vector2(GRID_SIZE, GRID_SIZE)" :segment="new THREE.Vector2(1, 1)" :position="new THREE.Vector3(0,0,0)" ></PlaneGeometry>
+        <GridHelper :size="GRID_SIZE" :divisions="GRID_CELL_SIZE" :colour1="new Color(0x888888)":colour2="new Color(0x888888)"></GridHelper>
+        <PlaneGeometry :dimension="new Vector2(GRID_SIZE, GRID_SIZE)" :segment="new Vector2(1, 1)" :position="new Vector3(0,0,0)" ></PlaneGeometry>
+    
+        <ModelAsset name="table" :position="new Vector3(0, 0, 0)" :scale-ratio="1" :gltf-url="GLTF_TABLE"></ModelAsset>
+
     </MainScene>
-
-
-    <!-- <div v-if="renderer"> -->
-    <!-- <WebGlRenderer :canvas="canvas"></WebGlRenderer> -->
-    <!-- <MainScene :colour="new Color(0xded6d8)"> -->
-    <!-- <template> -->
-    <!-- <HemisphereLight :sky-colour="new Color(0xffffff)" :ground-colour="new Color(0xffffff)" :intensity="1.05">
-        </HemisphereLight>
-        <SpotLight :colour="new Color(0xffffff)" :position="new THREE.Vector3(5, 9, 7)"></SpotLight>
-
-        <PointLight :colour="new Color(0xff0040)" :position="new THREE.Vector3(0, 10.5, 2)"></PointLight>
-        <PointLight :colour="new Color(0x0040ff)" :position="new THREE.Vector3(0, 4.5, 2)"></PointLight>
-        <PointLight :colour="new Color(0x80ff80)" :position="new THREE.Vector3(2, 9.5, -2)"></PointLight>
-        <PointLight :colour="new Color(0xffaa00)" :position="new THREE.Vector3(-2, 6.5, 2)"></PointLight>
-
-        <GridHelper :size="GRID_SIZE" :divisions="GRID_CELL_SIZE" :colour1="new Color(0x888888)"
-            :colour2="new Color(0x888888)">
-        </GridHelper>
-
-        <PlaneGeometry :dimension="new THREE.Vector2(GRID_SIZE, GRID_SIZE)" :segment="new THREE.Vector2(1, 1)">
-        </PlaneGeometry>
-
-        <PerspectiveCamera :position="new THREE.Vector3(-3, 4.5, 3)" :zoom="2.2">
-            <OrbitControls :canvas="canvas"></OrbitControls>
-        </PerspectiveCamera> -->
-    <!-- </template> -->
-    <!-- </MainScene> -->
-    <!-- </div> -->
-    <!-- <div v-else style="position:fixed; z-index:1; margin: 5rem; color: red;">
-        Renderer not ready
-    </div> -->
-
-    <!-- <div>
-        <canvas id="scene-viewer" class="scene-viewer" ref="canvas"></canvas>
-    </div> -->
 </template>

@@ -14,7 +14,7 @@ const dimension = computed(() => props.dimension);
 const segment = computed(() => props.segment);
 const position = computed(() => props.position);
 
-function initMesh(isVisible: boolean, scene: Scene, opacity: number, colour?: Color): void {
+function initMesh(isVisible: boolean, opacity: number, colour?: Color): void {
     // GROUND //
     const geometry: Ref<PlaneGeometry> = ref(new PlaneGeometry(dimension.value.x, dimension.value.y, segment.value.x, segment.value.y));
     geometry.value.rotateX(- Math.PI / 2);
@@ -42,13 +42,13 @@ function initMesh(isVisible: boolean, scene: Scene, opacity: number, colour?: Co
     shadowGround.receiveShadow = true;
     shadowGround.position.set(position.value.x + 0.01, position.value.y + 0.01, position.value.z + 0.01);
 
-    // roundEdgedBox(scene);
+    // roundEdgedBox();
 
-    scene.add(ground as THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes>, THREE.Material | THREE.Material[], THREE.Object3DEventMap>);
-    scene.add(shadowGround as THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes>, THREE.Material | THREE.Material[], THREE.Object3DEventMap>);
+    scene.value.add(ground as THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes>, THREE.Material | THREE.Material[], THREE.Object3DEventMap>);
+    scene.value.add(shadowGround as THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes>, THREE.Material | THREE.Material[], THREE.Object3DEventMap>);
 }
 
-function roundEdgedBox(scene: Scene) {
+function roundEdgedBox() {
     const w = 5.2;
     const d = 5.2;
     const r = 0.2;
@@ -84,8 +84,8 @@ function roundEdgedBox(scene: Scene) {
     mesh.rotateX(1.57);
     mesh.position.y = -0.01;
 
-    scene.add(mesh);
+    scene.value.add(mesh);
 }
 
-initMesh(false, scene.value, 1);
+initMesh(false, 1);
 </script>

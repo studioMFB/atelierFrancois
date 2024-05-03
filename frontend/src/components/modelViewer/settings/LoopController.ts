@@ -35,16 +35,16 @@ export class LoopController {
   }
 
   checkCollision(furnitureArray: Model[]) {
-    if (furnitureArray.length == 0 || !furnitureArray[0].scene)
+    if (furnitureArray.length == 0 || !furnitureArray[0].modelScene)
       return;
 
     for (let i = 0; i < furnitureArray.length; ++i) {
-      if (!furnitureArray[i].scene)
+      if (!furnitureArray[i].modelScene)
         return;
 
       // this.restricMoveToBoundaries(furnitureArray[i].scene, furnitureArray[i].boundingBox);
       for (let j = 0; j < furnitureArray.length; ++j) {
-        if (!furnitureArray[j].scene)
+        if (!furnitureArray[j].modelScene)
           return;
 
         // Don't collide with itself.
@@ -56,7 +56,7 @@ export class LoopController {
 
         if (furnitureArray[i].boundingBox?.intersectsBox(furnitureArray[j].boundingBox!)) {
           // Handle collision
-          this.resolveOverlap(furnitureArray[i].scene!, furnitureArray[i].boundingBox!, furnitureArray[j].scene!, furnitureArray[j].boundingBox!);
+          this.resolveOverlap(furnitureArray[i].modelScene!, furnitureArray[i].boundingBox!, furnitureArray[j].modelScene!, furnitureArray[j].boundingBox!);
         }
       }
     }
