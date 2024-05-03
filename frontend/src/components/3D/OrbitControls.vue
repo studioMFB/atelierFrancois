@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, inject } from 'vue';
+import { computed, inject, provide } from 'vue';
 
 import { PerspectiveCamera } from 'three';
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
@@ -25,4 +25,6 @@ controls.minDistance = 2;
 controls.maxDistance = 10;
 controls.target.set( 0, 0, - 0.2 );
 controls.update();
+
+provide("OrbitControls", controls);
 </script>
