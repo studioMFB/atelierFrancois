@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 import { createRouter, createWebHistory } from 'vue-router';
-import { RouteProviders } from '@/providers';
+import { PageNameProviders, RouteProviders as PathProviders } from '@/providers';
 
 
 const router = createRouter({
@@ -8,23 +8,31 @@ const router = createRouter({
 
   routes: [
     {
-      name: RouteProviders.Index,
+      name: PathProviders.Index,
       path: "/",
+      redirect: { name: PageNameProviders.Home },
       components: {
-        NavBar: () => import("./views/navBar.vue"),
+        HeaderBar: () => import("./views/HeaderBar.vue"),
         FullPage: () => import("./FullPage.vue"),
       },
       children: [
         {
-          name: RouteProviders.Home,
-          path: RouteProviders.Home,
+          name: PageNameProviders.Home,
+          path: PathProviders.Home,
           components: {
             Content: () => import("./views/HomePage.vue"),
           },
         },
         {
-          name: RouteProviders.Testimony,
-          path: RouteProviders.Testimony,
+          name: PageNameProviders.Editor,
+          path: PathProviders.Editor,
+          components: {
+            Content: () => import("./views/EditorPage.vue"),
+          },
+        },
+        {
+          name: PageNameProviders.Testimony,
+          path: PathProviders.Testimony,
           components: {
             Content: () => import("./views/TestimonyPage.vue"),
           },

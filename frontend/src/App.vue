@@ -3,7 +3,7 @@
 
 <template>
     <div>
-        <router-view name="NavBar"></router-view>
+        <router-view name="HeaderBar"></router-view>
         <router-view name="FullPage"></router-view>
     </div>
 </template>
