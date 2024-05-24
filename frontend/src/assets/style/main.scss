@@ -1,3 +1,7 @@
+@import "@/assets/style/scrollbar.scss";
+// @import "@/assets/style/transitions.scss";
+
+
 :root {
   --max-width: 100%;
   --max-width-header: 100%;
@@ -110,6 +114,9 @@
   --header-height: 4.3rem;
   --header-background: #fff; // #f1f6f7; 
   --main-background: #e5e0d8;
+  --side-menu-width: 25rem;
+
+  --slide-transition: 0.3s;
 
 
   --color-1: #322F31;

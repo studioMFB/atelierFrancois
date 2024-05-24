@@ -7,14 +7,14 @@ import SideMenu from '@/components/menus/SideMenu.vue';
 <template>
   <header class="header-wrapper">
     <!-- <div class="header-wrapper-inner"> -->
-      <div class="header-wrapper-inner-wrap">
-        <side-menu></side-menu>
-        <div class="logo">
-          <router-link :to="{ name: PageNameProviders.Home }" class="logo-link">
-            {{ PageNameProviders.Home }}
-          </router-link>
-        </div>
+    <div class="header-wrapper-inner-wrap">
+      <side-menu></side-menu>
+      <div class="logo">
+        <router-link :to="{ name: PageNameProviders.Home }" class="logo-link">
+          {{ PageNameProviders.Home }}
+        </router-link>
       </div>
+    </div>
     <!-- </div> -->
   </header>
 </template>
@@ -34,7 +34,7 @@ import SideMenu from '@/components/menus/SideMenu.vue';
   // align-items: center;
   // justify-content: center;
   justify-content: space-between;
-    flex-grow: 1;
+  flex-grow: 1;
   top: 0;
   left: 0;
   right: 0;
@@ -64,7 +64,7 @@ import SideMenu from '@/components/menus/SideMenu.vue';
   align-items: center;
   // flex-direction: row;
   // justify-content: space-between;
-    // justify-content: center;
+  // justify-content: center;
 
   // margin: 0 auto;
   width: 100%;

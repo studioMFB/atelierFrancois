@@ -31,25 +31,35 @@ function closeModal(e: Event): void {
 </script>
 
 <template>
-    <Teleport to="body">
-        <Transition name="modal">
-            <div v-if="showModal" class="modal" :class="{ modalback: modalBack }" @pointerdown="closeModal" @[!allowDrag&&`dragenter`]="closeModal">
+    <div>
+        <!-- <Teleport to="body"> -->
+            <!-- <Transition name="modal"> -->
+            <div v-if="showModal" class="modal" :class="{ modalback: modalBack }" @pointerdown="closeModal"
+                @[!allowDrag&&`dragenter`]="closeModal">
                 <div class="modal-content">
                     <slot></slot>
                 </div>
             </div>
-        </Transition>
-    </Teleport>
+            <!-- </Transition> -->
+        <!-- </Teleport> -->
+    </div>
 </template>
 
 <style scoped lang="scss">
 .modal {
     position: fixed;
-    z-index: 1;
+    z-index: 9;
     top: 0;
     left: 0;
+    right: 0;
+    bottom: 0;
     width: 100%;
     height: 100%;
+
+    // background: rgba(0, 0, 0, 0.5);
+    // display: flex;
+    // justify-content: center;
+    // align-items: center;
 }
 
 .modalback {
@@ -58,27 +68,13 @@ function closeModal(e: Event): void {
 }
 
 .modal-content {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    z-index: 10;
+    position: relative;
+
+    // display: flex;
+    // align-items: center;
+    // justify-content: center;
     height: 95%;
-}
-
-.modal-close-button {
-    float: right;
-}
-
-.modal-enter-from {
-    opacity: 0;
-}
-
-.modal-leave-to {
-    opacity: 1;
-}
-
-.modal-enter-from .modal-container,
-.modal-leave-to .modal-container {
-    -webkit-transform: scale(1.1);
-    transform: scale(1.1);
+    // background-color: red;
 }
 </style>

@@ -1,0 +1,33 @@
+// CUSTOM SCROLL BAR //
+/* width */
+::-webkit-scrollbar {
+    display: block;
+    width: 10px;
+}
+/* Track */
+::-webkit-scrollbar-track {
+    border-radius: 5px;
+    background: #353535; 
+}
+/* Handle */
+::-webkit-scrollbar-thumb {
+    border-radius: 5px;
+    background: #555; 
+    
+    &:hover {
+        background: #888; 
+    }
+}
+
+// HIDE SCROLLBAR WHILE KEEPING FUNCTIONALITY //
+/* Hide scrollbar for IE, Edge and Firefox */
+.no-scroll-bar {
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    &::-webkit-scrollbar {
+        display: none;
+    }
+  }

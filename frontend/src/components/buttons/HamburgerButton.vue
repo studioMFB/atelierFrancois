@@ -1,26 +1,25 @@
 <script setup lang="ts">
-import { ref, type Ref } from 'vue';
+import { watch, computed, ref, type Ref } from 'vue';
 
+
+const props = defineProps<{
+    close:boolean;
+}>();
 
 const emit = defineEmits<{
     (e: "toggle", target:HTMLButtonElement) : void,
 }>();
-
-const hamburgerButton = ref() as Ref<HTMLButtonElement>;
 
 function toggle(e:Event) {
     e.preventDefault();
     e.stopPropagation()
     const target = e.target as HTMLButtonElement;
     emit('toggle',target)
-
-    hamburgerButton.value.classList.toggle('active');
 }
-
 </script>
   
 <template>   
-    <button ref="hamburgerButton" class="hamburger" id="hamburgerButton" @click="(e) => {toggle(e)}">
+    <button ref="hamburgerButton" class="hamburger" :class="close?'active':''" id="hamburgerButton" @click="(e) => {toggle(e)}">
         <span></span>
         <span></span>
         <span></span>
