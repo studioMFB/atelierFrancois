@@ -20,21 +20,25 @@ function toggleShow() {
 
         <hamburger-button @toggle="toggleShow"></hamburger-button>
         
-        <transition name="slideToRight">
+        <transition name="slide-right">
             <div v-if="show">
                 <modal-component :show="show" @update:show="toggleShow">
                     <div v-if="show" class="dropdown-menu dropdown-menu-left">
                         <!-- <div class="sidebar-wrapper"> -->
-                            
                             <ul class="menu">
                                 <li class="menu__item">
-                                    <router-link :to="{ name: PageNameProviders.Home }" class="menu__link">
-                                        {{ PageNameProviders.Home }}
+                                    <router-link :to="{ name: PageNameProviders.Editor }" class="menu__link">
+                                        {{ PageNameProviders.Editor }}
+                                    </router-link>
+                                </li>
+                                <li class="menu__item">
+                                    <router-link :to="{ name: PageNameProviders.Testimony }" class="menu__link">
+                                        {{ PageNameProviders.Testimony }}
                                     </router-link>
                                 </li>
                             </ul>
-                        </div>
                         <!-- </div> -->
+                        </div>
                     </modal-component>
                 </div>
             </transition>
@@ -50,63 +54,41 @@ function toggleShow() {
     width: 100%;
 }
 
+// .sidebar-wrapper {
+// }
+
 .menu {
-    display: none;
-    margin: 0;
-    padding: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    margin: var(--spacing-3) 0;
+    padding: 0 var(--spacing-2);
     list-style: none;
+    text-align: left;
     font-size: var(--body-medium-font-size);
     font-weight: var(--font-weight-light);
-    text-align: left;
+    line-height: var(--h5-line-height);
 }
 
 .menu__item {
     display: inline-block;
     margin-right: var(--spacing-3);
     padding: 0;
+    height: 3rem;
 }
 
-// .hamburger {
-//     -webkit-appearance: none;
-//     appearance: none;
-//     display: block;
-//     position: relative;
-//     top: 1px;
-//     padding: 5px;
-//     width: 30px;
-//     height: 30px;
-//     color: var(--color-1);
-//     border: 0;
-//     background: none;
-//     transition: opacity .3s ease-in-out;
-// }
+.menu__link{
+    display: inline-block;
+    color: var(--color-1);
+    font-size: var(--h6-font-size);
+    line-height: var(--h6-line-height);
+    margin: 0;
+    text-decoration: none;
+    transition: all .1s ease-in-out;
 
-.hamburger__icon {
-    position: absolute;
-    top: 14px;
-    left: 5px;
-    // position: absolute;
-    // top: -5px;
-    // left: 0;
-
-    background-color: var(--color-1);
-    height: 1px;
-    width: 20px;
-    transition: all .15s var(--transition-curve-1);
-}
-
-.sidebar-close-btn {
-    width: 2rem;
-    position: absolute;
-    top: 0rem;
-    right: 0rem;
-    // padding: 1rem 1rem 0 0;
-}
-
-.sidebar-wrapper {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
+    &:hover{
+        opacity: .6;
+    }
 }
 
 .dropdown-menu {
@@ -130,17 +112,17 @@ function toggleShow() {
     width: 400px;
     backdrop-filter: blur(10px);
 
-    ul {
-        padding: 0;
-        margin: 0;
-        min-height: 20rem;
-    }
+    // ul {
+    //     padding: 0;
+    //     margin: 0;
+    //     min-height: 20rem;
+    // }
 
-    li {
-        display: block;
-        text-align: left;
-        list-style: none;
-    }
+    // li {
+    //     display: block;
+    //     text-align: left;
+    //     list-style: none;
+    // }
 }
 
 .dropdown-menu-left {
