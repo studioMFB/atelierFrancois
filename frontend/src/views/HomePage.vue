@@ -14,6 +14,6 @@ import { ref, type Ref } from 'vue';
     max-width: var(--max-width);
     margin: 0 auto;
     width: 100%;
-    padding-top: 69px;
+    padding: 69px;
 }
 </style>

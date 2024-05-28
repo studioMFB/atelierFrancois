@@ -4,7 +4,7 @@
 <template>
     <div>
         <router-view name="HeaderBar"></router-view>
-        <router-view name="FullPage"></router-view>
+        <router-view name="ContentPage"></router-view>
     </div>
 </template>
 

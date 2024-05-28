@@ -13,7 +13,7 @@ const router = createRouter({
       redirect: { name: PageNameProviders.Home },
       components: {
         HeaderBar: () => import("./views/HeaderBar.vue"),
-        FullPage: () => import("./FullPage.vue"),
+        ContentPage: () => import("./ContentPage.vue"),
       },
       children: [
         {
@@ -34,7 +34,7 @@ const router = createRouter({
           name: PageNameProviders.Projects,
           path: PathProviders.Projects,
           components: {
-            Content: () => import("./views/TestimonyPage.vue"),
+            Content: () => import("./views/ProjectsPage.vue"),
           },
         }
       ]

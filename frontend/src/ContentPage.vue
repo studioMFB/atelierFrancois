@@ -21,6 +21,8 @@
 
 <style scoped lang="scss">
 .full-page-wrapper {
+    position: fixed;
+    top: var(--header-height);
     width: 100%;
     height: 100%;
 }

@@ -3,10 +3,10 @@ import { RouteProviders } from "@/providers";
 
 
 const routes: RouteRecordRaw = {
-  name: RouteProviders.Testimony,
-  path: RouteProviders.Testimony,
+  name: RouteProviders.Projects,
+  path: RouteProviders.Projects,
   components: {
-    Content: () => import("@/views/TestimonyPage.vue"),
+    Content: () => import("@/views/ProjectsPage.vue"),
   },
   
 };
