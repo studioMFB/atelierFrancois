@@ -102,7 +102,7 @@ $menu-top: calc(1px + var(--header-height));
     line-height: var(--h6-line-height);
     margin: 0;
     text-decoration: none;
-    transition: all .1s ease-in-out;
+    transition: all .15s ease-in-out;
 
     &:hover {
         opacity: .6;
@@ -114,7 +114,7 @@ $menu-top: calc(1px + var(--header-height));
     @include menu-common-styles;
     // transform: translateY(0);
     top:0;
-    transition: transform var(--slide-transition) cubic-bezier(1, 0.5, 0.8, 1);
+    transition: transform var(--slide-transition) ease-in;
 }
 
 .slide-menu-enter-from,
