@@ -3,11 +3,11 @@ import { ref, type Ref } from 'vue';
 
 </script>
 
-<!-- <template>
+<template>
     <div class="content-wrapper">
         HOME
     </div>
-</template> -->
+</template>
 
 <style scoped lang="scss">
 .content-wrapper {

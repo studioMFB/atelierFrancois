@@ -112,7 +112,7 @@
   --wc-subtext: #767676;
 
   --header-height: 4.3rem;
-  --header-background: #fff; // #f1f6f7; 
+  --header-background:#e5e0d8; // #f1f6f7; 
   --main-background: #e5e0d8;
   --side-menu-width: 25rem;
 
@@ -170,12 +170,7 @@ a {
 }
 
 .scene-viewer {
-  position: fixed;
-  top: 4rem;
-  width: 86% !important;
-  height: 90% !important;
   border: none;
   border-radius: 10px;
-  margin: 0 2rem;
   background-color: #060911;
 }

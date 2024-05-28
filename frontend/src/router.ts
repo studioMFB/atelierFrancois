@@ -31,8 +31,8 @@ const router = createRouter({
           },
         },
         {
-          name: PageNameProviders.Testimony,
-          path: PathProviders.Testimony,
+          name: PageNameProviders.Projects,
+          path: PathProviders.Projects,
           components: {
             Content: () => import("./views/TestimonyPage.vue"),
           },

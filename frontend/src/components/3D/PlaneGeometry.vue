@@ -90,3 +90,7 @@ function roundEdgedBox() {
 
 initMesh(false, 1);
 </script>
+
+<template>
+    <slot></slot>
+</template>

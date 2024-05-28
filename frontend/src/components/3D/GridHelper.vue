@@ -21,3 +21,7 @@ const grid = new GridHelper(size.value, divisions.value, colour1.value, colour2.
 
 scene.value.add(grid);
 </script>
+
+<template>
+    <slot></slot>
+</template>

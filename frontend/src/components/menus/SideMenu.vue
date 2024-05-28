@@ -22,18 +22,18 @@ function toggleShow() {
         <transition name="slide-menu">
             <div v-if="show">
                 <modal-component :show="show" @update:show="toggleShow">
-                    <div class="menu menu-left">
-                        <ul class="menu__list">
-                            <li class="menu__item">
+                    <div class="menu">
+                        <ul>
+                            <li>
                                 <router-link :to="{ name: PageNameProviders.Editor }" class="menu__link"
                                     @click="toggleShow">
                                     {{ PageNameProviders.Editor }}
                                 </router-link>
                             </li>
-                            <li class="menu__item">
-                                <router-link :to="{ name: PageNameProviders.Testimony }" class="menu__link"
+                            <li>
+                                <router-link :to="{ name: PageNameProviders.Projects }" class="menu__link"
                                     @click="toggleShow">
-                                    {{ PageNameProviders.Testimony }}
+                                    {{ PageNameProviders.Projects }}
                                 </router-link>
                             </li>
                         </ul>
@@ -45,20 +45,22 @@ function toggleShow() {
 </template>
 
 <style scoped lang="scss">
+$menu-top: calc(1px + var(--header-height));
+
 .menu-wrapper {
     display: flex;
     width: 100%;
 }
 
-.menu {
-    z-index: 999;
-    position: absolute;
+@mixin menu-common-styles {
+    z-index: 1001;
+    position: fixed;
     display: block;
-    top: calc(1px + var(--header-height));
-
-    height: 100%;
+    top: $menu-top;
 
     width: var(--side-menu-width);
+    height: 100%;
+    // height: 30rem;
 
     letter-spacing: 1px;
     font-size: 15px;
@@ -67,32 +69,35 @@ function toggleShow() {
     color: #8e8f94;
     background-color: var(--header-background);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    // backdrop-filter: blur(10px);
-}
+    // // backdrop-filter: blur(10px);
 
-.menu__list {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    margin: var(--spacing-3) 0;
-    padding: 0 var(--spacing-2);
-    list-style: none;
-    text-align: left;
-    font-size: var(--body-medium-font-size);
-    font-weight: var(--font-weight-light);
-    line-height: var(--h5-line-height);
-}
+    ul {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        margin: var(--spacing-3) 0;
+        padding: 0 var(--spacing-2);
+        list-style: none;
+        text-align: left;
+        font-size: var(--body-medium-font-size);
+        font-weight: var(--font-weight-light);
+        line-height: var(--h5-line-height);
+    }
 
-.menu-left {
+    li {
+        display: inline-block;
+        margin-right: var(--spacing-3);
+        padding: 0;
+        height: 3rem;
+    }
+
     left: 0;
+    // top:0;
     right: auto;
 }
 
-.menu__item {
-    display: inline-block;
-    margin-right: var(--spacing-3);
-    padding: 0;
-    // height: 3rem;
+.menu {
+    @include menu-common-styles;
 }
 
 .menu__link {
@@ -111,25 +116,15 @@ function toggleShow() {
 
 .slide-menu-enter-active,
 .slide-menu-leave-active {
-    z-index: 1001;
-    height: 100%;
-    transition: transform var(--slide-transition) ease-out;
-    background-color: var(--header-background); /* Ensure background color is applied */
-    // transition: transform var(--slide-transition) ease-out, opacity var(--slide-transition) ease-out;
+    @include menu-common-styles;
+
+    transition: transform var(--slide-transition) cubic-bezier(1, 0.5, 0.8, 1);
 }
 
 .slide-menu-enter-from,
 .slide-menu-leave-to {
-    z-index: 1001;
-    height: 100%;
-    transform: translateX(calc(var(--side-menu-width) *-1));
-    background-color: var(--header-background); /* Ensure background color is applied */
-}
+    @include menu-common-styles;
 
-// .slide-menu-enter-active .menu,
-// .slide-menu-leave-active .menu {
-//     z-index: 1001;
-//     height: 100%;
-//     background-color: var(--header-background);
-// }
+    transform: translateX(calc(var(--side-menu-width) *-1));
+}
 </style>

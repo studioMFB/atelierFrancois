@@ -22,3 +22,7 @@ const light = new HemisphereLight(skyColour.value, groundColour.value, intensity
 // console.log("HemisphereLight => light ", light.value);
 scene.value.add(light);
 </script>
+
+<template>
+    <slot></slot>
+</template>

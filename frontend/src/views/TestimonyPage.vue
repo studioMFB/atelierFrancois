@@ -2,5 +2,16 @@
 </script>
 
 <template>
-    <h2 style="position:fixed; z-index:1; margin: 10rem; color: blue;">Testimony</h2> 
+    <div class="content-wrapper">
+        PROJECTS
+    </div>
 </template>
+
+<style scoped lang="scss">
+.content-wrapper {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    width: 100%;
+    padding-top: 69px;
+}
+</style>

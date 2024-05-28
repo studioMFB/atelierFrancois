@@ -27,3 +27,7 @@ light.power = power;
 
 scene.value.add(light);
 </script>
+
+<template>
+    <slot></slot>
+</template>
