@@ -28,7 +28,7 @@ import SideMenu from '@/components/menus/SideMenu.vue';
 // }
 
 .header-wrapper {
-  z-index: 9999;
+  z-index: 10;
   position: absolute;
   display: flex;
   // align-items: center;

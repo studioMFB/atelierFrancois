@@ -31,35 +31,24 @@ function closeModal(e: Event): void {
 </script>
 
 <template>
-    <div>
-        <!-- <Teleport to="body"> -->
-            <!-- <Transition name="modal"> -->
-            <div v-if="showModal" class="modal" :class="{ modalback: modalBack }" @pointerdown="closeModal"
-                @[!allowDrag&&`dragenter`]="closeModal">
-                <div class="modal-content">
-                    <slot></slot>
-                </div>
-            </div>
-            <!-- </Transition> -->
-        <!-- </Teleport> -->
+    <div v-if="showModal" class="modal" :class="{ modalback: modalBack }" @pointerdown="closeModal"
+        @[!allowDrag&&`dragenter`]="closeModal">
+        <div class="modal-content">
+            <slot></slot>
+        </div>
     </div>
 </template>
 
 <style scoped lang="scss">
 .modal {
     position: fixed;
-    z-index: 9;
+    z-index: 10;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
     width: 100%;
     height: 100%;
-
-    // background: rgba(0, 0, 0, 0.5);
-    // display: flex;
-    // justify-content: center;
-    // align-items: center;
 }
 
 .modalback {
@@ -68,13 +57,7 @@ function closeModal(e: Event): void {
 }
 
 .modal-content {
-    z-index: 10;
-    position: relative;
-
-    // display: flex;
-    // align-items: center;
-    // justify-content: center;
-    height: 95%;
-    // background-color: red;
+    // z-index: 10;
+    // position: relative;
 }
 </style>

@@ -25,15 +25,15 @@ function toggleShow() {
                     <div class="menu">
                         <ul>
                             <li>
-                                <router-link :to="{ name: PageNameProviders.Editor }" class="menu__link"
-                                    @click="toggleShow">
-                                    {{ PageNameProviders.Editor }}
-                                </router-link>
-                            </li>
-                            <li>
                                 <router-link :to="{ name: PageNameProviders.Projects }" class="menu__link"
                                     @click="toggleShow">
                                     {{ PageNameProviders.Projects }}
+                                </router-link>
+                            </li>
+                            <li>
+                                <router-link :to="{ name: PageNameProviders.Editor }" class="menu__link"
+                                    @click="toggleShow">
+                                    {{ PageNameProviders.Editor }}
                                 </router-link>
                             </li>
                         </ul>
@@ -53,29 +53,28 @@ $menu-top: calc(1px + var(--header-height));
 }
 
 @mixin menu-common-styles {
-    z-index: 1001;
+    // z-index: 100;
     position: fixed;
     display: block;
     top: $menu-top;
 
     width: var(--side-menu-width);
     height: 100%;
-    // height: 30rem;
 
     letter-spacing: 1px;
     font-size: 15px;
     font-weight: 400;
     line-height: 25px;
     color: #8e8f94;
-    background-color: var(--header-background);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    // // backdrop-filter: blur(10px);
+    background-color: var(--header-background);
+    // backdrop-filter: blur(10px);
 
     ul {
         display: flex;
         flex-direction: column;
         height: 100%;
-        margin: var(--spacing-3) 0;
+        margin: var(--spacing-3) var(--spacing-1);
         padding: 0 var(--spacing-2);
         list-style: none;
         text-align: left;
@@ -90,10 +89,6 @@ $menu-top: calc(1px + var(--header-height));
         padding: 0;
         height: 3rem;
     }
-
-    left: 0;
-    // top:0;
-    right: auto;
 }
 
 .menu {
@@ -117,14 +112,16 @@ $menu-top: calc(1px + var(--header-height));
 .slide-menu-enter-active,
 .slide-menu-leave-active {
     @include menu-common-styles;
-
+    // transform: translateY(0);
+    top:0;
     transition: transform var(--slide-transition) cubic-bezier(1, 0.5, 0.8, 1);
 }
 
 .slide-menu-enter-from,
 .slide-menu-leave-to {
     @include menu-common-styles;
-
+    // transform: translateY(0);
+    top:0;
     transform: translateX(calc(var(--side-menu-width) *-1));
 }
 </style>
