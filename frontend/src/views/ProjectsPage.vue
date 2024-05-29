@@ -1,9 +1,10 @@
 <script setup lang="ts">
+import { PageNameProviders } from '@/providers';
 </script>
 
 <template>
     <div class="content-wrapper">
-        PROJECTS
+        {{ PageNameProviders.Projects }}
     </div>
 </template>
 

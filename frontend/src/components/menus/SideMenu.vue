@@ -20,26 +20,34 @@ function toggleShow() {
         <hamburger-button :close="show" @toggle="toggleShow"></hamburger-button>
 
         <!-- <transition name="slide-menu"> -->
-            <!-- <div v-if="show"> -->
-                <!-- <modal-component :show="show" @update:show="toggleShow"> -->
-                <div class="menu" :class="show ? ['move'] : ['']">
-                        <ul>
-                            <li>
-                                <router-link :to="{ name: PageNameProviders.Projects }" class="menu__link"
-                                    @click="toggleShow">
-                                    {{ PageNameProviders.Projects }}
-                                </router-link>
-                            </li>
-                            <li>
-                                <router-link :to="{ name: PageNameProviders.Editor }" class="menu__link"
-                                    @click="toggleShow">
-                                    {{ PageNameProviders.Editor }}
-                                </router-link>
-                            </li>
-                        </ul>
-                    </div>
-                <!-- </modal-component> -->
-            <!-- </div> -->
+        <!-- <div v-if="show"> -->
+        <!-- <modal-component :show="show" @update:show="toggleShow"> -->
+        <div class="menu" :class="show ? ['move'] : ['']">
+            <ul>
+                <li>
+                    <router-link :to="{ name: PageNameProviders.Products }" class="menu__link" @click="toggleShow">
+                        {{ PageNameProviders.Products }}
+                    </router-link>
+                </li>
+                <li>
+                    <router-link :to="{ name: PageNameProviders.Editor }" class="menu__link" @click="toggleShow">
+                        {{ PageNameProviders.Editor }}
+                    </router-link>
+                </li>
+                <li>
+                    <router-link :to="{ name: PageNameProviders.Projects }" class="menu__link" @click="toggleShow">
+                        {{ PageNameProviders.Projects }}
+                    </router-link>
+                </li>
+                <li>
+                    <router-link :to="{ name: PageNameProviders.About }" class="menu__link" @click="toggleShow">
+                        {{ PageNameProviders.About }}
+                    </router-link>
+                </li>
+            </ul>
+        </div>
+        <!-- </modal-component> -->
+        <!-- </div> -->
         <!-- </transition> -->
     </div>
 </template>
@@ -95,7 +103,7 @@ $menu-width: calc(var(--side-menu-width) *-1);
     transform: translateX($menu-width);
 }
 
-.move{
+.move {
     transform: translateX(0px) !important;
 }
 
@@ -131,5 +139,4 @@ $menu-width: calc(var(--side-menu-width) *-1);
 //     // transform: translateY(0);
 //     top:0;
 //     transform: translateX(calc(var(--side-menu-width) *-1));
-// }
-</style>
+// }</style>

@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { PathProviders } from '@/providers';
+import { PageNameProviders } from '@/providers';
 </script>
 
 <template>
     <div class="content-wrapper">
-        {{ PathProviders.Home }}
+        {{ PageNameProviders.Products }}
     </div>
 </template>
 

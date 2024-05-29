@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 import { createRouter, createWebHistory } from 'vue-router';
-import { PageNameProviders, RouteProviders as PathProviders } from '@/providers';
+import { PageNameProviders, PathProviders } from '@/providers';
 
 
 const router = createRouter({
@@ -24,6 +24,13 @@ const router = createRouter({
           },
         },
         {
+          name: PageNameProviders.Products,
+          path: PathProviders.Products,
+          components: {
+            Content: () => import("./views/ProductsPage.vue"),
+          },
+        },
+        {
           name: PageNameProviders.Editor,
           path: PathProviders.Editor,
           components: {
@@ -36,7 +43,14 @@ const router = createRouter({
           components: {
             Content: () => import("./views/ProjectsPage.vue"),
           },
-        }
+        },
+        {
+          name: PageNameProviders.About,
+          path: PathProviders.About,
+          components: {
+            Content: () => import("./views/AboutPage.vue"),
+          },
+        },
       ]
     }
   ]
