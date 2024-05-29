@@ -39,6 +39,7 @@ function toggle(e:Event) {
     padding: 0;
     border: none;
     background: none;
+    margin: 0 var(--spacing-3);
 
     &:hover {
         opacity: .8;

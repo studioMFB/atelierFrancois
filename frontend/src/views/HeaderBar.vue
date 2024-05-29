@@ -31,7 +31,6 @@ import SideMenu from '@/components/menus/SideMenu.vue';
   left: 0;
   right: 0;
   height: var(--header-height);
-  padding: 0 var(--spacing-3);
   border-bottom: 1px solid var(--color-2);
   background-color: var(--header-background);
 }

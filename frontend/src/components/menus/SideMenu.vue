@@ -19,10 +19,10 @@ function toggleShow() {
     <div class="menu-wrapper">
         <hamburger-button :close="show" @toggle="toggleShow"></hamburger-button>
 
-        <transition name="slide-menu">
-            <div v-if="show">
-                <modal-component :show="show" @update:show="toggleShow">
-                    <div class="menu">
+        <!-- <transition name="slide-menu"> -->
+            <!-- <div v-if="show"> -->
+                <!-- <modal-component :show="show" @update:show="toggleShow"> -->
+                <div class="menu" :class="show ? ['move'] : ['']">
                         <ul>
                             <li>
                                 <router-link :to="{ name: PageNameProviders.Projects }" class="menu__link"
@@ -38,14 +38,15 @@ function toggleShow() {
                             </li>
                         </ul>
                     </div>
-                </modal-component>
-            </div>
-        </transition>
+                <!-- </modal-component> -->
+            <!-- </div> -->
+        <!-- </transition> -->
     </div>
 </template>
 
 <style scoped lang="scss">
 $menu-top: calc(1px + var(--header-height));
+$menu-width: calc(var(--side-menu-width) *-1);
 
 .menu-wrapper {
     display: flex;
@@ -54,7 +55,6 @@ $menu-top: calc(1px + var(--header-height));
 }
 
 @mixin menu-common-styles {
-    // z-index: 100;
     position: fixed;
     display: block;
     top: $menu-top;
@@ -90,6 +90,13 @@ $menu-top: calc(1px + var(--header-height));
         padding: 0;
         height: 3rem;
     }
+
+    transition: transform var(--slide-transition) ease-in;
+    transform: translateX($menu-width);
+}
+
+.move{
+    transform: translateX(0px) !important;
 }
 
 .menu {
@@ -110,19 +117,19 @@ $menu-top: calc(1px + var(--header-height));
     }
 }
 
-.slide-menu-enter-active,
-.slide-menu-leave-active {
-    @include menu-common-styles;
-    // transform: translateY(0);
-    top:0;
-    transition: transform var(--slide-transition) ease-in;
-}
+// .slide-menu-enter-active,
+// .slide-menu-leave-active {
+//     @include menu-common-styles;
+//     // transform: translateY(0);
+//     top:0;
+//     transition: transform var(--slide-transition) ease-in;
+// }
 
-.slide-menu-enter-from,
-.slide-menu-leave-to {
-    @include menu-common-styles;
-    // transform: translateY(0);
-    top:0;
-    transform: translateX(calc(var(--side-menu-width) *-1));
-}
+// .slide-menu-enter-from,
+// .slide-menu-leave-to {
+//     @include menu-common-styles;
+//     // transform: translateY(0);
+//     top:0;
+//     transform: translateX(calc(var(--side-menu-width) *-1));
+// }
 </style>
