@@ -49,6 +49,7 @@ $menu-top: calc(1px + var(--header-height));
 
 .menu-wrapper {
     display: flex;
+    justify-content: left;
     width: 100%;
 }
 
