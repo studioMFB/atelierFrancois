@@ -17,7 +17,7 @@ interface IProduct {
     name: string;
     model: string; // May get custom type Model?
     details: IProductDetails[];
-    description: IProductDescription;
+    descriptions: IProductDescription[];
 }
 
 const props = defineProps<{
@@ -28,11 +28,18 @@ const product = computed(() => {
     if (props.product)
         return props.product
 
-    const _description: IProductDescription = {
+    const _description1: IProductDescription = {
         descriptionTitle: "A robust outdoor bench",
         description: "This is our classic bench built to resist the test of time.",
         descriptionPicture: "",
     };
+    const _description2: IProductDescription = {
+        descriptionTitle: "A robust outdoor bench",
+        description: "This is our classic bench built to resist the test of time.",
+        descriptionPicture: "",
+    };
+    const _descriptions: IProductDescription[] = [_description1, _description2];
+
     const material: IProductDetails = {
         label: "material",
         value: "Pine",
@@ -45,7 +52,7 @@ const product = computed(() => {
     const _product: IProduct = {
         name: "Bench",
         model: "",
-        description: _description,
+        descriptions: _descriptions,
         details: _details,
     }
 
@@ -55,13 +62,13 @@ const product = computed(() => {
 </script>
 
 <template>
-    <div class="product-wrapper">
+    <div class="product-wrapper no-scroll-bar">
         <!-- {{ PageNameProviders.Products }} -->
 
         <div class="product-main-wrapper">
             <div class="product-main">
                 <div>
-                    <h3> {{ product.name }} </h3>
+                    <h1> {{ product.name }} </h1>
                 </div>
                 <!-- May be rotating thumbnail or may be model viewer -->
                 <!-- <img :src="product.model" /> -->
@@ -69,18 +76,22 @@ const product = computed(() => {
             </div>
 
             <div class="product-main__details-wrapper">
-                <div v-for="(detail, i) in product.details" :key="i" class="product-main__details">
+                <div v-for="(detail, i) in product.details" :key="i" class="product-main__detail">
                     <p> {{ detail.label }}: </p>
                     <h4> {{ detail.value }} </h4>
                 </div>
             </div>
         </div>
         <div class="product-description-wrapper">
-            <img :src="product.description.descriptionPicture" />
-            <span class="product-description">
-                <h3> {{ product.description.descriptionTitle }} </h3>
-                <p> {{ product.description.description }} </p>
-            </span>
+            <div v-for="(description, i) in product.descriptions" :key="i" class="product-description">
+                <img :src="description.descriptionPicture" />
+                <div class="product-description__text">
+                    <span>
+                        <h3> {{ description.descriptionTitle }} </h3>
+                        <p> {{ description.description }} </p>
+                    </span>
+                </div>
+            </div>
         </div>
     </div>
 </template>
@@ -92,7 +103,9 @@ const product = computed(() => {
 
     width: 100%;
     max-width: var(--max-width);
-    height: 92%;
+    height: 100%;
+    height: 100%;
+    // height: 92%;
 
     overflow-y: auto;
     overflow-x: hidden;
@@ -101,12 +114,13 @@ const product = computed(() => {
 .product-main-wrapper {
     display: flex;
     flex-direction: row;
+    border-bottom: 1px solid var(--color-2);
 }
 
 .product-main {
     flex: 1;
-    width: 30rem;
-    height: 40rem;
+    // width: 60rem;
+    height: 50rem;
     border-right: 1px solid var(--color-2);
     overflow: hidden;
 
@@ -115,15 +129,17 @@ const product = computed(() => {
         height: 100%;
         margin: 0;
         padding: 0;
-        background-image: rgba(128, 128, 128, .4);
-        background: rgba(128, 128, 128, .4);
-        
-        h3 {
-            text-align: center;
+        background-image: rgba(255, 255, 255, 0.4);
+        background: rgba(255, 255, 255, 0.4);
+
+        h1 {
             width: 100%;
             height: 100%;
             padding: 2rem 0 0 0;
             margin: 0;
+            text-align: center;
+            font-size: var(--h4-font-size);
+            font-weight: 100;
         }
     }
 }
@@ -134,7 +150,7 @@ const product = computed(() => {
     width: 20%;
 }
 
-.product-main__details {
+.product-main__detail {
     display: flex;
     flex-direction: row;
     align-items: baseline;
@@ -153,26 +169,41 @@ const product = computed(() => {
 
 .product-description-wrapper {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     align-items: bottom;
-    height: 100%;
-    border: 1px solid var(--color-2);
+}
+.product-description {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    margin: 0;
+    border-bottom: 1px solid var(--color-2);
 
     img {
-        width: 35rem;
-        height: 20rem;
-        background: rgba(128, 128, 128, .4);
+        border: none;
+        outline: none;
+        width: 50%;
+        height: 50rem;
+        background: rgba(255, 255, 255, 0.4);
     }
 }
-
-.product-description {
-    flex: 1;
-    // justify-content: center;
+.product-description__text {
+    display: flex;
+    align-items: end;
     padding: 0 2rem;
     border-left: 1px solid var(--color-2);
 
-    p {
-        text-align: left;
+    span{
+        display: flex;
+        flex-direction: column;
+
+        h3{
+            margin: 0;
+        }
+        
+        p {
+            text-align: left;
+        }
     }
 }
 </style>

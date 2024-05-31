@@ -2,41 +2,40 @@
 </script>
 
 <template>
-    <div class="full-page-wrapper">
-        <!-- <div class="menu-overlay"></div> -->
+    <div class="content-page-wrapper">
 
-        <!-- <suspense> -->
+        <div class="content-page">
+            <!-- <suspense> -->
             <router-view name="Content" v-slot="{ Component }">
                 <component :is="Component" />
             </router-view>
-        <!-- </suspense> -->
+            <!-- </suspense> -->
+        </div>
 
-        <!-- <suspense>
-            <router-view name="Background" v-slot="{ Component }">
-                <component :is="Component" />
-            </router-view>
-        </suspense> -->
+        <!-- <footer class="footer"></footer> -->
     </div>
 </template>
 
 <style scoped lang="scss">
-.full-page-wrapper {
+.content-page-wrapper {
     position: fixed;
     top: var(--header-height);
     width: 100%;
-    height: 100%;
+    height: 92%;
+    overflow-y: hidden;
 }
 
-// .menu-overlay {
-//     position: absolute;
-//     overflow: auto;
-//     box-sizing: border-box;
+.content-page {
+    // position: fixed;
+    // top: var(--header-height);
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+}
+
+// .footer {
 //     width: 100%;
-//     background-color: #fff;
-//     transition: var(--transition-panel-1);
-//     -webkit-overflow-scrolling: touch;
-//     transform: translateX(-100%);
-//     min-height: 100vh;
-//     height: 100%;
+//     height: 12rem;
+//     background: var(--main-background);
 // }
 </style>
