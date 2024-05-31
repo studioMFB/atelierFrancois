@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, onMounted, ref, watch, watchEffect, type Ref } from 'vue';
 
 import { Color, Vector2, Vector3 } from 'three';
 
@@ -39,9 +39,23 @@ const props = defineProps<{
     canvas?: HTMLCanvasElement
 }>();
 
-const canvas = computed(() => props.canvas as HTMLCanvasElement);
-</script>
+const canvas = computed(() => props.canvas) as Ref<HTMLCanvasElement>;
 
+const raycaster = ref(null) as Ref<any>;
+
+const furnitureArray = ref([]);
+
+watch(() => raycaster.value?.furnitureArray, (newFurnitureArray) => {
+
+    // if(newFurnitureArray && newFurnitureArray.length > furnitureArray.value.length){
+    if(newFurnitureArray)
+        furnitureArray.value = newFurnitureArray;
+        // console.log("ModelViewer => watch => newFurnitureArray ", newFurnitureArray);
+    // }
+},
+{ immediate: true, deep: true }
+);
+</script>
 
 <template>
     <MainScene :colour="new Color(0xded6d8)">
@@ -49,14 +63,14 @@ const canvas = computed(() => props.canvas as HTMLCanvasElement);
             <template v-slot:orbitControl>
                 <OrbitControls :canvas="canvas">
                     <TransformGizmos :canvas="canvas">
-                        <RaycasterComponent :canvas="canvas"></RaycasterComponent>
+                        <RaycasterComponent ref="raycaster" :canvas="canvas"></RaycasterComponent>
                     </TransformGizmos>
                 </OrbitControls>
             </template>
             <template v-slot:webGlRenderer>
                 <WebGlRenderer :canvas="canvas">
                     <template v-slot:GameLoop>
-                        <GameLoop></GameLoop>
+                        <GameLoop :furniture-array="furnitureArray"></GameLoop>
                     </template>
                     <template v-slot:EffectComposer>
                         <EffectComposer></EffectComposer>

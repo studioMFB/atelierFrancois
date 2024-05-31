@@ -97,11 +97,11 @@ export class Model extends Mesh {
       this.boundingBox = new Box3().setFromObject(this.boxHelper);
       this.boxHelper.update();
       
-      console.log("Model => initMesh => scene ", scene);
+      // console.log("Model => initMesh => scene ", scene);
       
       // If you want a visible bounding box
       scene.add(this.modelScene);
-      // scene.add(this.scene, this.boxHelper);
+      scene.add(this.modelScene, this.boxHelper);
       modelsArray.push(this.modelScene);
 
     });
@@ -112,15 +112,17 @@ export class Model extends Mesh {
       return;
 
       if(this.boxHelper){
+        // console.log("Before Update => this.boxHelper.position ", this.boxHelper.position);
         this.boxHelper.position.set(this.modelScene.position.x, this.modelScene.position.y, this.modelScene.position.z);
         this.boxHelper.update();
+        // console.log("After Update => this.boxHelper.position ", this.boxHelper.position);
       }
 
     if(this.boundingBox)
       this.boundingBox.setFromObject(this.modelScene);
   }
 
-  tick(delta: any): void {
+  tick(delta?: any): void {
     if (!this.modelScene)
       return;
 

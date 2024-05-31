@@ -1,21 +1,17 @@
 <script setup lang="ts">
-import { computed, inject, provide } from 'vue';
+import { computed, inject, provide, ref, type Ref } from 'vue';
 
 import { PerspectiveCamera, Scene } from 'three';
 import { TransformControls, TransformControlsGizmo } from 'three/examples/jsm/controls/TransformControls.js';
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 
 const props = defineProps<{
     canvas?: HTMLCanvasElement
 }>();
 
-const canvas = computed(() => props.canvas);
-const scene = computed(() => inject("MainScene") as Scene);
-const camera = computed(() => inject("PerspectiveCamera") as PerspectiveCamera);
-const controls = computed(() => inject("OrbitControls") as OrbitControls);
-
-console.log("OrbitControls ", controls);
+const canvas = computed(() => props.canvas) as Ref<HTMLCanvasElement>;;
+const scene = ref(inject("MainScene")) as Ref<Scene>;
+const camera = ref(inject("PerspectiveCamera")) as Ref<PerspectiveCamera>;
 
 let isLeftMouseButtonDown = false;
 let isSelected = false;
@@ -60,26 +56,6 @@ transformControls.position.y += .6;
     if (child.isLine) {
         (child.material as THREE.MeshBasicMaterial).visible = false;
     }
-});
-
-transformControls.addEventListener("mouseDown", () => {
-    // Desable camera controls.
-    if(controls.value)
-        controls.value.enabled = false;
-    // enable rotating selected model on mouse wheel input.
-    isLeftMouseButtonDown = true;
-    // Lock selected colour (on).
-    isSelected = true;
-});
-
-transformControls.addEventListener("mouseUp", () => {
-    // Enable camera controls.
-    if(controls.value)
-        controls.value.enabled = true;
-    // Desable rotating selected model on mouse wheel input.
-    isLeftMouseButtonDown = false;
-    // UnLock selected colour (off).
-    isSelected = false;
 });
 </script>
 

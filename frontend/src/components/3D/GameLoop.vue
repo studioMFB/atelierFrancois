@@ -2,7 +2,7 @@
 
 import { Clock, Scene, WebGLRenderer, Vector3, PerspectiveCamera, Group, type Object3DEventMap, Box3 } from "three";
 import { Model } from "@/components/modelViewer/resources/model";
-import { computed, inject, provide } from "vue";
+import { computed, inject, provide, ref, toRefs, watch, watchEffect, type Ref } from "vue";
 
 
 const GRID_SIZE = 5;
@@ -15,20 +15,39 @@ const gridLimits = {
   maxZ: GRID_SIZE / 2    // Maximum Z value
 };
 
-const renderer = computed(() => inject("WebGlrenderer") as WebGLRenderer);
-const scene = computed(() => inject("MainScene") as Scene);
-const camera = computed(() => inject("PerspectiveCamera") as PerspectiveCamera);
+const props = defineProps<{
+  furnitureArray: any[];
+}>();
+
+let furnitureArray = ref(props.furnitureArray);
+
+watch(() => props.furnitureArray, (newFurnitureArray) => {
+  // console.log("Gameloop => watch => newFurnitureArray ", newFurnitureArray);
+
+  furnitureArray.value = newFurnitureArray;
+  // checkCollision(furnitureArray.value);
+  // start();
+});
+
+const renderer = ref(inject("WebGlrenderer")) as Ref<WebGLRenderer>;
+const scene = ref(inject("MainScene")) as Ref<Scene>;
+const camera = ref(inject("PerspectiveCamera")) as Ref<PerspectiveCamera>;
 const clock = new Clock();
 const updatables: any[] = [];
 
 provide("GameLoopUpdatables", updatables)
 
+start();
 
 // function addToUpdate(object: any) {
 //   updatables.push(object);
 // }
 
 function checkCollision(furnitureArray: Model[]) {
+  // console.log("GameLoop => checkCollision => furnitureArray ", furnitureArray);
+
+  // if (furnitureArray.length == 0)
+    // return;
   if (furnitureArray.length == 0 || !furnitureArray[0].modelScene)
     return;
 
@@ -50,6 +69,7 @@ function checkCollision(furnitureArray: Model[]) {
 
       if (furnitureArray[i].boundingBox?.intersectsBox(furnitureArray[j].boundingBox!)) {
         // Handle collision
+        // console.log("GameLoop => checkCollision => resolveOverlap ");
         resolveOverlap(furnitureArray[i].modelScene!, furnitureArray[i].boundingBox!, furnitureArray[j].modelScene!, furnitureArray[j].boundingBox!);
       }
     }
@@ -112,14 +132,17 @@ function restricMoveToBoundaries(object: Group<Object3DEventMap>, box: Box3) {
   object.position.z = Math.max(gridLimits.minZ, Math.min(gridLimits.maxZ, object.position.z));
 }
 
-function start(furnitureArray: Model[]) {
+function start() {
   renderer.value.setAnimationLoop(() => {
+    // console.log("Renderer => Start animation Loop", renderer.value);
+    furnitureArray.value.forEach((furniture: Model) => {
+      furniture.tick();
+    });
+    // tick();
 
-    tick();
+    checkCollision(furnitureArray.value);
 
-    checkCollision(furnitureArray);
-
-    renderer.value.render(scene.value, camera.value);
+    // renderer.value.render(scene.value, camera.value);
     // Render using composer if using post-processing
     // composer.render();
   });

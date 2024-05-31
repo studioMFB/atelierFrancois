@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, inject } from "vue";
+import { computed, inject, ref, type Ref } from "vue";
 
 import { Scene, WebGLRenderer, PerspectiveCamera, Vector2 } from "three";
 
@@ -8,9 +8,9 @@ import { OutlinePass } from "three/examples/jsm/postprocessing/OutlinePass.js";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 
 
-const renderer = computed(() => inject("WebGlrenderer") as WebGLRenderer);
-const scene = computed(() => inject("MainScene") as Scene);
-const camera = computed(() => inject("PerspectiveCamera") as PerspectiveCamera);
+const renderer = ref(inject("WebGlrenderer")) as Ref<WebGLRenderer>;
+const scene = ref(inject("MainScene")) as Ref<Scene>;
+const camera = ref(inject("PerspectiveCamera")) as Ref<PerspectiveCamera>;
 
 const composer = new EffectComposer(renderer.value);
 const renderPass = new RenderPass(scene.value, camera.value);

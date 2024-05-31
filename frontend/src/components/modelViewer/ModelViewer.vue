@@ -346,10 +346,10 @@ const gridLimits = {
     }
 
     function onPointerDown(event: PointerEvent) {
-        console.log("Pointer Down");
-        console.log("isShiftDown ", isShiftDown);
-        console.log("isKeyGDown ", isKeyGDown);
-        console.log("isKeyRDown ", isKeyRDown);
+        // console.log("Pointer Down");
+        // console.log("isShiftDown ", isShiftDown);
+        // console.log("isKeyGDown ", isKeyGDown);
+        // console.log("isKeyRDown ", isKeyRDown);
 
         // Add Table
         if (isShiftDown) {
@@ -373,7 +373,7 @@ const gridLimits = {
             // }
         }
         if (isKeyGDown) {
-            console.log("G");
+            // console.log("G");
             const garlic = new Model("garlic", new THREE.Vector3(0, 0, 0), 10, GLTF_GARLIC);
             garlic.initMesh(scene, allModelsArray).then(() => {
                 // adjustGizmoPosition(garlic.scene, transformControls);
@@ -383,7 +383,7 @@ const gridLimits = {
             });
         }
         if (isKeyRDown) {
-            console.log("R");
+            // console.log("R");
             const stone = new Model("stone", new THREE.Vector3(0, 0, 0), 0.5, GLTF_STONE);
             stone.initMesh(scene, allModelsArray).then(() => {
                 // adjustGizmoPosition(stone.scene, transformControls);

@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { computed, inject, onMounted } from 'vue';
+import { computed, inject, onMounted, reactive, ref, type Ref } from 'vue';
 import { Color, Group, type Object3DEventMap, PerspectiveCamera, Raycaster, Scene, Vector2, Vector3 } from 'three';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
 
 import { Model } from '@/components/modelViewer/resources/model';
+import type { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 
 // Colour //
@@ -18,22 +19,29 @@ const props = defineProps<{
     canvas: HTMLCanvasElement
 }>();
 
-const canvas = computed(() => props.canvas);
-const scene = computed(() => inject("MainScene") as Scene);
-const camera = computed(() => inject("PerspectiveCamera") as PerspectiveCamera);
-const gizmos = computed(() => inject("TransformGizmos") as TransformControls);
+const canvas = computed(() => props.canvas) as Ref<HTMLCanvasElement>;;
+const scene = ref(inject("MainScene")) as Ref<Scene>;
+const camera = ref(inject("PerspectiveCamera")) as Ref<PerspectiveCamera>;
+const gizmos = ref(inject("TransformGizmos")) as Ref<TransformControls>;
+const controls = ref(inject("OrbitControls")) as Ref<OrbitControls>;
+
 // const updatables = computed(() => inject("GameLoopUpdatables") as any[]);
 
-console.log("MainScene ", scene.value);
-console.log("PerspectiveCamera ", camera.value);
-console.log("TransformGizmos ", gizmos.value);
+// console.log("MainScene ", scene.value);
+// console.log("PerspectiveCamera ", camera.value);
+// console.log("TransformGizmos ", gizmos.value);
+// console.log("OrbitControls ", controls);
 
 const raycaster = new Raycaster();
 const pointer = new Vector2();
 let intersect: THREE.Intersection<THREE.Object3D<THREE.Object3DEventMap>>;
 let intersected: THREE.Group<THREE.Object3DEventMap>;
 const allModelsArray: THREE.Group<THREE.Object3DEventMap>[] = [];
-const furnitureArray: any[] = [];
+const furnitureArray = reactive([]) as any[];
+
+defineExpose({
+    furnitureArray
+});
 
 let isLeftMouseButtonDown = false;
 let isSelected = false;
@@ -68,6 +76,30 @@ onMounted(() => {
     canvas.value.addEventListener("pointerup", () => {
         gizmos.value.detach();
         changeColour(COLOUR_UNSELECTED);
+    });
+
+    gizmos.value.addEventListener("mouseDown", () => {
+        // Desable camera controls.
+        if (controls.value)
+            controls.value.enabled = false;
+        // enable rotating selected model on mouse wheel input.
+        isLeftMouseButtonDown = true;
+        // Lock selected colour (on).
+        isSelected = true;
+
+        // console.log("mouseDown => controls.value.enabled ", controls.value.enabled);
+    });
+
+    gizmos.value.addEventListener("mouseUp", () => {
+        // Enable camera controls.
+        if (controls.value)
+            controls.value.enabled = true;
+        // Desable rotating selected model on mouse wheel input.
+        isLeftMouseButtonDown = false;
+        // UnLock selected colour (off).
+        isSelected = false;
+
+        // console.log("mouseUp => controls.value.enabled ", controls.value.enabled);
     });
 })
 
@@ -177,12 +209,14 @@ function onPointerDown(event: PointerEvent) {
 
         const table = new Model("table", new Vector3(-0.5, 0, -0.5), 1, GLTF_TABLE);
 
-        console.log("onPointerDown => isShiftDown => table ", table);
+        // console.log("onPointerDown => isShiftDown => table ", table);
 
         table.initMesh(scene.value, allModelsArray).then(() => {
             // this.adjustGizmoPosition(table.scene, this.transformControls);
             // addToUpdate(table);
             furnitureArray.push(table);
+
+            // console.log("furnitureArray ", furnitureArray);
         });
 
         // Move to function
@@ -194,7 +228,7 @@ function onPointerDown(event: PointerEvent) {
         // }
     }
     if (isKeyGDown) {
-        console.log("G");
+        // console.log("G");
         const garlic = new Model("garlic", new Vector3(0, 0, 0), 10, GLTF_GARLIC);
         garlic.initMesh(scene.value, allModelsArray).then(() => {
             // this.adjustGizmoPosition(garlic.scene, this.transformControls);
@@ -204,7 +238,7 @@ function onPointerDown(event: PointerEvent) {
         });
     }
     if (isKeyRDown) {
-        console.log("R");
+        // console.log("R");
         const stone = new Model("stone", new Vector3(0, 0, 0), 0.5, GLTF_STONE);
         stone.initMesh(scene.value, allModelsArray).then(() => {
             // this.adjustGizmoPosition(stone.scene, this.transformControls);
