@@ -46,8 +46,6 @@ start();
 function checkCollision(furnitureArray: Model[]) {
   // console.log("GameLoop => checkCollision => furnitureArray ", furnitureArray);
 
-  // if (furnitureArray.length == 0)
-    // return;
   if (furnitureArray.length == 0 || !furnitureArray[0].modelScene)
     return;
 
@@ -136,15 +134,22 @@ function start() {
   renderer.value.setAnimationLoop(() => {
     // console.log("Renderer => Start animation Loop", renderer.value);
     furnitureArray.value.forEach((furniture: Model) => {
-      furniture.tick();
+      const delta = clock.getDelta();
+      furniture.tick(delta);
+      checkCollision(furnitureArray.value);
+      console.log("camera.position ", camera.value.position);
+            
+      // try{
+        // if(renderer.value && scene.value && camera.value)
+          // renderer.value.render(scene.value, camera.value);
+        
+          // Render using composer if using post-processing
+          // composer.render();
+        // }
+        // catch(e:any){
+        //     throw new Error(e);
+        //   }
     });
-    // tick();
-
-    checkCollision(furnitureArray.value);
-
-    // renderer.value.render(scene.value, camera.value);
-    // Render using composer if using post-processing
-    // composer.render();
   });
 }
 

@@ -59,7 +59,8 @@ watch(() => raycaster.value?.furnitureArray, (newFurnitureArray) => {
 
 <template>
     <MainScene :colour="new Color(0xded6d8)">
-        <PerspectiveCamera :position="new Vector3(-3, 4.5, 3)" :zoom="2.2">
+        <PerspectiveCamera :position="new Vector3(2.0, 2.7, 0.19)" :zoom="1.5">
+            <!-- <PerspectiveCamera :position="new Vector3(-2.4, 2.7, 2.0)" :zoom="1.7"> -->
             <template v-slot:orbitControl>
                 <OrbitControls :canvas="canvas">
                     <TransformGizmos :canvas="canvas">
