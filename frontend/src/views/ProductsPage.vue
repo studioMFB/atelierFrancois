@@ -21,7 +21,7 @@ interface IProduct {
 }
 
 const props = defineProps<{
-    product: IProduct;
+    product?: IProduct;
 }>();
 
 const product = computed(() => {
@@ -50,7 +50,7 @@ const product = computed(() => {
     }
     const _details: IProductDetails[] = [material, price];
     const _product: IProduct = {
-        name: "Bench",
+        name: "Soft Lounge Chair",
         model: "",
         descriptions: _descriptions,
         details: _details,
@@ -139,7 +139,8 @@ const product = computed(() => {
             margin: 0;
             text-align: center;
             font-size: var(--h4-font-size);
-            font-weight: 100;
+            font-weight:100;
+            color: var(--color-gray-40);
         }
     }
 }
