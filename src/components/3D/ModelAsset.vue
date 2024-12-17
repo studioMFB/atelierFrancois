@@ -104,7 +104,6 @@ function updateMatrix() {
 
 // DEVELOPMENT ONLY
 initMesh(scene.value, allModelsArray).then(() => {
-
     // adjustGizmoPosition(table.scene, transformControls);
 
     // loopController.addToUpdate(table);

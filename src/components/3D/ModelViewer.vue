@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch, watchEffect, type Ref } from 'vue';
+import { computed, reactive, ref, watch, type Ref } from 'vue';
 
 import { Color, Vector2, Vector3 } from 'three';
 
@@ -23,7 +23,7 @@ import SpotLight from '@/components/3D/SpotLight.vue';
 import GridHelper from '@/components/3D/GridHelper.vue';
 import PlaneGeometry from '@/components/3D/PlaneGeometry.vue';
 
-import ModelAsset from "@/components/3D/ModelAsset.vue";
+import { Model } from '../modelViewer/resources/model';
 
 
 // GLTF //
@@ -43,24 +43,24 @@ const canvas = computed(() => props.canvas) as Ref<HTMLCanvasElement>;
 
 const raycaster = ref(null) as Ref<any>;
 
-const furnitureArray = ref([]);
+let furnitureArray = reactive([]) as Model[];
 
 watch(() => raycaster.value?.furnitureArray, (newFurnitureArray) => {
 
     // if(newFurnitureArray && newFurnitureArray.length > furnitureArray.value.length){
-    if(newFurnitureArray)
-        furnitureArray.value = newFurnitureArray;
-        // console.log("ModelViewer => watch => newFurnitureArray ", newFurnitureArray);
+    if (newFurnitureArray)
+        furnitureArray = newFurnitureArray;
+    // console.log("ModelViewer => watch => newFurnitureArray ", newFurnitureArray);
     // }
 },
-{ immediate: true, deep: true }
+    { immediate: true, deep: true }
 );
 </script>
 
 <template>
-    <MainScene :colour="new Color(0xded6d8)">
-        <PerspectiveCamera :position="new Vector3(2.0, 2.7, 0.19)" :zoom="1.5">
-            <!-- <PerspectiveCamera :position="new Vector3(-2.4, 2.7, 2.0)" :zoom="1.7"> -->
+    <MainScene :furniture-array="furnitureArray" :colour="new Color(0xded6d8)">
+        <!-- <PerspectiveCamera :position="new Vector3(2.0, 2.7, 0.19)" :zoom="1.5"> -->
+            <PerspectiveCamera :position="new Vector3(4.4, 2.7, 2.0)" :zoom="1.5">
             <template v-slot:orbitControl>
                 <OrbitControls :canvas="canvas">
                     <TransformGizmos :canvas="canvas">
@@ -98,6 +98,8 @@ watch(() => raycaster.value?.furnitureArray, (newFurnitureArray) => {
         <PlaneGeometry :dimension="new Vector2(GRID_SIZE, GRID_SIZE)" :segment="new Vector2(1, 1)"
             :position="new Vector3(0, 0, 0)"></PlaneGeometry>
 
-        <!-- <ModelAsset name="table" :position="new Vector3(0, 0, 0)" :scale-ratio="1" :gltf-url="GLTF_TABLE"></ModelAsset> -->
+        <!-- <ModelAsset name="table" :position="new Vector3(0, 0, -1)" :scale-ratio="1" :gltf-url="GLTF_TABLE"></ModelAsset> -->
+        <!-- <ModelAsset name="garlic" :position="new Vector3(0, 0, 0)" :scale-ratio="10" :gltf-url="GLTF_GARLIC"></ModelAsset> -->
+        <!-- <ModelAsset name="stone" :position="new Vector3(1, 0, 1)" :scale-ratio="1" :gltf-url="GLTF_STONE"></ModelAsset> -->
     </MainScene>
 </template>
