@@ -9,10 +9,10 @@ lerna-debug.log*
 
 node_modules
 .DS_Store
+dist
+dist-ssr
 coverage
 *.local
-.gitignore 
-vue.config.js
 
 /cypress/videos/
 /cypress/screenshots/
@@ -26,3 +26,8 @@ vue.config.js
 *.njsproj
 *.sln
 *.sw?
+
+# Environment variables
+.env
+.env.production
+cypress.env.json
