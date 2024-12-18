@@ -2,7 +2,7 @@
 
 import { Clock, Scene, WebGLRenderer, Vector3, PerspectiveCamera, Group, type Object3DEventMap, Box3 } from "three";
 import { Model } from "@/components/modelViewer/resources/model";
-import { computed, inject, provide, ref, toRefs, watch, watchEffect, type Ref } from "vue";
+import { computed, inject, provide, reactive, ref, toRefs, watch, watchEffect, type Ref } from "vue";
 
 
 const GRID_SIZE = 5;
@@ -16,15 +16,14 @@ const gridLimits = {
 };
 
 const props = defineProps<{
-  furnitureArray: any[];
+  modelsPool: Model[];
 }>();
 
-let furnitureArray = ref(props.furnitureArray);
+const modelsPool = reactive(props.modelsPool);
 
-watch(() => props.furnitureArray, (newFurnitureArray) => {
+watch(() => props.modelsPool, (_modelsPool: Model[]) => {
   // console.log("Gameloop => watch => newFurnitureArray ", newFurnitureArray);
-
-  furnitureArray.value = newFurnitureArray;
+  modelsPool.splice(0, modelsPool.length, ..._modelsPool); // to keep reactivity
   // checkCollision(furnitureArray.value);
   // start();
 });
@@ -133,10 +132,10 @@ function restricMoveToBoundaries(object: Group<Object3DEventMap>, box: Box3) {
 function start() {
   renderer.value.setAnimationLoop(() => {
     // console.log("Renderer => Start animation Loop", renderer.value);
-    furnitureArray.value.forEach((furniture: Model) => {
+    modelsPool.forEach((furniture: Model) => {
       const delta = clock.getDelta();
       furniture.tick(delta);
-      checkCollision(furnitureArray.value);
+      checkCollision(modelsPool);
       // console.log("camera.position ", camera.value.position);
             
       // try{

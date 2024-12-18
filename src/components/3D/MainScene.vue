@@ -16,7 +16,6 @@ const props = defineProps<{
 }>();
 
 const colour = computed(() => props.colour);
-let furnitureArray = reactive([]) as Model[];
 
 const scene = new Scene();
 scene.background = new Color(colour.value);
