@@ -13,12 +13,8 @@ const canvas = computed(() => props.canvas) as Ref<HTMLCanvasElement>;;
 const scene = ref(inject("MainScene")) as Ref<Scene>;
 const camera = ref(inject("PerspectiveCamera")) as Ref<PerspectiveCamera>;
 
-let isLeftMouseButtonDown = false;
-let isSelected = false;
-
 const transformControls = new TransformControls(camera.value, canvas.value);
 transformControls.setMode('translate');
-// this.transformControls.translationSnap = 0.5; // Snaps to 500mm increments.
 provide("TransformGizmos", transformControls);
 
 scene.value.add(transformControls);

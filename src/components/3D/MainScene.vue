@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { computed, provide, reactive } from 'vue';
+import { computed, provide } from 'vue';
 
-import { Color, Scene, Fog } from 'three';
-import { Model } from '../modelViewer/resources/model';
+import { Color, Scene, Fog, type Object3DEventMap, Group } from 'three';
 
 
 // GLTF //
@@ -15,12 +14,13 @@ const props = defineProps<{
     colour: Color,
 }>();
 
+provide("allModelsArray", [] as Group<Object3DEventMap>[]);
+
 const colour = computed(() => props.colour);
 
 const scene = new Scene();
 scene.background = new Color(colour.value);
 scene.fog = new Fog(colour.value, 200, 1000);
-
 provide("MainScene", scene);
 </script>
 

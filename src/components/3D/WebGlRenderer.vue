@@ -21,14 +21,9 @@ renderer.shadowMap.enabled = true;
 
 function animate() {
     requestAnimationFrame(animate);
-
-    if (renderer)
-        renderer.render(scene.value, camera.value);
+    renderer.render(scene.value, camera.value);
 }
 
-// console.log("renderer ", renderer);
-// console.log("scene ", scene.value);
-// console.log("camera ", camera.value);
 animate();
 
 provide("WebGlrenderer", renderer);

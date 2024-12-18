@@ -1,7 +1,8 @@
- <script setup lang="ts">
-import { computed, inject } from 'vue';
+<script setup lang="ts">
+import { computed, inject, onMounted} from 'vue';
 
-import { Color, DoubleSide, ExtrudeGeometry, Mesh, MeshBasicMaterial, MeshStandardMaterial, PlaneGeometry, Scene, ShadowMaterial, Shape, Vector2, Vector3 } from 'three';
+import { Color, DoubleSide, ExtrudeGeometry, Group, Mesh, MeshBasicMaterial, MeshStandardMaterial, 
+    PlaneGeometry, Scene, ShadowMaterial, Shape, Vector2, Vector3, type Object3DEventMap } from 'three';
 
 
 const props = defineProps<{
@@ -15,39 +16,7 @@ const dimension = computed(() => props.dimension);
 const segment = computed(() => props.segment);
 const position = computed(() => props.position);
 
-function initMesh(isVisible: boolean, opacity: number, colour?: Color): void {
-    // GROUND //
-    const geometry: PlaneGeometry = new PlaneGeometry(dimension.value.x, dimension.value.y, segment.value.x, segment.value.y);
-    geometry.rotateX(- Math.PI / 2);
-
-    const material = new MeshStandardMaterial({
-        color: colour || new Color(0xff0000),
-        visible: isVisible,
-        opacity: opacity,
-    });
-    const ground = new Mesh(geometry, material);
-    ground.name = "Main Plane";
-    ground.receiveShadow = false;
-
-    ground.position.set(position.value.x, position.value.y, position.value.z);
-
-    // SHADOW GROUND //
-    const shadowGround:Mesh = ground.clone();
-    shadowGround.material = new ShadowMaterial({
-        opacity: .5,
-        color: "#888888",
-        side: DoubleSide,
-        transparent: true
-    });
-
-    shadowGround.receiveShadow = true;
-    shadowGround.position.set(position.value.x + 0.01, position.value.y + 0.01, position.value.z + 0.01);
-
-    roundEdgedBox();
-
-    scene.value.add(ground as THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes>, THREE.Material | THREE.Material[], THREE.Object3DEventMap>);
-    scene.value.add(shadowGround as THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes>, THREE.Material | THREE.Material[], THREE.Object3DEventMap>);
-}
+const modelScene: Group<Object3DEventMap> = new Group<Object3DEventMap>();
 
 function roundEdgedBox() {
     const w = 5.2;
@@ -88,7 +57,52 @@ function roundEdgedBox() {
     scene.value.add(mesh);
 }
 
+function initMesh(isVisible: boolean, opacity: number, colour?: Color): void {
+    // GROUND //
+    const geometry: PlaneGeometry = new PlaneGeometry(dimension.value.x, dimension.value.y, segment.value.x, segment.value.y);
+    geometry.rotateX(- Math.PI / 2);
+
+    const material = new MeshStandardMaterial({
+        color: colour || new Color(0xff0000),
+        visible: isVisible,
+        opacity: opacity,
+    });
+    const ground = new Mesh(geometry, material);
+    ground.name = "Main_Plane";
+    ground.receiveShadow = false;
+
+    ground.position.set(position.value.x, position.value.y, position.value.z);
+
+    // SHADOW GROUND //
+    const shadowGround: Mesh = ground.clone();
+    shadowGround.material = new ShadowMaterial({
+        opacity: .5,
+        color: "#888888",
+        side: DoubleSide,
+        transparent: true
+    });
+
+    shadowGround.receiveShadow = true;
+    shadowGround.position.set(position.value.x + 0.01, position.value.y + 0.01, position.value.z + 0.01);
+
+    roundEdgedBox();
+
+    modelScene.add(ground);
+    modelScene.add(shadowGround);
+
+    scene.value.add(modelScene);
+
+    // Update transforms for modelScene and its children
+    modelScene.updateMatrixWorld(true);
+}
+
 initMesh(false, 1);
+
+onMounted(() => {
+    // For Raycasting
+    const allModelsArray = inject("allModelsArray", [] as Group<Object3DEventMap>[]);
+    allModelsArray.push(modelScene);
+})
 </script>
 
 <template>

@@ -2,22 +2,6 @@ import { Mesh, Vector3, Scene, Group, MeshToonMaterial, Color, type Object3DEven
 import { type GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 
-// export function findModelParent(mesh: any): Group<Object3DEventMap> | undefined {
-//   // If the mesh has no parent, return null
-//   if (!mesh.parent) {
-//     return undefined;
-//   }
-
-//   const rootName = 'root_model_scene';
-//   // If the parent is an instance of GameObject, return it
-//   if (mesh.parent.name === rootName) {
-//     return mesh.parent as Group<Object3DEventMap>;
-//   }
-
-//   // Otherwise, recursively call the function with the parent as the argument
-//   return findModelParent(mesh.parent);
-// }
-
 export class Model extends Mesh {
 
   scaleRatio: number;
@@ -45,7 +29,7 @@ export class Model extends Mesh {
   }
 
   changeColour(colour: string) {
-    if(!this.modelScene)
+    if (!this.modelScene)
       return;
 
     this.modelScene.traverse((child: any) => {
@@ -57,72 +41,75 @@ export class Model extends Mesh {
     });
   }
 
-  async initMesh(scene: Scene, modelsArray: Group<Object3DEventMap>[]): Promise<void> {
+  async initMesh(): Promise<Group<Object3DEventMap>> {
     const loader = new GLTFLoader();
 
-    const parameters = {
-      color: new Color(0xe2eab8)
-    }
+    return new Promise((resolve, reject) => {
+      loader.load(
+        this.gltfUrl,
+        (gltf: GLTF) => {
+          this.modelScene = gltf.scene;
 
-    const matToon = new MeshToonMaterial(parameters);
-    matToon.opacity = .005;
-    const matColor = new MeshBasicMaterial({ color: 0x3c3c3c });
+          const parameters = {
+            color: new Color(0xe2eab8),
+          };
 
-    loader.load(this.gltfUrl, (gltf: GLTF) => {
+          const matToon = new MeshToonMaterial(parameters);
+          matToon.opacity = 0.005;
+          const matColor = new MeshBasicMaterial({ color: 0x3c3c3c });
 
-      this.modelScene = gltf.scene;
-      
-      gltf.scene.traverse((child: any) => {
-        if (child.isMesh) {
-          child.geometry.computeBoundingBox();
+          gltf.scene.traverse((child: any) => {
+            if (child.isMesh) {
+              child.geometry.computeBoundingBox();
+            }
+
+            if (child.name.toLowerCase().includes("outline")) {
+              child.material = matColor;
+            } else {
+              child.material = matToon;
+              child.castShadow = true;
+            }
+
+            child.name += "_model";
+          });
+
+          this.modelScene.name = "root_model";
+          this.modelScene.scale.multiplyScalar(this.scaleRatio);
+          this.modelScene.position.set(this.pos.x, this.pos.y, this.pos.z);
+
+          // this.boxHelper = new BoxHelper(this.modelScene, 0xff0000);
+          // this.boxHelper.name = "boxHelper_model";
+          // this.boundingBox = new Box3().setFromObject(this.boxHelper);
+          // this.boxHelper.update();
+
+          // Update transforms for modelScene and its children
+          this.modelScene.updateMatrixWorld(true);
+
+          // Resolve the promise with the loaded model
+          resolve(this.modelScene);
+        },
+        undefined,
+        (error) => {
+          console.error("Error loading model:", error);
+          reject(error); // Reject the promise on error
         }
-
-        if (child.name.toLowerCase().includes("outline")) {
-          child.material = matColor;
-        }
-        else {
-          child.material = matToon;
-          child.castShadow = true;
-        }
-
-        child.name += "-model";
-      });
-      
-      this.modelScene.name = 'root_model_scene';
-      this.modelScene.scale.multiplyScalar(this.scaleRatio);
-      this.modelScene.position.set(this.pos.x, this.pos.y, this.pos.z);      
-      
-      this.boxHelper = new BoxHelper(this.modelScene, 0xff0000);
-      this.boxHelper.name = 'boxHelper_model';
-      this.boundingBox = new Box3().setFromObject(this.boxHelper);
-      this.boxHelper.update();
-      
-      // console.log("Model => initMesh => scene ", scene);
-      
-      scene.add(this.modelScene);
-      // If you want a visible bounding box
-      scene.add(this.modelScene, this.boxHelper);
-
-      modelsArray.push(this.modelScene);
-
+      );
     });
   }
 
   updateMatrix(delta?: number) {
-    if(!delta)
+    if (!delta)
       delta = 1;
 
-    if(!this.modelScene)
+    if (!this.modelScene)
       return;
 
-      if(this.boxHelper){
-        // console.log("Before Update => this.boxHelper.position ", this.boxHelper.position);
-        this.boxHelper.position.set(this.modelScene.position.x *delta, this.modelScene.position.y *delta, this.modelScene.position.z *delta);
-        this.boxHelper.update();
-        // console.log("After Update => this.boxHelper.position ", this.boxHelper.position);
-      }
+    if (this.boxHelper) {
+      this.boxHelper.position.set(this.modelScene.position.x * delta, this.modelScene.position.y * delta, this.modelScene.position.z * delta);
+      this.boxHelper.update();
+    }
 
-    if(this.boundingBox)
+    if (this.boundingBox)
       this.boundingBox.setFromObject(this.modelScene);
   }
 

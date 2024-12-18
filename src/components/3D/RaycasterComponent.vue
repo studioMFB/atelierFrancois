@@ -25,11 +25,12 @@ const camera = ref(inject("PerspectiveCamera")) as Ref<PerspectiveCamera>;
 const transformControlsGizmos = ref(inject("TransformGizmos")) as Ref<TransformControls>;
 const controls = ref(inject("OrbitControls")) as Ref<OrbitControls>;
 
+const allModelsArray = inject("allModelsArray", [] as Group<Object3DEventMap>[]);
+
 const raycaster = new Raycaster();
 const pointer = new Vector2();
 let intersect: Intersection<Object3D<Object3DEventMap>>;
 let intersectedGroupObject: Group<Object3DEventMap>;
-const allModelsArray: Group<Object3DEventMap>[] = [];
 const modelsPool = reactive([]) as Model[];
 
 defineExpose({
@@ -38,10 +39,6 @@ defineExpose({
 
 let isLeftMouseButtonDown = false;
 let isSelected = false;
-let isShiftDown = false;
-let isKeyGDown = false;
-let isKeyRDown = false;
-
 let rotationDelta = 0;
 
 // GRID in meters
@@ -61,7 +58,7 @@ function findModelParent(mesh: any): Group<Object3DEventMap> | null {
         return null;
     }
 
-    const rootName = 'root_model_scene';
+    const rootName = 'root_model';
     // If the parent is an instance of GameObject, return it
     if (mesh.parent.name === rootName) {
         return mesh.parent as Group<Object3DEventMap>;
@@ -73,14 +70,10 @@ function findModelParent(mesh: any): Group<Object3DEventMap> | null {
 
 // RAYCASTER //
 function intersection(): boolean {
-    try {
-        raycaster.setFromCamera(pointer, camera.value);
-    }
-    catch (e: any) {
-        throw new Error(e.toString());
-    }
-    
-    const intersects = raycaster.intersectObjects(allModelsArray, true);
+    if (!raycaster || allModelsArray.length < 1 || !allModelsArray.every(obj => obj))
+        return false;
+
+    const intersects = raycaster.intersectObjects(allModelsArray, true); // true for recursive checks
 
     if (intersects.length > 0) {
         intersect = intersects[0];
@@ -109,18 +102,16 @@ function restricMoveToBoundaries() {
 function updatePointerMode(event: PointerEvent) {
     event.preventDefault();
 
-    pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
-    pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    pointer.x = (event.clientX / canvas.value.clientWidth) * 2 - 1;
+    pointer.y = -(event.clientY / canvas.value.clientHeight) * 2 + 1;
 
-    // pointer.x = (event.clientX / canvas.value.clientWidth) * 2 - 1;
-    // pointer.y = -(event.clientY / canvas.value.clientHeight) * 2 + 1;
-
-    // if (pointer)
-        // raycaster.setFromCamera(pointer, camera.value);
-
-    // console.log("Pointer:", pointer);
-    // console.log("Camera Position:", camera.value.position);
-    // console.log("Camera Direction:", camera.value.getWorldDirection(new Vector3()));
+    try {
+        if (raycaster && pointer && camera.value)
+            raycaster.setFromCamera(pointer, camera.value);
+    }
+    catch (e: any) {
+        console.error("Error setting raycaster:", e);
+    }
 }
 
 const models = reactive({
@@ -138,9 +129,48 @@ function addModelToScene(modelKey: keyof typeof models) {
 
     const modelInstance = new Model(model.name, model.position, model.scale, model.url);
 
-    modelInstance.initMesh(scene.value, allModelsArray).then(() => {
-        modelsPool.push(modelInstance);
+    modelInstance.initMesh().then((modelScene: Group<Object3DEventMap>) => {
+        scene.value.add(modelScene); // to be view in the scene
+        modelsPool.push(modelInstance); // For Animation update
+        allModelsArray.push(modelScene); // For Raycasting
     });
+}
+
+function addModelToSceneAtCursor(modelKey: keyof typeof models) {
+    const model = models[modelKey];
+
+    if (!intersection()) return; // Ensure there is a valid intersection point.
+
+    // Restrict the intersection point to grid boundaries.
+    const spawnPosition = restrictPositionToBoundaries(intersect.point);
+
+    // Create a new model instance with the intersection point as the position.
+    const modelInstance = new Model(model.name, spawnPosition, model.scale, model.url);
+
+    modelInstance.initMesh().then((modelScene: Group<Object3DEventMap>) => {
+        scene.value.add(modelScene); // to be view in the scene
+        modelsPool.push(modelInstance); // For Animation update
+        allModelsArray.push(modelScene); // For Raycasting
+    });
+}
+
+
+function handlePointerEvent(event: PointerEvent) {
+    updatePointerMode(event);
+
+    if (event.type === 'pointermove') {
+        if (intersection()) {
+            // console.log("Object intersected:", intersectedGroupObject);
+            attachGizmoToObject(intersectedGroupObject);
+        }
+
+        restricMoveToBoundaries();
+    }
+    else if (event.type === 'pointerdown') {
+        if (keyState.keyT) addModelToScene("table");
+        if (keyState.keyG) addModelToScene("garlic");
+        if (keyState.keyR) addModelToScene("stone");
+    }
 }
 
 function onWheel(event: WheelEvent) {
@@ -174,39 +204,27 @@ function changeColour(colour: string) {
     });
 }
 
-function handlePointerEvent(event: PointerEvent) {
-    updatePointerMode(event);
-
-    if (event.type === 'pointermove') {
-        if (intersection()) {
-            attachGizmoToObject(intersectedGroupObject);
-        }
-
-        restricMoveToBoundaries();
-    }
-    else if (event.type === 'pointerdown') {
-        if (keyState.shift) addModelToScene("table"); //addModelToScene("table", new Vector3(-0.5, 0, -0.5), 1, GLTF_TABLE);
-        if (keyState.keyG) addModelToScene("garlic"); //addModelToScene("garlic", new Vector3(-0.5, 0, -0.5), 10, GLTF_GARLIC);
-        if (keyState.keyR) addModelToScene("stone"); //addModelToScene("stone", new Vector3(-0.5, 0, -0.5), 0.4, GLTF_STONE);
-    }
-}
-
 const keyState = reactive({
-    shift: false,
+    keyT: false,
     keyG: false,
     keyR: false
 });
 
 function handleKeyEvent(event: KeyboardEvent, isDown: boolean) {
     switch (event.code) {
-        case 'ShiftLeft': keyState.shift = isDown; break;
+        case 'KeyT': keyState.keyT = isDown; break;
         case 'KeyG': keyState.keyG = isDown; break;
         case 'KeyR': keyState.keyR = isDown; break;
     }
 }
 
-function attachGizmoToObject(object: Object3D) {
-    transformControlsGizmos.value.attach(object);
+function attachGizmoToObject(targetObject: Object3D) {
+    if (!targetObject || targetObject.name === "Main_Plane") {
+        transformControlsGizmos.value.detach();
+        return;
+    }
+
+    transformControlsGizmos.value.attach(targetObject);
     isSelected = true;
     changeColour(COLOUR_SELECTED);
 }
@@ -245,11 +263,6 @@ onMounted(() => {
     setupEventListeners();
 
     // To populate the scene initially
-    // addModelToScene("table", new Vector3(1, 0, 0.5), 1, GLTF_TABLE);
-    // addModelToScene("garlic", new Vector3(1, 0, -0.5), 10, GLTF_GARLIC);
-
-    // addModelToScene("stone", new Vector3(2, 0, -2), 0.4, GLTF_STONE);
-    // addModelToScene("stone", new Vector3(-2, 0, -2), 0.4, GLTF_STONE);
 })
 </script>
 
