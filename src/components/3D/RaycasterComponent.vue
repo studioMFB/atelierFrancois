@@ -104,39 +104,6 @@ function intersection(): boolean {
     }
 }
 
-// RAYCASTER //
-
-// function onPointerMove(event: PointerEvent) {
-//     updatePointerMode(event);
-
-//     if (!isSelected)
-//         changeColour(COLOUR_UNSELECTED);
-
-//     if (intersection()) {
-//         changeColour(COLOUR_SELECTED);
-//         // this.adjustGizmoPosition(this.intersected, this.transformControls);
-//         gizmos.value.attach(intersected);
-//     }
-
-//     restricMoveToBoundaries()
-// }
-
-// function restricMoveToBoundaries() {
-//     // This is currently missing the min and max of the boundary box.
-//     // This is needed to stop the model accuratly.
-
-//     if (intersected) {
-//         // Constrain X position
-//         intersected.position.x = Math.max(gridLimits.minX, Math.min(gridLimits.maxX, intersected.position.x));
-
-//         // Stop the lifting the model up.
-//         intersected.position.y = 0;
-
-//         // Constrain Z position
-//         intersected.position.z = Math.max(gridLimits.minZ, Math.min(gridLimits.maxZ, intersected.position.z));
-//     }
-// }
-
 function restrictPositionToBoundaries(position: Vector3) {
     return new Vector3(
         Math.max(gridLimits.minX, Math.min(gridLimits.maxX, position.x)),
@@ -177,41 +144,6 @@ function addModelToScene(modelKey: keyof typeof models) {
     });
 }
 
-// function addModelToScene(name: string, pos: Vector3, scaleRatio: number, gltfUrl: string): void {
-//     const model = new Model(name, pos, scaleRatio, gltfUrl);
-//     model.initMesh(scene.value, allModelsArray).then(() => {
-//         // this.adjustGizmoPosition(model.scene, this.transformControls);
-//         // addToUpdate(model);
-//         models.push(model);
-//         // this.ornamentArray.push(model);
-//     });
-// }
-
-// function onPointerDown(event: PointerEvent) {
-//     // Add Table
-//     if (isShiftDown) {
-//         //     this.scene.remove(this.intersected);
-//         //     this.modelsArray.splice(this.modelsArray.indexOf(this.intersected), 1);
-//         // } else {
-
-//         addModelToScene("table", new Vector3(-0.5, 0, -0.5), 1, GLTF_TABLE);
-
-//         // Move to function
-//         // Render a red square to show where the model would land.
-//         // if (table && table.mesh && this.intersect && this.intersect.face) {
-//         //     table.mesh.position.copy(this.intersect.point).add(this.intersect.face.normal);
-//         //     table.mesh.position.divideScalar(GRID_CELL_SIZE).floor().multiplyScalar(GRID_CELL_SIZE).addScalar(GRID_CELL_MID_SIZE);
-//         //     table.mesh.position.y = TERRAIN_OFFSET;
-//         // }
-//     }
-//     if (isKeyGDown) {
-//         addModelToScene("garlic", new Vector3(-0.5, 0, -0.5), 10, GLTF_GARLIC);
-//     }
-//     if (isKeyRDown) {
-//         addModelToScene("stone", new Vector3(-0.5, 0, -0.5), 0.4, GLTF_STONE);
-//     }
-// }
-
 function onWheel(event: WheelEvent) {
     // Rotate the model by increment of 90'.
     if (isLeftMouseButtonDown) {
@@ -247,11 +179,7 @@ function handlePointerEvent(event: PointerEvent) {
     updatePointerMode(event);
 
     if (event.type === 'pointermove') {
-        // if (!isSelected) changeColour(COLOUR_UNSELECTED);
-
         if (intersection()) {
-            // changeColour(COLOUR_SELECTED);
-            // gizmos.value.attach(intersected);
             attachGizmoToObject(intersected);
         }
 
@@ -269,28 +197,6 @@ const keyState = reactive({
     keyG: false,
     keyR: false
 });
-
-// function onDocumentKeyDown(event: KeyboardEvent) {
-//     switch (event.keyCode) {
-//         case 16: isShiftDown = true;
-//             break;
-//         case 71: isKeyGDown = true;
-//             break;
-//         case 82: isKeyRDown = true;
-//             break;
-//     }
-// }
-
-// function onDocumentKeyUp(event: KeyboardEvent) {
-//     switch (event.keyCode) {
-//         case 16: isShiftDown = false;
-//             break;
-//         case 71: isKeyGDown = false;
-//             break;
-//         case 82: isKeyRDown = false;
-//             break;
-//     }
-// }
 
 function handleKeyEvent(event: KeyboardEvent, isDown: boolean) {
     switch (event.code) {
@@ -314,16 +220,12 @@ function detachGizmo() {
 
 function setupEventListeners(): void {
     // Pointer
-    // document.addEventListener("pointermove", (e: PointerEvent) => onPointerMove(e));
-    // document.addEventListener("pointerdown", (e: PointerEvent) => onPointerDown(e));
     document.addEventListener('pointermove', (e: PointerEvent) => handlePointerEvent(e));
     document.addEventListener('pointerdown', (e: PointerEvent) => handlePointerEvent(e));
 
     document.addEventListener('wheel', (e: WheelEvent) => { onWheel(e) });
 
     // Keys
-    // document.addEventListener('keydown', (e: KeyboardEvent) => onDocumentKeyDown(e));
-    // document.addEventListener('keyup', (e: KeyboardEvent) => onDocumentKeyUp(e));
     document.addEventListener('keydown', (e) => handleKeyEvent(e, true));
     document.addEventListener('keyup', (e) => handleKeyEvent(e, false));
 
@@ -338,31 +240,6 @@ function setupEventListeners(): void {
         if (controls.value) controls.value.enabled = true;
         isLeftMouseButtonDown = false;
     });
-
-    // canvas.value.addEventListener("pointerup", () => {
-    //     gizmos.value.detach();
-    //     changeColour(COLOUR_UNSELECTED);
-    // });
-
-    // gizmos.value.addEventListener("mouseDown", () => {
-    //     // Desable camera controls.
-    //     if (controls.value)
-    //         controls.value.enabled = false;
-    //     // enable rotating selected model on mouse wheel input.
-    //     isLeftMouseButtonDown = true;
-    //     // Lock selected colour (on).
-    //     isSelected = true;
-    // });
-
-    // gizmos.value.addEventListener("mouseUp", () => {
-    //     // Enable camera controls.
-    //     if (controls.value)
-    //         controls.value.enabled = true;
-    //     // Desable rotating selected model on mouse wheel input.
-    //     isLeftMouseButtonDown = false;
-    //     // UnLock selected colour (off).
-    //     isSelected = false;
-    // });
 }
 
 onMounted(() => {
