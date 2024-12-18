@@ -41,18 +41,18 @@ const props = defineProps<{
 
 const canvas = computed(() => props.canvas) as Ref<HTMLCanvasElement>;
 const raycaster = ref<InstanceType<typeof RaycasterComponent>>();
-const models = reactive([]) as Model[];
+const modelsPool = reactive([]) as Model[];
 
-watch(() => raycaster.value?.models, (_models?: Model[]) => {
+watch(() => raycaster.value?.modelsPool, (_models?: Model[]) => {
     if (_models)
-        models.splice(0, models.length, ..._models); // to keep reactivity
+        modelsPool.splice(0, modelsPool.length, ..._models); // to keep reactivity
 },
 { immediate: true, deep: true }
 );
 </script>
 
 <template>
-    <MainScene :furniture-array="models" :colour="new Color(0xded6d8)">
+    <MainScene :furniture-array="modelsPool" :colour="new Color(0xded6d8)">
         <!-- <PerspectiveCamera :position="new Vector3(2.0, 2.7, 0.19)" :zoom="1.5"> -->
             <PerspectiveCamera :position="new Vector3(4.4, 2.7, 2.0)" :zoom="1.5">
             <template v-slot:orbitControl>
@@ -65,7 +65,7 @@ watch(() => raycaster.value?.models, (_models?: Model[]) => {
             <template v-slot:webGlRenderer>
                 <WebGlRenderer :canvas="canvas">
                     <template v-slot:GameLoop>
-                        <GameLoop :furniture-array="models"></GameLoop>
+                        <GameLoop :furniture-array="modelsPool"></GameLoop>
                     </template>
                     <template v-slot:EffectComposer>
                         <EffectComposer></EffectComposer>

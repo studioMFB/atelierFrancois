@@ -30,10 +30,10 @@ const pointer = new Vector2();
 let intersect: THREE.Intersection<THREE.Object3D<THREE.Object3DEventMap>>;
 let intersected: THREE.Group<THREE.Object3DEventMap>;
 const allModelsArray: THREE.Group<THREE.Object3DEventMap>[] = [];
-const models = reactive([]) as Model[];
+const modelsPool = reactive([]) as Model[];
 
 defineExpose({
-    models
+    modelsPool
 });
 
 let isLeftMouseButtonDown = false;
@@ -143,15 +143,35 @@ function updatePointerMode(event: PointerEvent) {
     pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
 }
 
-function addModelToScene(name: string, pos: Vector3, scaleRatio: number, gltfUrl: string): void {
-    const model = new Model(name, pos, scaleRatio, gltfUrl);
-    model.initMesh(scene.value, allModelsArray).then(() => {
-        // this.adjustGizmoPosition(model.scene, this.transformControls);
-        // addToUpdate(model);
-        models.push(model);
-        // this.ornamentArray.push(model);
+const models = reactive({
+    table: setupModel("table", new Vector3(-0.5, 0, -0.5), 1, GLTF_TABLE),
+    garlic: setupModel("garlic", new Vector3(-0.5, 0, -0.5), 10, GLTF_GARLIC),
+    stone: setupModel("stone", new Vector3(-0.5, 0, -0.5), 0.4, GLTF_STONE),
+});
+
+function setupModel(name: string, position: Vector3, scale: number, url: string) {
+    return { name, position, scale, url };
+}
+
+function addModelToScene(modelKey: keyof typeof models) {
+    const model = models[modelKey];
+
+    const modelInstance = new Model(model.name, model.position, model.scale, model.url);
+
+    modelInstance.initMesh(scene.value, allModelsArray).then(() => {
+        modelsPool.push(modelInstance);
     });
 }
+
+// function addModelToScene(name: string, pos: Vector3, scaleRatio: number, gltfUrl: string): void {
+//     const model = new Model(name, pos, scaleRatio, gltfUrl);
+//     model.initMesh(scene.value, allModelsArray).then(() => {
+//         // this.adjustGizmoPosition(model.scene, this.transformControls);
+//         // addToUpdate(model);
+//         models.push(model);
+//         // this.ornamentArray.push(model);
+//     });
+// }
 
 // function onPointerDown(event: PointerEvent) {
 //     // Add Table
@@ -213,19 +233,20 @@ function handlePointerEvent(event: PointerEvent) {
     updatePointerMode(event);
 
     if (event.type === 'pointermove') {
-        if (!isSelected) changeColour(COLOUR_UNSELECTED);
+        // if (!isSelected) changeColour(COLOUR_UNSELECTED);
 
         if (intersection()) {
-            changeColour(COLOUR_SELECTED);
-            gizmos.value.attach(intersected);
+            // changeColour(COLOUR_SELECTED);
+            // gizmos.value.attach(intersected);
+            attachGizmoToObject(intersected);
         }
 
         restricMoveToBoundaries();
     }
     else if (event.type === 'pointerdown') {
-        if (keyState.shift) addModelToScene("table", new Vector3(-0.5, 0, -0.5), 1, GLTF_TABLE);
-        if (keyState.keyG) addModelToScene("garlic", new Vector3(-0.5, 0, -0.5), 10, GLTF_GARLIC);
-        if (keyState.keyR) addModelToScene("stone", new Vector3(-0.5, 0, -0.5), 0.4, GLTF_STONE);
+        if (keyState.shift) addModelToScene("table"); //addModelToScene("table", new Vector3(-0.5, 0, -0.5), 1, GLTF_TABLE);
+        if (keyState.keyG) addModelToScene("garlic"); //addModelToScene("garlic", new Vector3(-0.5, 0, -0.5), 10, GLTF_GARLIC);
+        if (keyState.keyR) addModelToScene("stone"); //addModelToScene("stone", new Vector3(-0.5, 0, -0.5), 0.4, GLTF_STONE);
     }
 }
 
@@ -265,6 +286,18 @@ function handleKeyEvent(event: KeyboardEvent, isDown: boolean) {
     }
 }
 
+function attachGizmoToObject(object: THREE.Object3D) {
+    gizmos.value.attach(object);
+    isSelected = true;
+    changeColour(COLOUR_SELECTED);
+}
+
+function detachGizmo() {
+    gizmos.value.detach();
+    isSelected = false;
+    changeColour(COLOUR_UNSELECTED);
+}
+
 function setupEventListeners(): void {
     // Pointer
     // document.addEventListener("pointermove", (e: PointerEvent) => onPointerMove(e));
@@ -280,30 +313,42 @@ function setupEventListeners(): void {
     document.addEventListener('keydown', (e) => handleKeyEvent(e, true));
     document.addEventListener('keyup', (e) => handleKeyEvent(e, false));
 
-    canvas.value.addEventListener("pointerup", () => {
-        gizmos.value.detach();
-        changeColour(COLOUR_UNSELECTED);
-    });
+    canvas.value.addEventListener("pointerup", detachGizmo);
 
     gizmos.value.addEventListener("mouseDown", () => {
-        // Desable camera controls.
-        if (controls.value)
-            controls.value.enabled = false;
-        // enable rotating selected model on mouse wheel input.
+        if (controls.value) controls.value.enabled = false;
         isLeftMouseButtonDown = true;
-        // Lock selected colour (on).
-        isSelected = true;
     });
 
     gizmos.value.addEventListener("mouseUp", () => {
-        // Enable camera controls.
-        if (controls.value)
-            controls.value.enabled = true;
-        // Desable rotating selected model on mouse wheel input.
+        if (controls.value) controls.value.enabled = true;
         isLeftMouseButtonDown = false;
-        // UnLock selected colour (off).
-        isSelected = false;
     });
+
+    // canvas.value.addEventListener("pointerup", () => {
+    //     gizmos.value.detach();
+    //     changeColour(COLOUR_UNSELECTED);
+    // });
+
+    // gizmos.value.addEventListener("mouseDown", () => {
+    //     // Desable camera controls.
+    //     if (controls.value)
+    //         controls.value.enabled = false;
+    //     // enable rotating selected model on mouse wheel input.
+    //     isLeftMouseButtonDown = true;
+    //     // Lock selected colour (on).
+    //     isSelected = true;
+    // });
+
+    // gizmos.value.addEventListener("mouseUp", () => {
+    //     // Enable camera controls.
+    //     if (controls.value)
+    //         controls.value.enabled = true;
+    //     // Desable rotating selected model on mouse wheel input.
+    //     isLeftMouseButtonDown = false;
+    //     // UnLock selected colour (off).
+    //     isSelected = false;
+    // });
 }
 
 onMounted(() => {
@@ -312,8 +357,9 @@ onMounted(() => {
     // To populate the scene initially
     // addModelToScene("table", new Vector3(1, 0, 0.5), 1, GLTF_TABLE);
     // addModelToScene("garlic", new Vector3(1, 0, -0.5), 10, GLTF_GARLIC);
-    addModelToScene("stone", new Vector3(2, 0, -2), 0.4, GLTF_STONE);
-    addModelToScene("stone", new Vector3(-2, 0, -2), 0.4, GLTF_STONE);
+
+    // addModelToScene("stone", new Vector3(2, 0, -2), 0.4, GLTF_STONE);
+    // addModelToScene("stone", new Vector3(-2, 0, -2), 0.4, GLTF_STONE);
 })
 </script>
 
