@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, inject, onMounted, reactive, ref, type Ref } from 'vue';
-import { Color, Group, type Object3DEventMap, PerspectiveCamera, Raycaster, Scene, Vector2, Vector3 } from 'three';
+import { Color, Group, type Intersection, Mesh, MeshToonMaterial, Object3D, type Object3DEventMap, PerspectiveCamera, Raycaster, Scene, Vector2, Vector3 } from 'three';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
 
 import { Model } from '@/components/modelViewer/resources/model';
@@ -22,14 +22,14 @@ const props = defineProps<{
 const canvas = computed(() => props.canvas) as Ref<HTMLCanvasElement>;;
 const scene = ref(inject("MainScene")) as Ref<Scene>;
 const camera = ref(inject("PerspectiveCamera")) as Ref<PerspectiveCamera>;
-const gizmos = ref(inject("TransformGizmos")) as Ref<TransformControls>;
+const transformControlsGizmos = ref(inject("TransformGizmos")) as Ref<TransformControls>;
 const controls = ref(inject("OrbitControls")) as Ref<OrbitControls>;
 
 const raycaster = new Raycaster();
 const pointer = new Vector2();
-let intersect: THREE.Intersection<THREE.Object3D<THREE.Object3DEventMap>>;
-let intersected: THREE.Group<THREE.Object3DEventMap>;
-const allModelsArray: THREE.Group<THREE.Object3DEventMap>[] = [];
+let intersect: Intersection<Object3D<Object3DEventMap>>;
+let intersectedGroupObject: Group<Object3DEventMap>;
+const allModelsArray: Group<Object3DEventMap>[] = [];
 const modelsPool = reactive([]) as Model[];
 
 defineExpose({
@@ -79,24 +79,12 @@ function intersection(): boolean {
     catch (e: any) {
         throw new Error(e.toString());
     }
-
+    
     const intersects = raycaster.intersectObjects(allModelsArray, true);
 
     if (intersects.length > 0) {
         intersect = intersects[0];
-        intersected = findModelParent(intersect.object as THREE.Mesh)!;
-
-        // this.adjustGizmoPosition(this.intersected);
-
-        // const selectedObject = intersects[0].object;
-
-        // Move to function
-        // Render a red square to show where the model would land.
-        // if (this.terrainGhost && this.terrainGhost.mesh && this.intersect && this.intersect.face) {
-        //     this.terrainGhost.mesh.position.copy(this.intersect.point).add(this.intersect.face.normal);
-        //     this.terrainGhost.mesh.position.divideScalar(GRID_CELL_SIZE).floor().multiplyScalar(GRID_CELL_SIZE).addScalar(GRID_CELL_MID_SIZE);
-        //     this.terrainGhost.mesh.position.y = GHOST_OFFSET;
-        // }
+        intersectedGroupObject = findModelParent(intersect.object as Mesh)!;
         return true;
     }
     else {
@@ -113,15 +101,26 @@ function restrictPositionToBoundaries(position: Vector3) {
 }
 
 function restricMoveToBoundaries() {
-    if (intersected) {
-        intersected.position.copy(restrictPositionToBoundaries(intersected.position));
+    if (intersectedGroupObject) {
+        intersectedGroupObject.position.copy(restrictPositionToBoundaries(intersectedGroupObject.position));
     }
 }
 
 function updatePointerMode(event: PointerEvent) {
     event.preventDefault();
+
     pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
     pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+    // pointer.x = (event.clientX / canvas.value.clientWidth) * 2 - 1;
+    // pointer.y = -(event.clientY / canvas.value.clientHeight) * 2 + 1;
+
+    // if (pointer)
+        // raycaster.setFromCamera(pointer, camera.value);
+
+    // console.log("Pointer:", pointer);
+    // console.log("Camera Position:", camera.value.position);
+    // console.log("Camera Direction:", camera.value.getWorldDirection(new Vector3()));
 }
 
 const models = reactive({
@@ -154,21 +153,21 @@ function onWheel(event: WheelEvent) {
         // Update the rotation delta
         rotationDelta = delta * rotationSpeed;
 
-        intersected.rotation.y += rotationDelta;
+        intersectedGroupObject.rotation.y += rotationDelta;
     }
 }
 
 function changeColour(colour: string) {
-    if (!intersected)
+    if (!intersectedGroupObject)
         return;
 
-    intersected.children.forEach(child => {
-        const c = child as THREE.Mesh;
+    intersectedGroupObject.children.forEach(child => {
+        const c = child as Mesh;
         if (!c.name.toLowerCase().includes("outline")) {
-            const mat = (c.material as THREE.MeshToonMaterial);
+            const mat = (c.material as MeshToonMaterial);
 
             if (mat) {
-                (c.material as THREE.MeshToonMaterial).color = new Color(colour);
+                (c.material as MeshToonMaterial).color = new Color(colour);
                 return;
             }
         }
@@ -180,7 +179,7 @@ function handlePointerEvent(event: PointerEvent) {
 
     if (event.type === 'pointermove') {
         if (intersection()) {
-            attachGizmoToObject(intersected);
+            attachGizmoToObject(intersectedGroupObject);
         }
 
         restricMoveToBoundaries();
@@ -206,14 +205,14 @@ function handleKeyEvent(event: KeyboardEvent, isDown: boolean) {
     }
 }
 
-function attachGizmoToObject(object: THREE.Object3D) {
-    gizmos.value.attach(object);
+function attachGizmoToObject(object: Object3D) {
+    transformControlsGizmos.value.attach(object);
     isSelected = true;
     changeColour(COLOUR_SELECTED);
 }
 
 function detachGizmo() {
-    gizmos.value.detach();
+    transformControlsGizmos.value.detach();
     isSelected = false;
     changeColour(COLOUR_UNSELECTED);
 }
@@ -231,12 +230,12 @@ function setupEventListeners(): void {
 
     canvas.value.addEventListener("pointerup", detachGizmo);
 
-    gizmos.value.addEventListener("mouseDown", () => {
+    transformControlsGizmos.value.addEventListener("mouseDown", () => {
         if (controls.value) controls.value.enabled = false;
         isLeftMouseButtonDown = true;
     });
 
-    gizmos.value.addEventListener("mouseUp", () => {
+    transformControlsGizmos.value.addEventListener("mouseUp", () => {
         if (controls.value) controls.value.enabled = true;
         isLeftMouseButtonDown = false;
     });
