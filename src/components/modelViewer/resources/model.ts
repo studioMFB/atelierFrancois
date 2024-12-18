@@ -101,7 +101,7 @@ export class Model extends Mesh {
       
       scene.add(this.modelScene);
       // If you want a visible bounding box
-      // scene.add(this.modelScene, this.boxHelper);
+      scene.add(this.modelScene, this.boxHelper);
 
       modelsArray.push(this.modelScene);
 

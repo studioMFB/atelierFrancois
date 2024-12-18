@@ -48,9 +48,11 @@ let furnitureArray = reactive([]) as Model[];
 watch(() => raycaster.value?.furnitureArray, (newFurnitureArray) => {
 
     // if(newFurnitureArray && newFurnitureArray.length > furnitureArray.value.length){
-    if (newFurnitureArray)
-        furnitureArray = newFurnitureArray;
-    // console.log("ModelViewer => watch => newFurnitureArray ", newFurnitureArray);
+    if (newFurnitureArray){
+        furnitureArray.splice(0, furnitureArray.length, ...newFurnitureArray); // to keep reactivity
+        // furnitureArray = newFurnitureArray;
+        // console.log("ModelViewer => watch => newFurnitureArray ", newFurnitureArray);
+    }
     // }
 },
     { immediate: true, deep: true }
