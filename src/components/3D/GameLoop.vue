@@ -15,18 +15,19 @@ const gridLimits = {
   maxZ: GRID_SIZE / 2    // Maximum Z value
 };
 
-const props = defineProps<{
-  modelsPool: Model[];
-}>();
+// const props = defineProps<{
+//   modelsPool: Model[];
+// }>();
 
-const modelsPool = reactive(props.modelsPool);
+// const modelsPool = reactive(props.modelsPool);
+const modelsPool = inject("modelsPool", [] as Model[]);
 
-watch(() => props.modelsPool, (_modelsPool: Model[]) => {
-  // console.log("Gameloop => watch => newFurnitureArray ", newFurnitureArray);
-  modelsPool.splice(0, modelsPool.length, ..._modelsPool); // to keep reactivity
-  // checkCollision(furnitureArray.value);
-  // start();
-});
+// watch(() => props.modelsPool, (_modelsPool: Model[]) => {
+//   // console.log("Gameloop => watch => newFurnitureArray ", newFurnitureArray);
+//   modelsPool.splice(0, modelsPool.length, ..._modelsPool); // to keep reactivity
+//   // checkCollision(furnitureArray.value);
+//   // start();
+// });
 
 const renderer = ref(inject("WebGlrenderer")) as Ref<WebGLRenderer>;
 const scene = ref(inject("MainScene")) as Ref<Scene>;

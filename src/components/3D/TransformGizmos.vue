@@ -14,8 +14,9 @@ const scene = ref(inject("MainScene")) as Ref<Scene>;
 const camera = ref(inject("PerspectiveCamera")) as Ref<PerspectiveCamera>;
 
 const transformControls = new TransformControls(camera.value, canvas.value);
+transformControls.name = "transform_controls_gizmos";
+
 transformControls.setMode('translate');
-provide("TransformGizmos", transformControls);
 
 scene.value.add(transformControls);
 
@@ -53,6 +54,8 @@ transformControls.position.y += .6;
         (child.material as THREE.MeshBasicMaterial).visible = false;
     }
 });
+
+provide("TransformGizmos", transformControls);
 </script>
 
 <template>

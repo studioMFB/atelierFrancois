@@ -2,6 +2,7 @@
 import { computed, provide } from 'vue';
 
 import { Color, Scene, Fog, type Object3DEventMap, Group } from 'three';
+import type { Model } from '../modelViewer/resources/model';
 
 
 // GLTF //
@@ -19,9 +20,12 @@ provide("allModelsArray", [] as Group<Object3DEventMap>[]);
 const colour = computed(() => props.colour);
 
 const scene = new Scene();
+scene.name = "main_scene";
 scene.background = new Color(colour.value);
 scene.fog = new Fog(colour.value, 200, 1000);
+
 provide("MainScene", scene);
+provide("modelsPool", [] as Model[]);
 </script>
 
 <template>

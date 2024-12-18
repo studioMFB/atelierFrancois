@@ -13,7 +13,7 @@ const position = computed(() => props.position);
 const zoom = computed(() => props.zoom);
 
 const camera = new PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.1, 100);
-
+camera.name = "main_perspective_camera";
 camera.position.set(position.value.x, position.value.y, position.value.z);
 if (zoom.value)
     camera.zoom = zoom.value;
@@ -25,6 +25,7 @@ provide("PerspectiveCamera", camera);
 </script>
 
 <template>
-    <slot name="orbitControl"></slot>
+    <!-- <slot></slot> -->
+    <!-- <slot name="orbitControl"></slot> -->
     <slot name="webGlRenderer"></slot>
 </template>

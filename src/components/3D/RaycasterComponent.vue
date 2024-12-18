@@ -31,11 +31,13 @@ const raycaster = new Raycaster();
 const pointer = new Vector2();
 let intersect: Intersection<Object3D<Object3DEventMap>>;
 let intersectedGroupObject: Group<Object3DEventMap>;
-const modelsPool = reactive([]) as Model[];
 
-defineExpose({
-    modelsPool
-});
+// const modelsPool = reactive([]) as Model[];
+const modelsPool = inject("modelsPool", [] as Model[]);
+
+// defineExpose({
+//     modelsPool
+// });
 
 let isLeftMouseButtonDown = false;
 let isSelected = false;

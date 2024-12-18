@@ -7,6 +7,13 @@ import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer
 import { OutlinePass } from "three/examples/jsm/postprocessing/OutlinePass.js";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 
+// const props = defineProps<{
+//     outlinePass: OutlinePass;
+//     composer: EffectComposer;
+// }>();
+
+// const outlinePass = ref(props.outlinePass);
+// const composer = ref(props.composer);
 
 const renderer = ref(inject("WebGlrenderer")) as Ref<WebGLRenderer>;
 const scene = ref(inject("MainScene")) as Ref<Scene>;
@@ -28,5 +35,6 @@ outlinePass.hiddenEdgeColor.set('#190a05');
 </script>
 
 <template>
-    <slot></slot>
+    <!-- <slot :outlinePass="outlinePass" :composer="composer"></slot> -->
+     <slot></slot>
 </template>
