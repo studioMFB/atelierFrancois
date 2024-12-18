@@ -41,24 +41,18 @@ const props = defineProps<{
 
 const canvas = computed(() => props.canvas) as Ref<HTMLCanvasElement>;
 const raycaster = ref<InstanceType<typeof RaycasterComponent>>();
-let furnitureArray = reactive([]) as Model[];
+const models = reactive([]) as Model[];
 
-watch(() => raycaster.value?.furnitureArray, (newFurnitureArray) => {
-
-    // if(newFurnitureArray && newFurnitureArray.length > furnitureArray.value.length){
-    if (newFurnitureArray){
-        furnitureArray.splice(0, furnitureArray.length, ...newFurnitureArray); // to keep reactivity
-        // furnitureArray = newFurnitureArray;
-        // console.log("ModelViewer => watch => newFurnitureArray ", newFurnitureArray);
-    }
-    // }
+watch(() => raycaster.value?.models, (_models?: Model[]) => {
+    if (_models)
+        models.splice(0, models.length, ..._models); // to keep reactivity
 },
-    { immediate: true, deep: true }
+{ immediate: true, deep: true }
 );
 </script>
 
 <template>
-    <MainScene :furniture-array="furnitureArray" :colour="new Color(0xded6d8)">
+    <MainScene :furniture-array="models" :colour="new Color(0xded6d8)">
         <!-- <PerspectiveCamera :position="new Vector3(2.0, 2.7, 0.19)" :zoom="1.5"> -->
             <PerspectiveCamera :position="new Vector3(4.4, 2.7, 2.0)" :zoom="1.5">
             <template v-slot:orbitControl>
@@ -71,7 +65,7 @@ watch(() => raycaster.value?.furnitureArray, (newFurnitureArray) => {
             <template v-slot:webGlRenderer>
                 <WebGlRenderer :canvas="canvas">
                     <template v-slot:GameLoop>
-                        <GameLoop :furniture-array="furnitureArray"></GameLoop>
+                        <GameLoop :furniture-array="models"></GameLoop>
                     </template>
                     <template v-slot:EffectComposer>
                         <EffectComposer></EffectComposer>

@@ -25,22 +25,15 @@ const camera = ref(inject("PerspectiveCamera")) as Ref<PerspectiveCamera>;
 const gizmos = ref(inject("TransformGizmos")) as Ref<TransformControls>;
 const controls = ref(inject("OrbitControls")) as Ref<OrbitControls>;
 
-// const updatables = computed(() => inject("GameLoopUpdatables") as any[]);
-
-// console.log("MainScene ", scene.value);
-// console.log("PerspectiveCamera ", camera.value);
-// console.log("TransformGizmos ", gizmos.value);
-// console.log("OrbitControls ", controls);
-
 const raycaster = new Raycaster();
 const pointer = new Vector2();
 let intersect: THREE.Intersection<THREE.Object3D<THREE.Object3DEventMap>>;
 let intersected: THREE.Group<THREE.Object3DEventMap>;
 const allModelsArray: THREE.Group<THREE.Object3DEventMap>[] = [];
-const furnitureArray = reactive([]) as Model[];
+const models = reactive([]) as Model[];
 
 defineExpose({
-    furnitureArray
+    models
 });
 
 let isLeftMouseButtonDown = false;
@@ -61,10 +54,6 @@ const gridLimits = {
     minZ: -GRID_SIZE / 2,  // Minimum Z value
     maxZ: GRID_SIZE / 2    // Maximum Z value
 };
-
-// function addToUpdate(object: any) {
-//   updatables.value.push(object);
-// }
 
 function findModelParent(mesh: any): Group<Object3DEventMap> | null {
     // If the mesh has no parent, return null
@@ -117,20 +106,20 @@ function intersection(): boolean {
 
 // RAYCASTER //
 
-function onPointerMove(event: PointerEvent) {
-    updatePointerMode(event);
+// function onPointerMove(event: PointerEvent) {
+//     updatePointerMode(event);
 
-    if (!isSelected)
-        changeColour(COLOUR_UNSELECTED);
+//     if (!isSelected)
+//         changeColour(COLOUR_UNSELECTED);
 
-    if (intersection()) {
-        changeColour(COLOUR_SELECTED);
-        // this.adjustGizmoPosition(this.intersected, this.transformControls);
-        gizmos.value.attach(intersected);
-    }
+//     if (intersection()) {
+//         changeColour(COLOUR_SELECTED);
+//         // this.adjustGizmoPosition(this.intersected, this.transformControls);
+//         gizmos.value.attach(intersected);
+//     }
 
-    restricMoveToBoundaries()
-}
+//     restricMoveToBoundaries()
+// }
 
 function restricMoveToBoundaries() {
     // This is currently missing the min and max of the boundary box.
@@ -159,42 +148,35 @@ function addModelToScene(name: string, pos: Vector3, scaleRatio: number, gltfUrl
     model.initMesh(scene.value, allModelsArray).then(() => {
         // this.adjustGizmoPosition(model.scene, this.transformControls);
         // addToUpdate(model);
-        furnitureArray.push(model);
+        models.push(model);
         // this.ornamentArray.push(model);
     });
 }
 
-function onPointerDown(event: PointerEvent) {
-    // console.log("onPointerDown");
-    // console.log("isShiftDown ", isShiftDown);
-    // console.log("this.isKeyGDown ", isKeyGDown);
-    // console.log("this.isKeyRDown ", isKeyRDown);
+// function onPointerDown(event: PointerEvent) {
+//     // Add Table
+//     if (isShiftDown) {
+//         //     this.scene.remove(this.intersected);
+//         //     this.modelsArray.splice(this.modelsArray.indexOf(this.intersected), 1);
+//         // } else {
 
-    // Add Table
-    if (isShiftDown) {
-        //     this.scene.remove(this.intersected);
-        //     this.modelsArray.splice(this.modelsArray.indexOf(this.intersected), 1);
-        // } else {
+//         addModelToScene("table", new Vector3(-0.5, 0, -0.5), 1, GLTF_TABLE);
 
-        addModelToScene("table", new Vector3(-0.5, 0, -0.5), 1, GLTF_TABLE);
-
-        // Move to function
-        // Render a red square to show where the model would land.
-        // if (table && table.mesh && this.intersect && this.intersect.face) {
-        //     table.mesh.position.copy(this.intersect.point).add(this.intersect.face.normal);
-        //     table.mesh.position.divideScalar(GRID_CELL_SIZE).floor().multiplyScalar(GRID_CELL_SIZE).addScalar(GRID_CELL_MID_SIZE);
-        //     table.mesh.position.y = TERRAIN_OFFSET;
-        // }
-    }
-    if (isKeyGDown) {
-        // console.log("G");
-        addModelToScene("garlic", new Vector3(-0.5, 0, -0.5), 10, GLTF_GARLIC);
-    }
-    if (isKeyRDown) {
-        // console.log("R");
-        addModelToScene("stone", new Vector3(-0.5, 0, -0.5), 0.4, GLTF_STONE);
-    }
-}
+//         // Move to function
+//         // Render a red square to show where the model would land.
+//         // if (table && table.mesh && this.intersect && this.intersect.face) {
+//         //     table.mesh.position.copy(this.intersect.point).add(this.intersect.face.normal);
+//         //     table.mesh.position.divideScalar(GRID_CELL_SIZE).floor().multiplyScalar(GRID_CELL_SIZE).addScalar(GRID_CELL_MID_SIZE);
+//         //     table.mesh.position.y = TERRAIN_OFFSET;
+//         // }
+//     }
+//     if (isKeyGDown) {
+//         addModelToScene("garlic", new Vector3(-0.5, 0, -0.5), 10, GLTF_GARLIC);
+//     }
+//     if (isKeyRDown) {
+//         addModelToScene("stone", new Vector3(-0.5, 0, -0.5), 0.4, GLTF_STONE);
+//     }
+// }
 
 function onWheel(event: WheelEvent) {
     // Rotate the model by increment of 90'.
@@ -213,13 +195,10 @@ function onWheel(event: WheelEvent) {
 function onDocumentKeyDown(event: KeyboardEvent) {
     switch (event.keyCode) {
         case 16: isShiftDown = true;
-            // console.log("SHIFT down"); 
             break;
         case 71: isKeyGDown = true;
-            // console.log("G down"); 
             break;
         case 82: isKeyRDown = true;
-            // console.log("R down"); 
             break;
     }
 }
@@ -227,13 +206,10 @@ function onDocumentKeyDown(event: KeyboardEvent) {
 function onDocumentKeyUp(event: KeyboardEvent) {
     switch (event.keyCode) {
         case 16: isShiftDown = false;
-            // console.log("SHIFT up"); 
             break;
         case 71: isKeyGDown = false;
-            //  console.log("G up"); 
             break;
         case 82: isKeyRDown = false;
-            //  console.log("R up"); 
             break;
     }
 }
@@ -255,16 +231,38 @@ function changeColour(colour: string) {
     });
 }
 
-onMounted(() => {
+function handlePointerEvent(event: PointerEvent) {
+    updatePointerMode(event);
+
+    if (event.type === 'pointermove') {
+        if (!isSelected) changeColour(COLOUR_UNSELECTED);
+
+        if (intersection()) {
+            changeColour(COLOUR_SELECTED);
+            gizmos.value.attach(intersected);
+        }
+
+        restricMoveToBoundaries();
+    }
+    else if (event.type === 'pointerdown') {
+        if (isShiftDown) addModelToScene("table", new Vector3(-0.5, 0, -0.5), 1, GLTF_TABLE);
+        if (isKeyGDown) addModelToScene("garlic", new Vector3(-0.5, 0, -0.5), 10, GLTF_GARLIC);
+        if (isKeyRDown) addModelToScene("stone", new Vector3(-0.5, 0, -0.5), 0.4, GLTF_STONE);
+    }
+}
+
+function setupEventListeners(): void {
     // Pointer
-    document.addEventListener("pointermove", (e: PointerEvent) => { onPointerMove(e) });
-    document.addEventListener("pointerdown", (e: PointerEvent) => { onPointerDown(e) });
+    // document.addEventListener("pointermove", (e: PointerEvent) => { onPointerMove(e) });
+    // document.addEventListener("pointerdown", (e: PointerEvent) => { onPointerDown(e) });
+    document.addEventListener('pointermove', (e: PointerEvent) => { handlePointerEvent(e) });
+    document.addEventListener('pointerdown', (e: PointerEvent) => { handlePointerEvent(e) });
 
     document.addEventListener('wheel', (e: WheelEvent) => { onWheel(e) });
 
     // Keys
     document.addEventListener('keydown', (e: KeyboardEvent) => { onDocumentKeyDown(e) });
-    document.addEventListener('keyup', (e: KeyboardEvent) => { onDocumentKeyUp(e) })
+    document.addEventListener('keyup', (e: KeyboardEvent) => { onDocumentKeyUp(e) });
 
     canvas.value.addEventListener("pointerup", () => {
         gizmos.value.detach();
@@ -279,8 +277,6 @@ onMounted(() => {
         isLeftMouseButtonDown = true;
         // Lock selected colour (on).
         isSelected = true;
-
-        // console.log("mouseDown => controls.value.enabled ", controls.value.enabled);
     });
 
     gizmos.value.addEventListener("mouseUp", () => {
@@ -291,16 +287,17 @@ onMounted(() => {
         isLeftMouseButtonDown = false;
         // UnLock selected colour (off).
         isSelected = false;
-
-        // console.log("mouseUp => controls.value.enabled ", controls.value.enabled);
     });
+}
+
+onMounted(() => {
+    setupEventListeners();
 
     // To populate the scene initially
-    addModelToScene("table", new Vector3(1, 0, 0.5), 1, GLTF_TABLE);
-    addModelToScene("garlic", new Vector3(1, 0, -0.5), 10, GLTF_GARLIC);
+    // addModelToScene("table", new Vector3(1, 0, 0.5), 1, GLTF_TABLE);
+    // addModelToScene("garlic", new Vector3(1, 0, -0.5), 10, GLTF_GARLIC);
     addModelToScene("stone", new Vector3(2, 0, -2), 0.4, GLTF_STONE);
     addModelToScene("stone", new Vector3(-2, 0, -2), 0.4, GLTF_STONE);
-
 })
 </script>
 
