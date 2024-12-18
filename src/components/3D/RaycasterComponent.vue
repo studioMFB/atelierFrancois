@@ -121,19 +121,33 @@ function intersection(): boolean {
 //     restricMoveToBoundaries()
 // }
 
+// function restricMoveToBoundaries() {
+//     // This is currently missing the min and max of the boundary box.
+//     // This is needed to stop the model accuratly.
+
+//     if (intersected) {
+//         // Constrain X position
+//         intersected.position.x = Math.max(gridLimits.minX, Math.min(gridLimits.maxX, intersected.position.x));
+
+//         // Stop the lifting the model up.
+//         intersected.position.y = 0;
+
+//         // Constrain Z position
+//         intersected.position.z = Math.max(gridLimits.minZ, Math.min(gridLimits.maxZ, intersected.position.z));
+//     }
+// }
+
+function restrictPositionToBoundaries(position: Vector3) {
+    return new Vector3(
+        Math.max(gridLimits.minX, Math.min(gridLimits.maxX, position.x)),
+        gridLimits.minY, // Fixed to ground level
+        Math.max(gridLimits.minZ, Math.min(gridLimits.maxZ, position.z))
+    );
+}
+
 function restricMoveToBoundaries() {
-    // This is currently missing the min and max of the boundary box.
-    // This is needed to stop the model accuratly.
-
     if (intersected) {
-        // Constrain X position
-        intersected.position.x = Math.max(gridLimits.minX, Math.min(gridLimits.maxX, intersected.position.x));
-
-        // Stop the lifting the model up.
-        intersected.position.y = 0;
-
-        // Constrain Z position
-        intersected.position.z = Math.max(gridLimits.minZ, Math.min(gridLimits.maxZ, intersected.position.z));
+        intersected.position.copy(restrictPositionToBoundaries(intersected.position));
     }
 }
 
