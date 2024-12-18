@@ -40,9 +40,7 @@ const props = defineProps<{
 }>();
 
 const canvas = computed(() => props.canvas) as Ref<HTMLCanvasElement>;
-
-const raycaster = ref(null) as Ref<any>;
-
+const raycaster = ref<InstanceType<typeof RaycasterComponent>>();
 let furnitureArray = reactive([]) as Model[];
 
 watch(() => raycaster.value?.furnitureArray, (newFurnitureArray) => {
