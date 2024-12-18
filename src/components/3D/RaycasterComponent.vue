@@ -192,28 +192,6 @@ function onWheel(event: WheelEvent) {
     }
 }
 
-function onDocumentKeyDown(event: KeyboardEvent) {
-    switch (event.keyCode) {
-        case 16: isShiftDown = true;
-            break;
-        case 71: isKeyGDown = true;
-            break;
-        case 82: isKeyRDown = true;
-            break;
-    }
-}
-
-function onDocumentKeyUp(event: KeyboardEvent) {
-    switch (event.keyCode) {
-        case 16: isShiftDown = false;
-            break;
-        case 71: isKeyGDown = false;
-            break;
-        case 82: isKeyRDown = false;
-            break;
-    }
-}
-
 function changeColour(colour: string) {
     if (!intersected)
         return;
@@ -245,24 +223,62 @@ function handlePointerEvent(event: PointerEvent) {
         restricMoveToBoundaries();
     }
     else if (event.type === 'pointerdown') {
-        if (isShiftDown) addModelToScene("table", new Vector3(-0.5, 0, -0.5), 1, GLTF_TABLE);
-        if (isKeyGDown) addModelToScene("garlic", new Vector3(-0.5, 0, -0.5), 10, GLTF_GARLIC);
-        if (isKeyRDown) addModelToScene("stone", new Vector3(-0.5, 0, -0.5), 0.4, GLTF_STONE);
+        if (keyState.shift) addModelToScene("table", new Vector3(-0.5, 0, -0.5), 1, GLTF_TABLE);
+        if (keyState.keyG) addModelToScene("garlic", new Vector3(-0.5, 0, -0.5), 10, GLTF_GARLIC);
+        if (keyState.keyR) addModelToScene("stone", new Vector3(-0.5, 0, -0.5), 0.4, GLTF_STONE);
+    }
+}
+
+const keyState = reactive({
+    shift: false,
+    keyG: false,
+    keyR: false
+});
+
+// function onDocumentKeyDown(event: KeyboardEvent) {
+//     switch (event.keyCode) {
+//         case 16: isShiftDown = true;
+//             break;
+//         case 71: isKeyGDown = true;
+//             break;
+//         case 82: isKeyRDown = true;
+//             break;
+//     }
+// }
+
+// function onDocumentKeyUp(event: KeyboardEvent) {
+//     switch (event.keyCode) {
+//         case 16: isShiftDown = false;
+//             break;
+//         case 71: isKeyGDown = false;
+//             break;
+//         case 82: isKeyRDown = false;
+//             break;
+//     }
+// }
+
+function handleKeyEvent(event: KeyboardEvent, isDown: boolean) {
+    switch (event.code) {
+        case 'ShiftLeft': keyState.shift = isDown; break;
+        case 'KeyG': keyState.keyG = isDown; break;
+        case 'KeyR': keyState.keyR = isDown; break;
     }
 }
 
 function setupEventListeners(): void {
     // Pointer
-    // document.addEventListener("pointermove", (e: PointerEvent) => { onPointerMove(e) });
-    // document.addEventListener("pointerdown", (e: PointerEvent) => { onPointerDown(e) });
-    document.addEventListener('pointermove', (e: PointerEvent) => { handlePointerEvent(e) });
-    document.addEventListener('pointerdown', (e: PointerEvent) => { handlePointerEvent(e) });
+    // document.addEventListener("pointermove", (e: PointerEvent) => onPointerMove(e));
+    // document.addEventListener("pointerdown", (e: PointerEvent) => onPointerDown(e));
+    document.addEventListener('pointermove', (e: PointerEvent) => handlePointerEvent(e));
+    document.addEventListener('pointerdown', (e: PointerEvent) => handlePointerEvent(e));
 
     document.addEventListener('wheel', (e: WheelEvent) => { onWheel(e) });
 
     // Keys
-    document.addEventListener('keydown', (e: KeyboardEvent) => { onDocumentKeyDown(e) });
-    document.addEventListener('keyup', (e: KeyboardEvent) => { onDocumentKeyUp(e) });
+    // document.addEventListener('keydown', (e: KeyboardEvent) => onDocumentKeyDown(e));
+    // document.addEventListener('keyup', (e: KeyboardEvent) => onDocumentKeyUp(e));
+    document.addEventListener('keydown', (e) => handleKeyEvent(e, true));
+    document.addEventListener('keyup', (e) => handleKeyEvent(e, false));
 
     canvas.value.addEventListener("pointerup", () => {
         gizmos.value.detach();

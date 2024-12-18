@@ -137,7 +137,7 @@ function start() {
       const delta = clock.getDelta();
       furniture.tick(delta);
       checkCollision(furnitureArray.value);
-      console.log("camera.position ", camera.value.position);
+      // console.log("camera.position ", camera.value.position);
             
       // try{
         // if(renderer.value && scene.value && camera.value)

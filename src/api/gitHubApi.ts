@@ -42,7 +42,7 @@ export namespace GitHubApi {
 
         if (res.ok) {
             limit = await res.json();
-            console.log("Rate limit ", limit);
+            // console.log("Rate limit ", limit);
         }
         else{
             console.error(res.status, res.statusText);
