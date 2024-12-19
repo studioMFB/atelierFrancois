@@ -23,8 +23,6 @@ const gltfUrl = computed(() => props.gltfUrl);
 const COLOUR_SELECTED = '#f47653';
 const COLOUR_UNSELECTED = '#e2eab8';
 
-const allModelsArray = inject("allModelsArray", [] as Group<Object3DEventMap>[]);
-
 let boundingBox: Box3;
 let boxHelper: BoxHelper;
 let modelScene: Group<Object3DEventMap>;
@@ -77,26 +75,26 @@ async function initMesh(scene: Scene, modelsArray: Group<Object3DEventMap>[]): P
 }
 
 // DEVELOPMENT ONLY
-initMesh(scene.value, allModelsArray).then(() => {
-    // GHOST //        
-    const bboxSize = new Vector3(1.5, 0, 0.55);
+// initMesh(scene.value, allModelsArray).then(() => {
+//     // GHOST //        
+//     const bboxSize = new Vector3(1.5, 0, 0.55);
 
-    const geometry = new PlaneGeometry(bboxSize.x, bboxSize.z, 1, 1);
-    geometry.rotateX(- Math.PI / 2);
-    geometry.rotateY(- Math.PI / 2);
+//     const geometry = new PlaneGeometry(bboxSize.x, bboxSize.z, 1, 1);
+//     geometry.rotateX(- Math.PI / 2);
+//     geometry.rotateY(- Math.PI / 2);
 
-    const material = new MeshStandardMaterial({
-        color: new Color(COLOUR_SELECTED),
-        visible: true,
-        opacity: 0.4,
-    });
+//     const material = new MeshStandardMaterial({
+//         color: new Color(COLOUR_SELECTED),
+//         visible: true,
+//         opacity: 0.4,
+//     });
 
-    const ghost = new Mesh(geometry, material);
-    ghost.name = "ghost";
-    ghost.receiveShadow = true;
-    ghost.position.set(-0.1, 0, 0);
-    scene.value.add(ghost);
-});
+//     const ghost = new Mesh(geometry, material);
+//     ghost.name = "ghost";
+//     ghost.receiveShadow = true;
+//     ghost.position.set(-0.1, 0, 0);
+//     scene.value.add(ghost);
+// });
 </script>
 
 <template>

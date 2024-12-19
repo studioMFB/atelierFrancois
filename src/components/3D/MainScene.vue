@@ -12,8 +12,6 @@ scene.background = new Color(colour.value);
 scene.fog = new Fog(colour.value, 200, 1000);
 
 provide("MainScene", scene);
-provide("allModelsArray", [] as Group<Object3DEventMap>[]);
-provide("modelsPool", [] as Model[]);
 </script>
 
 <template>

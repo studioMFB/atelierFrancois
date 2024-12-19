@@ -4,6 +4,10 @@ import { Clock, Scene, WebGLRenderer, Vector3, PerspectiveCamera, Group, type Ob
 import { Model } from "@/components/modelViewer/resources/model";
 import { computed, inject, provide, reactive, ref, toRefs, watch, watchEffect, type Ref } from "vue";
 
+import { useModelStore } from '@/store/modelStore';
+const modelStore = useModelStore();
+
+
 // Grid configuration to define boundaries
 const GRID_SIZE = 5;
 const gridLimits = {
@@ -14,14 +18,6 @@ const gridLimits = {
   minZ: -GRID_SIZE / 2,  // Minimum Z value
   maxZ: GRID_SIZE / 2    // Maximum Z value
 };
-
-// Inject necessary resources from the parent context
-// const modelsPool = inject("modelsPool", [] as Model[]);
-const modelsPool = inject("modelsPool") as Model[];
-if (!modelsPool) {
-  throw new Error("Failed to inject 'modelsPool' in GameLoop. Ensure it is properly provided.");
-}
-
 
 const renderer = ref(inject("WebGlrenderer")) as Ref<WebGLRenderer>;
 const scene = ref(inject("MainScene")) as Ref<Scene>;
@@ -62,13 +58,13 @@ function checkCollision(furnitureArray: Model[]) {
     }
   });
 
-  // Check collisions within cells and neighboring cells
+  // Check collisions within cells and neighbouring cells
   furnitureArray.forEach(model => {
     if (!model.modelScene || !model.boundingBox) return;
     const hash = getHash(model.modelScene.position);
-    const neighbors = [hash, ...getNeighborHashes(hash)];
+    const neighbours = [hash, ...getNeighbourHashes(hash)];
 
-    neighbors.forEach(neighborHash => {
+    neighbours.forEach(neighborHash => {
       const cellModels = hashTable.get(neighborHash) || [];
       cellModels.forEach(otherModel => {
         if (
@@ -88,17 +84,19 @@ function checkCollision(furnitureArray: Model[]) {
 }
 
 // Get neighboring cell hashes for spatial hashing
-function getNeighborHashes(hash: string): string[] {
+function getNeighbourHashes(hash: string): string[] {
   const [x, z] = hash.split(",").map(Number);
-  const neighbors: string[] = [];
+
+  const neighbours: string[] = [];
+
   for (let dx = -1; dx <= 1; dx++) {
     for (let dz = -1; dz <= 1; dz++) {
       if (dx !== 0 || dz !== 0) {
-        neighbors.push(`${x + dx},${z + dz}`);
+        neighbours.push(`${x + dx},${z + dz}`);
       }
     }
   }
-  return neighbors;
+  return neighbours;
 }
 
 // Resolve overlapping objects by calculating displacement vectors
@@ -158,15 +156,13 @@ function start() {
     throw new Error("Renderer is not initialized.");
   }
 
-  // console.log("Starting game loop...");
   renderer.value.setAnimationLoop(() => {
-    // console.log("Animating...");
-    //  console.log("modelsPool", modelsPool);
+    //  console.log("models", state.models);
     // console.log("scene", scene.value);
-    modelsPool.forEach((furniture: Model) => {
+    modelStore.getModels().forEach((furniture: Model) => {
       const delta = clock.getDelta();
       furniture.tick(delta);
-      checkCollision(modelsPool);
+      checkCollision(modelStore.getModels());
     });
   });
 }

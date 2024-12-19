@@ -6,6 +6,9 @@ import { TransformControls } from 'three/examples/jsm/controls/TransformControls
 import { Model } from '@/components/modelViewer/resources/model';
 import type { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
+import { useModelStore } from '@/store/modelStore';
+const modelStore = useModelStore();
+
 
 // Colour //
 const COLOUR_SELECTED = '#f47653';
@@ -13,7 +16,7 @@ const COLOUR_UNSELECTED = '#e2eab8';
 // GLTF //
 const GLTF_TABLE = new URL('./../modelViewer/models/table/1/littlewood_furniture.gltf', import.meta.url).toString();
 const GLTF_GARLIC = new URL('./../modelViewer/models/garlic/scene.gltf', import.meta.url).toString();
-const GLTF_STONE = new URL('./../modelViewer/models/piedra/scene.gltf', import.meta.url).toString();
+const GLTF_ROCK = new URL('./../modelViewer/models/rock/scene.gltf', import.meta.url).toString();
 
 const props = defineProps<{
     canvas: HTMLCanvasElement
@@ -25,22 +28,10 @@ const camera = ref(inject("PerspectiveCamera")) as Ref<PerspectiveCamera>;
 const transformControlsGizmos = ref(inject("TransformGizmos")) as Ref<TransformControls>;
 const controls = ref(inject("OrbitControls")) as Ref<OrbitControls>;
 
-const allModelsArray = inject("allModelsArray", reactive([]) as Group<Object3DEventMap>[]);
-
-if (!allModelsArray) {
-    throw new Error("Failed to inject 'allModelsArray'. Ensure it is provided correctly.");
-}
-
 const raycaster = new Raycaster();
 const pointer = new Vector2();
 let intersect: Intersection<Object3D<Object3DEventMap>>;
 let intersectedGroupObject: Group<Object3DEventMap>;
-
-// const modelsPool = inject("modelsPool", [] as Model[]);
-const modelsPool = inject("modelsPool") as Model[];
-if (!modelsPool) {
-  throw new Error("Failed to inject 'modelsPool' in RaycasterComponent. Ensure it is properly provided.");
-}
 
 let isLeftMouseButtonDown = false;
 let isSelected = false;
@@ -64,7 +55,7 @@ function findModelParent(mesh: any): Group<Object3DEventMap> | null {
     }
 
     const rootName = 'root_model';
-    if (mesh.parent.name === rootName) {
+    if (mesh.parent.name.includes(rootName)) {
         return mesh.parent as Group<Object3DEventMap>;
     }
 
@@ -85,7 +76,7 @@ function intersection(): boolean {
         return true;
     }
 
-    const intersects = raycaster.intersectObjects(allModelsArray, true);
+    const intersects = raycaster.intersectObjects(modelStore.getGroupsObjects(), true);
     cachedIntersects = intersects; // Cache results for future use
 
     if (intersects.length > 0) {
@@ -100,8 +91,8 @@ function intersection(): boolean {
 // Checks if the raycaster is ready by validating its dependencies
 function isRaycasterReady(): boolean {
     if (!raycaster) return false;
-    if (allModelsArray.length < 1) return false;
-    if (!allModelsArray.every(obj => obj)) return false;
+    if (modelStore.getGroupsObjects().length < 1) return false;
+    // if (modelStore.getGroupsObjects().every(obj => obj)) return false;
 
     return true;
 }
@@ -143,7 +134,7 @@ function updatePointerMode(event: PointerEvent): void {
 const models = reactive({
     table: setupModel("table", new Vector3(-0.5, 0, -0.5), 1, GLTF_TABLE),
     garlic: setupModel("garlic", new Vector3(-0.5, 0, -0.5), 10, GLTF_GARLIC),
-    stone: setupModel("stone", new Vector3(-0.5, 0, -0.5), 0.4, GLTF_STONE),
+    rock: setupModel("rock", new Vector3(-0.5, 0, -0.5), 0.4, GLTF_ROCK),
 });
 
 // Sets up model metadata for initialization
@@ -159,8 +150,8 @@ function addModelToScene(modelKey: keyof typeof models): void {
 
     modelInstance.initMesh().then((modelScene: Group<Object3DEventMap>) => {
         scene.value.add(modelScene);
-        modelsPool.push(modelInstance);
-        allModelsArray.push(modelScene);
+        modelStore.addModel(modelInstance);
+        modelStore.addGroupObjects(modelScene);
     });
 }
 
@@ -176,8 +167,8 @@ function addModelToSceneAtCursor(modelKey: keyof typeof models): void {
 
     modelInstance.initMesh().then((modelScene: Group<Object3DEventMap>) => {
         scene.value.add(modelScene);
-        modelsPool.push(modelInstance);
-        allModelsArray.push(modelScene);
+        modelStore.addModel(modelInstance);
+        modelStore.addGroupObjects(modelScene);
     });
 }
 
@@ -192,10 +183,10 @@ function handlePointerEvent(event: PointerEvent): void {
 
         restricMoveToBoundaries();
     }
-    else if (event.type === 'pointerdown') {
-        if (keyState.keyT) addModelToScene("table");
-        if (keyState.keyG) addModelToScene("garlic");
-        if (keyState.keyR) addModelToScene("stone");
+    else if (event.type === 'pointerdown' || event.type === 'click') {
+        if (keyState.keyT) addModelToSceneAtCursor("table");
+        if (keyState.keyG) addModelToSceneAtCursor("garlic");
+        if (keyState.keyR) addModelToSceneAtCursor("rock");
     }
 }
 
@@ -238,15 +229,15 @@ const keyState = reactive({
 // Updates key states when key events are triggered
 function handleKeyEvent(event: KeyboardEvent, isDown: boolean): void {
     switch (event.code) {
-        case 'KeyT': keyState.keyT = isDown; break;
-        case 'KeyG': keyState.keyG = isDown; break;
-        case 'KeyR': keyState.keyR = isDown; break;
+        case 'KeyT': keyState.keyT = isDown; addModelToSceneAtCursor("table"); break;
+        case 'KeyG': keyState.keyG = isDown; addModelToSceneAtCursor("garlic"); break;
+        case 'KeyR': keyState.keyR = isDown;  addModelToSceneAtCursor("rock"); break;
     }
 }
 
 // Attaches a gizmo to a target object for transformation
 function attachGizmoToObject(targetObject: Object3D): void {
-    if (!targetObject || targetObject.name === "Main_Plane") {
+    if (!targetObject || targetObject.name.includes("Floor")) {
         transformControlsGizmos.value.detach();
         return;
     }
@@ -273,6 +264,7 @@ function setupEventListeners(): void {
 
     document.addEventListener('pointermove', pointerMoveListener);
     document.addEventListener('pointerdown', pointerDownListener);
+    // document.addEventListener('click', () => pointerDownListener);
     document.addEventListener('wheel', wheelListener);
     document.addEventListener('keydown', keyDownListener);
     document.addEventListener('keyup', keyUpListener);

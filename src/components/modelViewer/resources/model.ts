@@ -73,10 +73,11 @@ export class Model extends Mesh {
               _child.castShadow = true;
             }
 
-            _child.name += "_model";
+            _child.name += `${this.name}_child_model`;
           });
 
-          this.modelScene.name = "root_model";
+          // this.modelScene.name = "root_model";
+          this.modelScene.name = `${this.name}_root_model`;
           this.modelScene.scale.multiplyScalar(this.scaleRatio);
           this.modelScene.position.set(this.pos.x, this.pos.y, this.pos.z);
 

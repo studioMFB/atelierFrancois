@@ -4,6 +4,9 @@ import { computed, inject, onMounted} from 'vue';
 import { Color, DoubleSide, ExtrudeGeometry, Group, Mesh, MeshBasicMaterial, MeshStandardMaterial, 
     PlaneGeometry, Scene, ShadowMaterial, Shape, Vector2, Vector3, type Object3DEventMap } from 'three';
 
+import { useModelStore } from '@/store/modelStore';
+const modelStore = useModelStore();
+
 
 const props = defineProps<{
     dimension: Vector2,
@@ -68,7 +71,8 @@ function initMesh(isVisible: boolean, opacity: number, colour?: Color): void {
         opacity: opacity,
     });
     const ground = new Mesh(geometry, material);
-    ground.name = "Main_Plane";
+    const name = "Main_Plane";
+    ground.name = `Main_Plane_child_model`;
     ground.receiveShadow = false;
 
     ground.position.set(position.value.x, position.value.y, position.value.z);
@@ -84,24 +88,27 @@ function initMesh(isVisible: boolean, opacity: number, colour?: Color): void {
 
     shadowGround.receiveShadow = true;
     shadowGround.position.set(position.value.x + 0.01, position.value.y + 0.01, position.value.z + 0.01);
+    ground.name = `Shadow_Plane_child_model`;
 
     roundEdgedBox();
 
     modelScene.add(ground);
     modelScene.add(shadowGround);
 
+    modelScene.name = `Floor_root_model`;
+
     scene.value.add(modelScene);
 
     // Update transforms for modelScene and its children
     modelScene.updateMatrixWorld(true);
+
+    // For Raycasting
+    modelStore.addGroupObjects(modelScene);
 }
 
 initMesh(false, 1);
 
 onMounted(() => {
-    // For Raycasting
-    const allModelsArray = inject("allModelsArray", [] as Group<Object3DEventMap>[]);
-    allModelsArray.push(modelScene);
 })
 </script>
 
