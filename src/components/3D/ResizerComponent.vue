@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, inject, ref } from "vue";
+import { computed, inject, onUnmounted, ref } from "vue";
 
 import { PerspectiveCamera, WebGLRenderer } from "three";
 import type { OutlinePass } from "three/examples/jsm/postprocessing/OutlinePass.js";
@@ -17,17 +17,12 @@ const camera = computed(() => inject("PerspectiveCamera") as PerspectiveCamera);
 // const outlinePass = ref(props.outlinePass);
 // const composer = ref(props.composer);
 
-setSize();
+handleResise();
 
-window.addEventListener('resize', () => {
-    setSize();
-});
-
-function setSize(): void {
+function handleResise(): void {
     const width = window.innerWidth;
     const height = window.innerHeight;
 
-    
     camera.value.updateProjectionMatrix();
     
     renderer.value.setSize(width, height);
@@ -41,6 +36,16 @@ function setSize(): void {
 //     composer.value.setSize(width, height);
 //     outlinePass.value.setSize(width, height);
 }
+
+window.addEventListener('resize', () => {
+    handleResise();
+});
+
+
+// Clean up resources and event listeners when the component is unmounted
+onUnmounted(() => {
+     window.removeEventListener("resize", handleResise); // Remove the resize event listener
+});
 </script>
 
 <template>

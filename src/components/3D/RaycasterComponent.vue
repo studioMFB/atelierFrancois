@@ -1,5 +1,6 @@
+RaycasterComponent.vue
 <script setup lang="ts">
-import { computed, inject, onMounted, reactive, ref, type Ref } from 'vue';
+import { computed, inject, onMounted, onUnmounted, reactive, ref, type Ref } from 'vue';
 import { Color, Group, type Intersection, Mesh, MeshToonMaterial, Object3D, type Object3DEventMap, PerspectiveCamera, Raycaster, Scene, Vector2, Vector3 } from 'three';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
 
@@ -19,89 +20,107 @@ const props = defineProps<{
     canvas: HTMLCanvasElement
 }>();
 
-const canvas = computed(() => props.canvas) as Ref<HTMLCanvasElement>;;
+const canvas = computed(() => props.canvas) as Ref<HTMLCanvasElement>;
 const scene = ref(inject("MainScene")) as Ref<Scene>;
 const camera = ref(inject("PerspectiveCamera")) as Ref<PerspectiveCamera>;
 const transformControlsGizmos = ref(inject("TransformGizmos")) as Ref<TransformControls>;
 const controls = ref(inject("OrbitControls")) as Ref<OrbitControls>;
 
-const allModelsArray = inject("allModelsArray", [] as Group<Object3DEventMap>[]);
+const allModelsArray = inject("allModelsArray", reactive([]) as Group<Object3DEventMap>[]);
+
+if (!allModelsArray) {
+    throw new Error("Failed to inject 'allModelsArray'. Ensure it is provided correctly.");
+}
 
 const raycaster = new Raycaster();
 const pointer = new Vector2();
 let intersect: Intersection<Object3D<Object3DEventMap>>;
 let intersectedGroupObject: Group<Object3DEventMap>;
 
-// const modelsPool = reactive([]) as Model[];
 const modelsPool = inject("modelsPool", [] as Model[]);
-
-// defineExpose({
-//     modelsPool
-// });
 
 let isLeftMouseButtonDown = false;
 let isSelected = false;
 let rotationDelta = 0;
+let cachedIntersects: Intersection<Object3D<Object3DEventMap>>[] = []; // Cache for intersection results
 
-// GRID in meters
-const GRID_SIZE = 5;
-const gridLimits = {
-    minX: -GRID_SIZE / 2,  // Minimum X value
-    maxX: GRID_SIZE / 2,   // Maximum X value
+// Defines a reactive grid configuration object to make the function more flexible
+const gridLimits = reactive({
+    minX: -2.5,  // Minimum X value
+    maxX: 2.5,   // Maximum X value
     minY: 0,    // Minimum Y value (assuming Y is up)
     maxY: 0,   // Maximum Y value
-    minZ: -GRID_SIZE / 2,  // Minimum Z value
-    maxZ: GRID_SIZE / 2    // Maximum Z value
-};
+    minZ: -2.5,  // Minimum Z value
+    maxZ: 2.5    // Maximum Z value
+});
 
+// Finds the parent of a model, recursively traversing upward until it matches the root model name
 function findModelParent(mesh: any): Group<Object3DEventMap> | null {
-    // If the mesh has no parent, return null
     if (!mesh.parent) {
         return null;
     }
 
     const rootName = 'root_model';
-    // If the parent is an instance of GameObject, return it
     if (mesh.parent.name === rootName) {
         return mesh.parent as Group<Object3DEventMap>;
     }
 
-    // Otherwise, recursively call the function with the parent as the argument
     return findModelParent(mesh.parent);
 }
 
 // RAYCASTER //
 function intersection(): boolean {
-    if (!raycaster || allModelsArray.length < 1 || !allModelsArray.every(obj => obj))
+    if (!isRaycasterReady()) {
+        console.warn("Raycaster is not ready. Check dependencies and object configurations.");
         return false;
+    }
 
-    const intersects = raycaster.intersectObjects(allModelsArray, true); // true for recursive checks
+    // If cached intersects exist and are still valid, use them
+    if (cachedIntersects.length > 0) {
+        intersect = cachedIntersects[0];
+        intersectedGroupObject = findModelParent(intersect.object as Mesh)!;
+        return true;
+    }
+
+    const intersects = raycaster.intersectObjects(allModelsArray, true);
+    cachedIntersects = intersects; // Cache results for future use
 
     if (intersects.length > 0) {
         intersect = intersects[0];
         intersectedGroupObject = findModelParent(intersect.object as Mesh)!;
         return true;
     }
-    else {
-        return false;
-    }
+
+    return false;
 }
 
-function restrictPositionToBoundaries(position: Vector3) {
+// Checks if the raycaster is ready by validating its dependencies
+function isRaycasterReady(): boolean {
+    if (!raycaster) return false;
+    if (allModelsArray.length < 1) return false;
+    if (!allModelsArray.every(obj => obj)) return false;
+
+    return true;
+}
+
+// Restricts a position vector to remain within reactive grid boundaries
+function restrictPositionToBoundaries(position: Vector3): Vector3 {
     return new Vector3(
         Math.max(gridLimits.minX, Math.min(gridLimits.maxX, position.x)),
-        gridLimits.minY, // Fixed to ground level
+        gridLimits.minY,
         Math.max(gridLimits.minZ, Math.min(gridLimits.maxZ, position.z))
     );
 }
 
-function restricMoveToBoundaries() {
+// Restricts the movement of the intersected object to the grid boundaries
+function restricMoveToBoundaries(): void {
     if (intersectedGroupObject) {
         intersectedGroupObject.position.copy(restrictPositionToBoundaries(intersectedGroupObject.position));
     }
 }
 
-function updatePointerMode(event: PointerEvent) {
+// Updates the pointer position based on the event and recalculates the raycaster
+function updatePointerMode(event: PointerEvent): void {
     event.preventDefault();
 
     pointer.x = (event.clientX / canvas.value.clientWidth) * 2 - 1;
@@ -110,59 +129,61 @@ function updatePointerMode(event: PointerEvent) {
     try {
         if (raycaster && pointer && camera.value)
             raycaster.setFromCamera(pointer, camera.value);
+        cachedIntersects = []; // Reset cache as pointer mode changes
     }
     catch (e: any) {
         console.error("Error setting raycaster:", e);
     }
 }
 
+// Defines a reactive object to manage models in the scene
 const models = reactive({
     table: setupModel("table", new Vector3(-0.5, 0, -0.5), 1, GLTF_TABLE),
     garlic: setupModel("garlic", new Vector3(-0.5, 0, -0.5), 10, GLTF_GARLIC),
     stone: setupModel("stone", new Vector3(-0.5, 0, -0.5), 0.4, GLTF_STONE),
 });
 
-function setupModel(name: string, position: Vector3, scale: number, url: string) {
+// Sets up model metadata for initialization
+function setupModel(name: string, position: Vector3, scale: number, url: string): { name: string, position: Vector3, scale: number, url: string } {
     return { name, position, scale, url };
 }
 
-function addModelToScene(modelKey: keyof typeof models) {
+// Adds a specified model to the scene by key
+function addModelToScene(modelKey: keyof typeof models): void {
     const model = models[modelKey];
 
     const modelInstance = new Model(model.name, model.position, model.scale, model.url);
 
     modelInstance.initMesh().then((modelScene: Group<Object3DEventMap>) => {
-        scene.value.add(modelScene); // to be view in the scene
-        modelsPool.push(modelInstance); // For Animation update
-        allModelsArray.push(modelScene); // For Raycasting
+        scene.value.add(modelScene);
+        modelsPool.push(modelInstance);
+        allModelsArray.push(modelScene);
     });
 }
 
-function addModelToSceneAtCursor(modelKey: keyof typeof models) {
+// Adds a model to the scene at the current pointer intersection point
+function addModelToSceneAtCursor(modelKey: keyof typeof models): void {
     const model = models[modelKey];
 
-    if (!intersection()) return; // Ensure there is a valid intersection point.
+    if (!intersection()) return;
 
-    // Restrict the intersection point to grid boundaries.
     const spawnPosition = restrictPositionToBoundaries(intersect.point);
 
-    // Create a new model instance with the intersection point as the position.
     const modelInstance = new Model(model.name, spawnPosition, model.scale, model.url);
 
     modelInstance.initMesh().then((modelScene: Group<Object3DEventMap>) => {
-        scene.value.add(modelScene); // to be view in the scene
-        modelsPool.push(modelInstance); // For Animation update
-        allModelsArray.push(modelScene); // For Raycasting
+        scene.value.add(modelScene);
+        modelsPool.push(modelInstance);
+        allModelsArray.push(modelScene);
     });
 }
 
-
-function handlePointerEvent(event: PointerEvent) {
+// Handles pointer events for interactions
+function handlePointerEvent(event: PointerEvent): void {
     updatePointerMode(event);
 
     if (event.type === 'pointermove') {
         if (intersection()) {
-            // console.log("Object intersected:", intersectedGroupObject);
             attachGizmoToObject(intersectedGroupObject);
         }
 
@@ -175,21 +196,19 @@ function handlePointerEvent(event: PointerEvent) {
     }
 }
 
-function onWheel(event: WheelEvent) {
-    // Rotate the model by increment of 90'.
+// Handles rotation using the scroll wheel when the left mouse button is down
+function onWheel(event: WheelEvent): void {
     if (isLeftMouseButtonDown) {
-        // Determine the scroll direction and amount
         const delta = Math.sign(event.deltaY);
-        // Define the rotation speed
         const rotationSpeed = Math.PI / 2;
-        // Update the rotation delta
         rotationDelta = delta * rotationSpeed;
 
         intersectedGroupObject.rotation.y += rotationDelta;
     }
 }
 
-function changeColour(colour: string) {
+// Changes the colour of the currently selected object
+function changeColour(colour: string): void {
     if (!intersectedGroupObject)
         return;
 
@@ -206,13 +225,15 @@ function changeColour(colour: string) {
     });
 }
 
+// Tracks the state of keyboard inputs for specific keys
 const keyState = reactive({
     keyT: false,
     keyG: false,
     keyR: false
 });
 
-function handleKeyEvent(event: KeyboardEvent, isDown: boolean) {
+// Updates key states when key events are triggered
+function handleKeyEvent(event: KeyboardEvent, isDown: boolean): void {
     switch (event.code) {
         case 'KeyT': keyState.keyT = isDown; break;
         case 'KeyG': keyState.keyG = isDown; break;
@@ -220,7 +241,8 @@ function handleKeyEvent(event: KeyboardEvent, isDown: boolean) {
     }
 }
 
-function attachGizmoToObject(targetObject: Object3D) {
+// Attaches a gizmo to a target object for transformation
+function attachGizmoToObject(targetObject: Object3D): void {
     if (!targetObject || targetObject.name === "Main_Plane") {
         transformControlsGizmos.value.detach();
         return;
@@ -231,22 +253,26 @@ function attachGizmoToObject(targetObject: Object3D) {
     changeColour(COLOUR_SELECTED);
 }
 
-function detachGizmo() {
+// Detaches the gizmo from the current object
+function detachGizmo(): void {
     transformControlsGizmos.value.detach();
     isSelected = false;
     changeColour(COLOUR_UNSELECTED);
 }
 
+// Sets up all necessary event listeners for interactions
 function setupEventListeners(): void {
-    // Pointer
-    document.addEventListener('pointermove', (e: PointerEvent) => handlePointerEvent(e));
-    document.addEventListener('pointerdown', (e: PointerEvent) => handlePointerEvent(e));
+    const pointerMoveListener = (e: PointerEvent) => handlePointerEvent(e);
+    const pointerDownListener = (e: PointerEvent) => handlePointerEvent(e);
+    const wheelListener = (e: WheelEvent) => { onWheel(e) };
+    const keyDownListener = (e: KeyboardEvent) => handleKeyEvent(e, true);
+    const keyUpListener = (e: KeyboardEvent) => handleKeyEvent(e, false);
 
-    document.addEventListener('wheel', (e: WheelEvent) => { onWheel(e) });
-
-    // Keys
-    document.addEventListener('keydown', (e) => handleKeyEvent(e, true));
-    document.addEventListener('keyup', (e) => handleKeyEvent(e, false));
+    document.addEventListener('pointermove', pointerMoveListener);
+    document.addEventListener('pointerdown', pointerDownListener);
+    document.addEventListener('wheel', wheelListener);
+    document.addEventListener('keydown', keyDownListener);
+    document.addEventListener('keyup', keyUpListener);
 
     canvas.value.addEventListener("pointerup", detachGizmo);
 
@@ -259,13 +285,19 @@ function setupEventListeners(): void {
         if (controls.value) controls.value.enabled = true;
         isLeftMouseButtonDown = false;
     });
+
+    onUnmounted(() => {
+        document.removeEventListener('pointermove', pointerMoveListener);
+        document.removeEventListener('pointerdown', pointerDownListener);
+        document.removeEventListener('wheel', wheelListener);
+        document.removeEventListener('keydown', keyDownListener);
+        document.removeEventListener('keyup', keyUpListener);
+    });
 }
 
 onMounted(() => {
     setupEventListeners();
-
-    // To populate the scene initially
-})
+});
 </script>
 
 <template>

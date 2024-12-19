@@ -1,61 +1,95 @@
 <script setup lang="ts">
 import { computed, inject, provide, ref, type Ref } from 'vue';
-
-import { PerspectiveCamera, Scene } from 'three';
+import { PerspectiveCamera, Scene, Box3, Vector3, Object3D, Mesh, Line } from 'three';
 import { TransformControls, TransformControlsGizmo } from 'three/examples/jsm/controls/TransformControls.js';
 
+// Define props for the component, including an optional canvas and mode
+const props = defineProps<{ canvas?: HTMLCanvasElement; mode?: 'translate' | 'rotate' | 'scale' }>();
 
-const props = defineProps<{
-    canvas?: HTMLCanvasElement
-}>();
+// Compute the canvas reference from the provided props
+const canvas = computed(() => props.canvas) as Ref<HTMLCanvasElement>;
 
-const canvas = computed(() => props.canvas) as Ref<HTMLCanvasElement>;;
-const scene = ref(inject("MainScene")) as Ref<Scene>;
-const camera = ref(inject("PerspectiveCamera")) as Ref<PerspectiveCamera>;
+// Inject the main scene and camera from the parent context
+const scene = inject("MainScene") as Scene | undefined;
+const camera = inject("PerspectiveCamera") as PerspectiveCamera;
 
-const transformControls = new TransformControls(camera.value, canvas.value);
+// Throw errors if required resources are not provided
+if (!canvas.value) {
+    throw new Error("Canvas is undefined");
+}
+if (!scene) {
+    throw new Error("MainScene is not provided");
+}
+
+// Initialize TransformControls with the provided camera and canvas
+const transformControls = new TransformControls(camera, canvas.value);
 transformControls.name = "transform_controls_gizmos";
 
-transformControls.setMode('translate');
+// Validate and set the mode for TransformControls
+const validModes = ['translate', 'rotate', 'scale'];
+const mode: 'translate' | 'rotate' | 'scale' = validModes.includes(props.mode || '') ? (props.mode as 'translate' | 'rotate' | 'scale') : 'translate';
+transformControls.setMode(mode);
 
-scene.value.add(transformControls);
+// Add the transform controls to the scene
+scene.add(transformControls);
 
-// FIND A FIX TO ADJUST GIZMO POSITION FOR ALL MODELS
-// Adjust gizmo pos to be in centre of Table model.
-transformControls.position.x -= .1;
-transformControls.position.y += .6;
+// Ensure TransformControls has children before calculating its bounding box
+if (transformControls.children.length > 0) {
+    const modelBoundingBox = new Box3().setFromObject(transformControls); // Calculate the bounding box
+    const center = modelBoundingBox.getCenter(new Vector3()); // Get the center of the bounding box
+    transformControls.position.set(center.x, center.y, center.z); // Set the position of TransformControls to the center
+}
 
-// Main gizmo, arrows and squares
-(transformControls.children[0] as TransformControlsGizmo).gizmo.translate.traverse((child: any) => {
-    if (child.isMesh) {
-        // The square in the centre of the gizmos,
-        // with which you can move the model in any direction.
+// Reusable function for processing gizmo children
+function processGizmoChildren(
+    gizmo: TransformControlsGizmo,
+    type: keyof TransformControlsGizmo,
+    callback: (child: Object3D) => void
+) {
+    const target = gizmo[type];
+    if (target && target instanceof Object3D) {
+        target.traverse((child: Object3D) => {
+            callback(child);
+        });
+    } else {
+        console.warn(`Type '${type}' does not exist or is not traversable on gizmo.`);
+    }
+}
+
+// Customize the appearance and behavior of gizmo children
+processGizmoChildren(transformControls.children[0] as TransformControlsGizmo, 'gizmo', (child: Object3D) => {
+    const _child = child as Mesh;
+
+    if (_child.isMesh) {
         if (child.name === 'XYZ') {
-            (child.material as THREE.MeshBasicMaterial).color.set(0x0e73e6);
-            (child.material as THREE.MeshBasicMaterial).opacity = 0.5;
+            (_child.material as THREE.MeshBasicMaterial).color.set(0x0e73e6); // Set color for XYZ axis
+            (_child.material as THREE.MeshBasicMaterial).opacity = 0.5; // Set opacity
+        } else {
+            (_child.material as THREE.MeshBasicMaterial).visible = false; // Hide other meshes
         }
-        else {
-            (child.material as THREE.MeshBasicMaterial).visible = false;
-        }
     }
 });
 
-// Pickers
-// Not sure it does much.
-(transformControls.children[0] as TransformControlsGizmo).picker.translate.traverse((child: any) => {
-    if (child.isMesh) {
-        (child.material as THREE.MeshBasicMaterial).visible = false;
+processGizmoChildren(transformControls.children[0] as TransformControlsGizmo, 'picker', (child) => {
+    const _child = child as Mesh;
+
+    if (_child.isMesh) {
+        (_child.material as THREE.MeshBasicMaterial).visible = false; // Hide picker meshes
     }
 });
 
-// Helper transform lines axis
-(transformControls.children[0] as TransformControlsGizmo).helper.translate.traverse((child: any) => {
-    if (child.isLine) {
-        (child.material as THREE.MeshBasicMaterial).visible = false;
+processGizmoChildren(transformControls.children[0] as TransformControlsGizmo, 'helper', (child: Object3D) => {
+    if ((child as Line).isLine) {
+        ((child as Mesh).material as THREE.MeshBasicMaterial).visible = false; // Hide helper lines
     }
 });
 
-provide("TransformGizmos", transformControls);
+// Provide the TransformControls instance to the parent context
+if (transformControls) {
+    provide("TransformGizmos", transformControls);
+} else {
+    console.warn("Transform controls are not initialized correctly.");
+}
 </script>
 
 <template>

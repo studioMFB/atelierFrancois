@@ -1,6 +1,5 @@
-import { Mesh, Vector3, Scene, Group, MeshToonMaterial, Color, type Object3DEventMap, MeshBasicMaterial, BoxHelper, Box3 } from "three";
+import { Mesh, Vector3, Scene, Group, MeshToonMaterial, Color, type Object3DEventMap, MeshBasicMaterial, BoxHelper, Box3, Object3D } from "three";
 import { type GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-
 
 export class Model extends Mesh {
 
@@ -32,10 +31,12 @@ export class Model extends Mesh {
     if (!this.modelScene)
       return;
 
-    this.modelScene.traverse((child: any) => {
-      if (child.isMesh) {
-        if (!child.name.toLowerCase().includes("outline")) {
-          (child.material as MeshToonMaterial).color = new Color(colour);
+    this.modelScene.traverse((child: Object3D) => {
+      const _child = child as Mesh;
+
+      if (_child.isMesh) {
+        if (!_child.name.toLowerCase().includes("outline")) {
+          (_child.material as MeshToonMaterial).color = new Color(colour);
         }
       }
     });
@@ -58,29 +59,26 @@ export class Model extends Mesh {
           matToon.opacity = 0.005;
           const matColor = new MeshBasicMaterial({ color: 0x3c3c3c });
 
-          gltf.scene.traverse((child: any) => {
-            if (child.isMesh) {
-              child.geometry.computeBoundingBox();
+          gltf.scene.traverse((child: Object3D) => {
+            const _child = child as Mesh;
+
+            if (_child.isMesh) {
+              _child.geometry.computeBoundingBox();
             }
 
-            if (child.name.toLowerCase().includes("outline")) {
-              child.material = matColor;
+            if (_child.name.toLowerCase().includes("outline")) {
+              _child.material = matColor;
             } else {
-              child.material = matToon;
-              child.castShadow = true;
+              _child.material = matToon;
+              _child.castShadow = true;
             }
 
-            child.name += "_model";
+            _child.name += "_model";
           });
 
           this.modelScene.name = "root_model";
           this.modelScene.scale.multiplyScalar(this.scaleRatio);
           this.modelScene.position.set(this.pos.x, this.pos.y, this.pos.z);
-
-          // this.boxHelper = new BoxHelper(this.modelScene, 0xff0000);
-          // this.boxHelper.name = "boxHelper_model";
-          // this.boundingBox = new Box3().setFromObject(this.boxHelper);
-          // this.boxHelper.update();
 
           // Update transforms for modelScene and its children
           this.modelScene.updateMatrixWorld(true);
