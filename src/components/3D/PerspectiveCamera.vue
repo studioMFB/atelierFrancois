@@ -22,5 +22,6 @@ provide("PerspectiveCamera", camera);
 </script>
 
 <template>
+    <slot name="orbitControl"></slot>
     <slot name="webGlRenderer"></slot>
 </template>

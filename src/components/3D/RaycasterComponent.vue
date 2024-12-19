@@ -1,4 +1,3 @@
-RaycasterComponent.vue
 <script setup lang="ts">
 import { computed, inject, onMounted, onUnmounted, reactive, ref, type Ref } from 'vue';
 import { Color, Group, type Intersection, Mesh, MeshToonMaterial, Object3D, type Object3DEventMap, PerspectiveCamera, Raycaster, Scene, Vector2, Vector3 } from 'three';
@@ -37,7 +36,11 @@ const pointer = new Vector2();
 let intersect: Intersection<Object3D<Object3DEventMap>>;
 let intersectedGroupObject: Group<Object3DEventMap>;
 
-const modelsPool = inject("modelsPool", [] as Model[]);
+// const modelsPool = inject("modelsPool", [] as Model[]);
+const modelsPool = inject("modelsPool") as Model[];
+if (!modelsPool) {
+  throw new Error("Failed to inject 'modelsPool' in RaycasterComponent. Ensure it is properly provided.");
+}
 
 let isLeftMouseButtonDown = false;
 let isSelected = false;

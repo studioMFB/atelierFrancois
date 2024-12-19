@@ -16,10 +16,12 @@ const gridLimits = {
 };
 
 // Inject necessary resources from the parent context
-const modelsPool = inject("modelsPool", [] as Model[]);
+// const modelsPool = inject("modelsPool", [] as Model[]);
+const modelsPool = inject("modelsPool") as Model[];
 if (!modelsPool) {
-  throw new Error("Failed to inject 'modelsPool'. Ensure it is properly provided.");
+  throw new Error("Failed to inject 'modelsPool' in GameLoop. Ensure it is properly provided.");
 }
+
 
 const renderer = ref(inject("WebGlrenderer")) as Ref<WebGLRenderer>;
 const scene = ref(inject("MainScene")) as Ref<Scene>;
@@ -159,7 +161,7 @@ function start() {
   // console.log("Starting game loop...");
   renderer.value.setAnimationLoop(() => {
     // console.log("Animating...");
-    // console.log("modelsPool", modelsPool);
+    //  console.log("modelsPool", modelsPool);
     // console.log("scene", scene.value);
     modelsPool.forEach((furniture: Model) => {
       const delta = clock.getDelta();
