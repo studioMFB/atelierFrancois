@@ -395,7 +395,7 @@ onMounted(() => {
 
 <script setup lang="ts">
 import { computed, inject, onMounted, onUnmounted, reactive, ref, type Ref } from 'vue';
-import { Color, Group, type Intersection, Mesh, MeshBasicMaterial, MeshToonMaterial, Object3D, type Object3DEventMap, PerspectiveCamera, Plane, PlaneGeometry, Raycaster, Scene, Vector2, Vector3 } from 'three';
+import { BufferGeometry, CircleGeometry, Color, Group, type Intersection, LineBasicMaterial, LineLoop, Mesh, MeshBasicMaterial, MeshToonMaterial, Object3D, type Object3DEventMap, PerspectiveCamera, Plane, PlaneGeometry, Raycaster, Scene, Vector2, Vector3 } from 'three';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
 
 import { Model } from '@/components/modelViewer/resources/model';
@@ -498,7 +498,7 @@ function intersection(): boolean {
     // Create a virtual ground plane for consistent intersection
     const groundNormal = new Vector3(0, 1, 0);
     const groundPlane = new Plane(groundNormal, -GROUND_Y_POSITION);
-    
+
     // Get intersection point with ground plane
     const intersectionPoint = new Vector3();
     raycaster.ray.intersectPlane(groundPlane, intersectionPoint);
@@ -511,13 +511,13 @@ function intersection(): boolean {
             object: scene.value.getObjectByName('ground') || scene.value.children[0],
             face: null,
             faceIndex: 0,
-            uv: new Vector2(0,0)
+            uv: new Vector2(0, 0)
         };
 
         // Check if point is within grid boundaries
-        if (intersectionPoint.x >= gridLimits.minX && 
-            intersectionPoint.x <= gridLimits.maxX && 
-            intersectionPoint.z >= gridLimits.minZ && 
+        if (intersectionPoint.x >= gridLimits.minX &&
+            intersectionPoint.x <= gridLimits.maxX &&
+            intersectionPoint.z >= gridLimits.minZ &&
             intersectionPoint.z <= gridLimits.maxZ) {
             return true;
         }
@@ -562,21 +562,110 @@ function restricMoveToBoundaries(): void {
     }
 }
 
+const spawnPreviewMesh = ref<Mesh | null>(null);
+// const spawnPreviewMesh = ref<LineLoop | null>(null);
+const PREVIEW_SIZE = 0.3; // Adjust size as needed
+const PREVIEW_COLOR = 0xf47653; // Using your selected color theme
+
+// Add this function to create the preview mesh
+function createSpawnPreview(): void {
+    const geometry = new CircleGeometry(PREVIEW_SIZE, 32);
+    
+    // hollow
+     // Extract the vertices from the circle geometry to create an outline
+    //  const points = geometry.getAttribute('position');
+    
+    // Create a new buffer geometry for the line
+    // const lineGeometry = new BufferGeometry();
+    // lineGeometry.setAttribute('position', points);
+    
+    // Create line material
+    // const material = new LineBasicMaterial({ 
+    //     color: PREVIEW_COLOR,
+    //     transparent: true,
+    //     opacity: 0.8,
+    //     linewidth: 1 // Note: due to WebGL limitations, line width is usually limited to 1
+    // });
+
+    // plain
+    const material = new MeshBasicMaterial({
+        color: PREVIEW_COLOR,
+        side: 2, // DoubleSide
+        transparent: true,
+        opacity: 0.5,
+    });
+
+    // hollow
+    // spawnPreviewMesh.value = new LineLoop(lineGeometry, material);
+    // plain
+    spawnPreviewMesh.value = new Mesh(geometry, material);
+    spawnPreviewMesh.value.rotateX(-Math.PI / 2); // Lay flat on the ground
+    spawnPreviewMesh.value.position.y = 0.5; // Slightly above ground to prevent z-fighting
+
+    scene.value.add(spawnPreviewMesh.value);
+}
+
+let pulseAnimation: number;
+const PULSE_SPEED = .7;
+
+// Add this function to animate the preview
+function animatePreview(): void {
+    if (spawnPreviewMesh.value) {
+        const material = spawnPreviewMesh.value.material as MeshBasicMaterial;
+        material.opacity = 0.3 + Math.sin(Date.now() * 0.003 * PULSE_SPEED) * 0.2;
+    }
+    pulseAnimation = requestAnimationFrame(animatePreview);
+}
+
 // Updates the pointer position based on the event and recalculates the raycaster
 function updatePointerMode(event: PointerEvent): void {
     event.preventDefault();
 
-    // Get canvas bounds
     const rect = canvas.value.getBoundingClientRect();
-
-    // Calculate pointer position relative to canvas
     pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
     pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
     try {
         if (raycaster && pointer && camera.value) {
             raycaster.setFromCamera(pointer, camera.value);
-            cachedIntersects = []; // Reset cache as pointer mode changes
+
+            // Update preview visibility based on spawn key state
+            if (spawnPreviewMesh.value) {
+                spawnPreviewMesh.value.visible = isSpawnKeyPressed();
+            }
+
+            // Only update position if preview is visible
+            if (spawnPreviewMesh.value?.visible) {
+                // Create a virtual ground plane for consistent intersection
+                const groundNormal = new Vector3(0, 1, 0);
+                const groundPlane = new Plane(groundNormal, 0);
+
+                // Get intersection point with ground plane
+                const intersectionPoint = new Vector3();
+                if (raycaster.ray.intersectPlane(groundPlane, intersectionPoint)) {
+                    // Snap to grid
+                    const gridSize = 0.5;
+                    const snappedPosition = new Vector3(
+                        Math.round(intersectionPoint.x / gridSize) * gridSize,
+                        0.1, // Slightly above ground
+                        Math.round(intersectionPoint.z / gridSize) * gridSize
+                    );
+
+                    // Update preview position if within boundaries
+                    if (spawnPreviewMesh.value &&
+                        snappedPosition.x >= gridLimits.minX &&
+                        snappedPosition.x <= gridLimits.maxX &&
+                        snappedPosition.z >= gridLimits.minZ &&
+                        snappedPosition.z <= gridLimits.maxZ) {
+                        spawnPreviewMesh.value.position.copy(snappedPosition);
+                        spawnPreviewMesh.value.visible = true;
+                    } else if (spawnPreviewMesh.value) {
+                        spawnPreviewMesh.value.visible = false;
+                    }
+                }
+            }
+
+            cachedIntersects = [];
         }
     } catch (e: any) {
         console.error("Error setting raycaster:", e);
@@ -616,10 +705,10 @@ function addModelToSceneAtCursor(modelKey: keyof typeof models): void {
 
     // Define grid size for snapping
     const gridSize = 0.5;
-    
+
     // Get the intersection point
     const point = intersect.point.clone();
-    
+
     // Snap to grid
     const spawnPosition = new Vector3(
         Math.round(point.x / gridSize) * gridSize,
@@ -633,9 +722,9 @@ function addModelToSceneAtCursor(modelKey: keyof typeof models): void {
     // console.log('Spawning at:', boundedPosition); // Debug output
 
     const modelInstance = new Model(
-        model.name, 
+        model.name,
         boundedPosition,
-        model.scale, 
+        model.scale,
         model.url
     );
 
@@ -657,7 +746,7 @@ function handlePointerEvent(event: PointerEvent): void {
 
         restricMoveToBoundaries();
     }
-    else if (event.type === 'pointerdown' || event.type === 'click') {
+    else if (event.type === 'pointerdown') {
         if (keyState.keyT) addModelToSceneAtCursor("table");
         if (keyState.keyG) addModelToSceneAtCursor("garlic");
         if (keyState.keyR) addModelToSceneAtCursor("rock");
@@ -667,10 +756,10 @@ function handlePointerEvent(event: PointerEvent): void {
 // Add this function to visualize the spawn area
 function debugSpawnArea(): void {
     const geometry = new PlaneGeometry(
-        gridLimits.maxX - gridLimits.minX, 
+        gridLimits.maxX - gridLimits.minX,
         gridLimits.maxZ - gridLimits.minZ
     );
-    const material = new MeshBasicMaterial({ 
+    const material = new MeshBasicMaterial({
         color: 0x00ff00,
         transparent: true,
         opacity: 0.2,
@@ -715,16 +804,34 @@ function changeColour(colour: string): void {
 const keyState = reactive({
     keyT: false,
     keyG: false,
-    keyR: false
+    keyR: false,
 });
 
+// Update the preview visibility based on key state
+// function updatePreviewVisibility(): void {
+//     if (spawnPreviewMesh.value) {
+//         spawnPreviewMesh.value.visible = keyState.keyT || keyState.keyG || keyState.keyR;
+//     }
+// }
+function isSpawnKeyPressed(): boolean {
+    return keyState.keyT || keyState.keyG || keyState.keyR;
+}
+
 // Updates key states when key events are triggered
+// function handleKeyEvent(event: KeyboardEvent, isDown: boolean): void {
+//     switch (event.code) {
+//         case 'KeyT': keyState.keyT = isDown; addModelToSceneAtCursor("table"); break;
+//         case 'KeyG': keyState.keyG = isDown; addModelToSceneAtCursor("garlic"); break;
+//         case 'KeyR': keyState.keyR = isDown; addModelToSceneAtCursor("rock"); break;
+//     }
+// }
 function handleKeyEvent(event: KeyboardEvent, isDown: boolean): void {
     switch (event.code) {
-        case 'KeyT': keyState.keyT = isDown; addModelToSceneAtCursor("table"); break;
-        case 'KeyG': keyState.keyG = isDown; addModelToSceneAtCursor("garlic"); break;
-        case 'KeyR': keyState.keyR = isDown; addModelToSceneAtCursor("rock"); break;
+        case 'KeyT': keyState.keyT = isDown; break;
+        case 'KeyG': keyState.keyG = isDown; break;
+        case 'KeyR': keyState.keyR = isDown; break;
     }
+    // updatePreviewVisibility();
 }
 
 // Attaches a gizmo to a target object for transformation
@@ -784,7 +891,18 @@ function setupEventListeners(): void {
 
 onMounted(() => {
     setupEventListeners();
-    // debugSpawnArea();
+    createSpawnPreview();
+    animatePreview();
+});
+
+onUnmounted(() => {
+    if (spawnPreviewMesh.value) {
+        scene.value.remove(spawnPreviewMesh.value);
+        spawnPreviewMesh.value.geometry.dispose();
+        (spawnPreviewMesh.value.material as MeshBasicMaterial).dispose();
+    }
+
+    cancelAnimationFrame(pulseAnimation);
 });
 </script>
 
