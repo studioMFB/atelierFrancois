@@ -181,6 +181,7 @@ function createSpawnPreview(): void {
     spawnPreviewMesh.value.rotateX(-Math.PI / 2); // Lay flat on the ground
     spawnPreviewMesh.value.position.y = 0.5; // Slightly above ground to prevent z-fighting
 
+    spawnPreviewMesh.value.visible = false;
     scene.value.add(spawnPreviewMesh.value);
 }
 
