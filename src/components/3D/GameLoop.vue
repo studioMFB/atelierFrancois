@@ -4,7 +4,7 @@ import { Clock, Scene, WebGLRenderer, Vector3, PerspectiveCamera, Group, type Ob
 import { Model } from "@/components/modelViewer/resources/model";
 import { computed, inject, provide, reactive, ref, toRefs, watch, watchEffect, type Ref } from "vue";
 
-import { useModelStore } from '@/store/modelStore';
+import { useModelStore } from '@/stores/modelStore';
 const modelStore = useModelStore();
 
 

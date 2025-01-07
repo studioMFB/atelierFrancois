@@ -1,23 +1,23 @@
 <script setup lang="ts">
 import { computed, inject, onMounted, onUnmounted, reactive, ref, type ComponentPublicInstance, type Ref } from 'vue';
-import { Color, Group, type Intersection, Mesh, MeshBasicMaterial, MeshToonMaterial, Object3D, type Object3DEventMap, PerspectiveCamera, Plane, PlaneGeometry, Raycaster, Scene, Vector2, Vector3 } from 'three';
+import { Group, type Intersection, Mesh, Object3D, type Object3DEventMap, PerspectiveCamera, Plane, Raycaster, Scene, Vector2, Vector3 } from 'three';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
+
+import { MODEL_NAMES, MODEL_SUB_NAMES } from "@/components/3D/constants";
 
 import { Model } from '@/components/modelViewer/resources/model';
 import type { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
-import { useModelStore } from '@/store/modelStore';
+import { useModelStore } from '@/stores/modelStore';
 const modelStore = useModelStore();
 
 import SpawnPreview from './raycaster/SpawnPreview.vue';
 
-import { RAYCASTER, GRID } from './raycaster/constants';
+import { RAYCASTER, GRID } from './constants';
 import { type Models } from "@/components/3D/ModelViewer.vue";
 
-
-// Colour //
-const COLOUR_SELECTED = '#f47653';
-const COLOUR_UNSELECTED = '#e2eab8';
+import { useComposerStore } from '@/stores/composerStore';
+import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js';
 
 const props = defineProps<{
     canvas: HTMLCanvasElement
@@ -32,10 +32,13 @@ const camera = ref(inject("PerspectiveCamera")) as Ref<PerspectiveCamera>;
 const transformControlsGizmos = ref(inject("TransformGizmos")) as Ref<TransformControls>;
 const controls = ref(inject("OrbitControls")) as Ref<OrbitControls>;
 
+let modelInstance: Model | null = reactive(new Model());
+
 // const spawnPreview = ref<InstanceType<typeof SpawnPreview>>();
 type SpawnPreviewExposed = {
     previewMesh: Ref<Mesh | null>;
 };
+// Create a ref for SpawnPreview
 const spawnPreview = ref<ComponentPublicInstance<{}, SpawnPreviewExposed> | null>(null);
 
 const pointer = new Vector2();
@@ -43,7 +46,6 @@ let intersect: Intersection<Object3D<Object3DEventMap>>;
 let intersectedGroupObject: Group<Object3DEventMap>;
 
 let isLeftMouseButtonDown = false;
-let isSelected = false;
 let rotationDelta = 0;
 let cachedIntersects: Intersection<Object3D<Object3DEventMap>>[] = []; // Cache for intersection results
 
@@ -60,71 +62,8 @@ const gridLimits = reactive({
     maxZ: GRID.LIMITS.MAX_Z
 });
 
-// Finds the parent of a model, recursively traversing upward until it matches the root model name
-function findModelParent(mesh: any): Group<Object3DEventMap> | null {
-    if (!mesh.parent) {
-        return null;
-    }
-
-    const rootName = 'root_model';
-    if (mesh.parent.name.includes(rootName)) {
-        return mesh.parent as Group<Object3DEventMap>;
-    }
-
-    return findModelParent(mesh.parent);
-}
-
 // Add this constant at the top with your other constants
 const GROUND_Y_POSITION = 0; // Or whatever your ground plane Y position is
-
-// Modify your intersection function to handle ground plane intersection explicitly
-function handleIntersection(): boolean {
-    if (!isRaycasterReady()) {
-        console.warn("Raycaster is not ready. Check dependencies and object configurations.");
-        return false;
-    }
-
-    // Create a virtual ground plane for consistent intersection
-    const groundNormal = new Vector3(0, 1, 0);
-    const groundPlane = new Plane(groundNormal, -GROUND_Y_POSITION);
-
-    // Get intersection point with ground plane
-    const intersectionPoint = new Vector3();
-    raycaster.ray.intersectPlane(groundPlane, intersectionPoint);
-
-    if (intersectionPoint) {
-        // Create a synthetic intersection result
-        intersect = {
-            point: intersectionPoint,
-            distance: camera.value.position.distanceTo(intersectionPoint),
-            object: scene.value.getObjectByName('ground') || scene.value.children[0],
-            face: null,
-            faceIndex: 0,
-            uv: new Vector2(0, 0)
-        };
-
-        // Check if point is within grid boundaries
-        if (intersectionPoint.x >= gridLimits.minX &&
-            intersectionPoint.x <= gridLimits.maxX &&
-            intersectionPoint.z >= gridLimits.minZ &&
-            intersectionPoint.z <= gridLimits.maxZ) {
-            return true;
-        }
-    }
-
-    // Fallback to original object intersection logic
-    const intersects = raycaster.intersectObjects(modelStore.getGroupsObjects(), true)
-        .sort((a, b) => a.distance - b.distance);
-
-    if (intersects.length > 0) {
-        intersect = intersects[0];
-        intersectedGroupObject = findModelParent(intersect.object as Mesh)!;
-        cachedIntersects = intersects;
-        return true;
-    }
-
-    return false;
-}
 
 // Checks if the raycaster is ready by validating its dependencies
 function isRaycasterReady(): boolean {
@@ -230,32 +169,20 @@ function addModelToSceneAtCursor(modelKey: keyof Models): void {
     // Ensure position is within boundaries
     const boundedPosition = restrictPositionToBoundaries(spawnPosition);
 
-    const modelInstance = new Model(model.name, boundedPosition, model.scale, model.url);
+    if (!modelInstance) {
+        modelInstance = reactive(new Model())
+    }
+
+    modelInstance.name = model.name, boundedPosition, model.scale, model.url;
+    modelInstance.pos = boundedPosition;
+    modelInstance.scaleRatio = model.scale;
+    modelInstance.gltfUrl = model.url;
 
     modelInstance.initMesh().then((modelScene: Group<Object3DEventMap>) => {
         scene.value.add(modelScene);
-        modelStore.addModel(modelInstance);
+        modelStore.addModel(modelInstance as Model);
         modelStore.addGroupObjects(modelScene);
     });
-}
-
-// Handles pointer events for interactions
-function handlePointerEvent(event: PointerEvent): void {
-    updatePointerMode(event);
-
-    if (event.type === 'pointermove') {
-        if (handleIntersection()) {
-            attachGizmoToObject(intersectedGroupObject);
-        }
-
-        restricMoveToBoundaries();
-    }
-    if (event.type === 'pointerdown' && event.isPrimary) {  // Check if it's the primary pointer
-        // Can also check event.button === 0 for left click
-        if (keyState.keyT) addModelToSceneAtCursor("table");
-        if (keyState.keyG) addModelToSceneAtCursor("garlic");
-        if (keyState.keyR) addModelToSceneAtCursor("rock");
-    }
 }
 
 // Handles rotation using the scroll wheel when the left mouse button is down
@@ -267,24 +194,6 @@ function onWheel(event: WheelEvent): void {
 
         intersectedGroupObject.rotation.y += rotationDelta;
     }
-}
-
-// Changes the colour of the currently selected object
-function changeColour(colour: string): void {
-    if (!intersectedGroupObject)
-        return;
-
-    intersectedGroupObject.children.forEach(child => {
-        const c = child as Mesh;
-        if (!c.name.toLowerCase().includes("outline")) {
-            const mat = (c.material as MeshToonMaterial);
-
-            if (mat) {
-                (c.material as MeshToonMaterial).color = new Color(colour);
-                return;
-            }
-        }
-    });
 }
 
 // Tracks the state of keyboard inputs for specific keys
@@ -307,55 +216,245 @@ function handleKeyEvent(event: KeyboardEvent, isDown: boolean): void {
     }
 }
 
-// Attaches a gizmo to a target object for transformation
+// Modify your intersection function to handle ground plane intersection explicitly
+function handleIntersection(): boolean {
+    if (!isRaycasterReady()) {
+        console.warn("Raycaster is not ready. Check dependencies and object configurations.");
+        return false;
+    }
+
+    // Create a virtual ground plane for consistent intersection
+    const groundNormal = new Vector3(0, 1, 0);
+    const groundPlane = new Plane(groundNormal, -GROUND_Y_POSITION);
+
+    // Get intersection point with ground plane
+    const intersectionPoint = new Vector3();
+    raycaster.ray.intersectPlane(groundPlane, intersectionPoint);
+
+    if (intersectionPoint) {
+        // Create a synthetic intersection result
+        intersect = {
+            point: intersectionPoint,
+            distance: camera.value.position.distanceTo(intersectionPoint),
+            object: scene.value.getObjectByName(MODEL_SUB_NAMES.GROUND) || scene.value.children[0],
+            face: null,
+            faceIndex: 0,
+            uv: new Vector2(0, 0)
+        };
+
+        // Check if point is within grid boundaries
+        if (intersectionPoint.x >= gridLimits.minX &&
+            intersectionPoint.x <= gridLimits.maxX &&
+            intersectionPoint.z >= gridLimits.minZ &&
+            intersectionPoint.z <= gridLimits.maxZ) {
+            return true;
+        }
+    }
+
+    // Fallback to original object intersection logic
+    const intersects = raycaster.intersectObjects(modelStore.getGroupsObjects(), true)
+        .sort((a, b) => a.distance - b.distance);
+
+    if (intersects.length > 0) {
+        if (!modelInstance)
+            return false;
+
+        intersect = intersects[0];
+        intersectedGroupObject = modelInstance.findModelParent(intersect.object as Mesh)!;
+        cachedIntersects = intersects;
+        return true;
+    }
+
+    return false;
+}
+
+// Keep track of currently selected model
+let selectedModel: Model | null = null;
+
+function handlePointerEvent(event: PointerEvent): void {
+    updatePointerMode(event);
+
+    if (event.type === 'pointermove' || event.type === 'pointerdown') {
+        if (handleIntersection()) {
+            const modelParent = modelInstance?.findModelParent(intersect.object as Mesh);
+
+            if (modelParent && !modelParent.name.includes(MODEL_NAMES.FLOOR)) {
+                if (event.type === 'pointerdown') {
+                    // Highlight the selected object
+                    highlightModel(modelParent);
+                    // Attach gizmo
+                    attachGizmoToObject(modelParent);
+                    selectedModel = modelInstance;
+                }
+            } else {
+                resetSelection();
+            }
+        } else {
+            resetSelection();
+        }
+    }
+}
+
+function highlightModel(object: Object3D): void {
+    if (outlinePass) {
+        outlinePass.selectedObjects = [object];
+    }
+}
+
+// function handlePointerEvent(event: PointerEvent): void {
+//     updatePointerMode(event);
+
+//     if (event.type === 'pointermove') {
+//         if (handleIntersection()) {
+//             if (intersectedGroupObject && !intersectedGroupObject.name.includes(MODEL_NAMES.FLOOR)) {
+//                 attachGizmoToObject(intersectedGroupObject);
+//             }
+//         }
+//         restricMoveToBoundaries();
+//     }
+
+//     if (event.type === 'pointerdown' && event.isPrimary) {
+//         if (handleIntersection()) {
+//             if (intersectedGroupObject) {
+//                 if (!intersectedGroupObject.name.includes(MODEL_NAMES.FLOOR)) {
+//                     // Deselect previous model
+//                     if (selectedModel && selectedModel !== modelInstance) {
+//                         detachGizmo();
+//                     }
+
+//                     attachGizmoToObject(intersectedGroupObject);
+//                     selectedModel = modelInstance;
+//                 } else {
+//                     detachGizmo();
+//                 }
+//             }
+//         } else {
+//             detachGizmo();
+//         }
+
+//         // Handle model creation hotkeys
+//         if (keyState.keyT) addModelToSceneAtCursor(MODEL_NAMES.TABLE);
+//         if (keyState.keyR) addModelToSceneAtCursor(MODEL_NAMES.ROCK);
+//         if (keyState.keyG) addModelToSceneAtCursor(MODEL_NAMES.GARLIC);
+//     }
+// }
+
+let outlinePass: OutlinePass;
+
+// In RaycasterComponent where you handle selection:
+// Update attachGizmoToObject to use outline effect
 function attachGizmoToObject(targetObject: Object3D): void {
-    if (!targetObject || targetObject.name.includes("Floor")) {
-        transformControlsGizmos.value.detach();
+    if (!targetObject || targetObject.name.includes(MODEL_NAMES.FLOOR)) {
+        resetSelection();
         return;
     }
 
-    transformControlsGizmos.value.attach(targetObject);
-    isSelected = true;
-    changeColour(COLOUR_SELECTED);
+    if (modelInstance) {
+        if (!modelInstance.isSelected) {
+            modelInstance.isSelected = true;
+            highlightModel(targetObject);
+            transformControlsGizmos.value.attach(targetObject);
+        }
+    }
 }
+
+// Update detachGizmo to clear outline effect
+// function detachGizmo(): void {
+//     if (selectedModel) {
+//         selectedModel.isSelected = false;
+
+//         if (outlinePass)
+//             outlinePass.selectedObjects = [];
+//     }
+//     transformControlsGizmos.value.detach();
+//     selectedModel = null;
+// }
+
+function resetSelection(): void {
+    if (selectedModel) {
+        selectedModel.isSelected = false;
+        selectedModel = null;
+    }
+
+    if (outlinePass) {
+        outlinePass.selectedObjects = [];
+    }
+
+    transformControlsGizmos.value.detach();
+}
+
+// Handles pointer events for interactions
+// function handlePointerEvent(event: PointerEvent): void {
+//     updatePointerMode(event);
+
+//     if (event.type === 'pointermove') {
+//         if (handleIntersection()) {
+
+//             if(modelInstance){
+//                 attachGizmoToObject(intersectedGroupObject);
+//             }
+//         }
+
+//         restricMoveToBoundaries();
+//     }
+//     if (event.type === 'pointerdown' && event.isPrimary) {  // Check if it's the primary pointer
+//         // Can also check event.button === 0 for left click
+//         if (keyState.keyT) addModelToSceneAtCursor(MODEL_NAMES.TABLE);
+//         if (keyState.keyR) addModelToSceneAtCursor(MODEL_NAMES.ROCK);
+//         if (keyState.keyG) addModelToSceneAtCursor(MODEL_NAMES.GARLIC);
+//     }
+// }
+
+// Attaches a gizmo to a target object for transformation
+// function attachGizmoToObject(targetObject: Object3D): void {
+//     if (!targetObject || targetObject.name.includes(MODEL_NAMES.FLOOR)) {
+//         detachGizmo();
+//         return;
+//     }
+
+//     if(modelInstance){
+//         modelInstance.isSelected = true;
+//         modelInstance.changeOutlineColour(COLOURS.SELECTED);
+//     }
+//     transformControlsGizmos.value.attach(targetObject);
+// }
 
 // Detaches the gizmo from the current object
-function detachGizmo(): void {
-    transformControlsGizmos.value.detach();
-    isSelected = false;
-    changeColour(COLOUR_UNSELECTED);
-}
+// function detachGizmo(): void {
+//     if(modelInstance){
+//         modelInstance.isSelected = false;
+//         modelInstance.changeOutlineColour(COLOURS.DEFAULT_OUTLINE);
+//     }
+//     transformControlsGizmos.value.detach();
+// }
 
 function handleClick(event: MouseEvent): void {
-    // console.log('Click event triggered'); // Debug log
     if (keyState.keyT || keyState.keyG || keyState.keyR) {
-        // console.log('Key state active:', keyState); // Debug log
-        if (keyState.keyT) addModelToSceneAtCursor("table");
-        if (keyState.keyG) addModelToSceneAtCursor("garlic");
-        if (keyState.keyR) addModelToSceneAtCursor("rock");
+        if (keyState.keyT) addModelToSceneAtCursor(MODEL_NAMES.TABLE);
+        if (keyState.keyR) addModelToSceneAtCursor(MODEL_NAMES.ROCK);
+        if (keyState.keyG) addModelToSceneAtCursor(MODEL_NAMES.GARLIC);
     }
 }
 
 // Sets up all necessary event listeners for interactions
 function setupEventListeners(): void {
-    const pointerMoveListener = (e: PointerEvent) => handlePointerEvent(e);
+    const pointerUpdate = (e: PointerEvent) => handlePointerEvent(e);
     // Add both pointerdown and click handlers for better compatibility
-    const pointerDownListener = (e: PointerEvent) => handlePointerEvent(e);
     const clickListener = (e: MouseEvent) => handleClick(e);
 
     const wheelListener = (e: WheelEvent) => { onWheel(e) };
     const keyDownListener = (e: KeyboardEvent) => handleKeyEvent(e, true);
     const keyUpListener = (e: KeyboardEvent) => handleKeyEvent(e, false);
 
-    document.addEventListener('pointermove', pointerMoveListener);
-    document.addEventListener('pointerdown', pointerDownListener);
+    document.addEventListener('pointermove', pointerUpdate);
+    document.addEventListener('pointerdown', pointerUpdate);
     canvas.value.addEventListener('click', clickListener);  // Add click event listener
 
     document.addEventListener('wheel', wheelListener);
     document.addEventListener('keydown', keyDownListener);
     document.addEventListener('keyup', keyUpListener);
 
-    canvas.value.addEventListener("pointerup", detachGizmo);
+    // canvas.value.addEventListener("pointerup", resetSelection);
 
     transformControlsGizmos.value.addEventListener("mouseDown", () => {
         if (controls.value) controls.value.enabled = false;
@@ -368,8 +467,8 @@ function setupEventListeners(): void {
     });
 
     onUnmounted(() => {
-        document.removeEventListener('pointermove', pointerMoveListener);
-        document.removeEventListener('pointerdown', pointerDownListener);
+        document.removeEventListener('pointermove', pointerUpdate);
+        document.removeEventListener('pointerdown', pointerUpdate);
         document.removeEventListener('click', clickListener);  // Remove click event listener
         document.removeEventListener('wheel', wheelListener);
         document.removeEventListener('keydown', keyDownListener);
@@ -379,6 +478,9 @@ function setupEventListeners(): void {
 
 onMounted(() => {
     setupEventListeners();
+
+    const composerStore = useComposerStore();
+    outlinePass = composerStore.getOutlinePass() as OutlinePass;
 });
 </script>
 

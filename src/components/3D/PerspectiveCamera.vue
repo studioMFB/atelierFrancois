@@ -16,6 +16,10 @@ camera.name = "main_perspective_camera";
 camera.position.set(position.value.x, position.value.y, position.value.z);
 camera.lookAt(0, 0, 0); // Ensure camera is pointing to the scene center
 
+camera.near = 0.1; // Minimum distance from the camera
+camera.far = 1000; // Maximum distance to render
+camera.updateProjectionMatrix();
+
 if (zoom.value) camera.zoom = zoom.value;
 
 provide("PerspectiveCamera", camera);

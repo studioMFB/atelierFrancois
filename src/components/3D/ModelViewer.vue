@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { computed, reactive, ref, type Ref } from "vue";
+import { computed, type Ref } from "vue";
 
 import { Color, Vector3, Vector2 } from "three";
+
+import { GLTF_URL, MODEL_NAMES } from "@/components/3D/constants";
 
 import MainScene from "@/components/3D/MainScene.vue";
 import WebGlRenderer from "@/components/3D/WebGlRenderer.vue";
@@ -24,11 +26,6 @@ const GRID_SIZE = 5;
 const GRID_RATIO = 0.5;
 const GRID_CELL_SIZE = GRID_SIZE / GRID_RATIO;
 
-// GLTF //
-const GLTF_TABLE = new URL('./../modelViewer/models/table/1/littlewood_furniture.gltf', import.meta.url).toString();
-const GLTF_GARLIC = new URL('./../modelViewer/models/garlic/scene.gltf', import.meta.url).toString();
-const GLTF_ROCK = new URL('./../modelViewer/models/rock/scene.gltf', import.meta.url).toString();
-
 // Props
 const props = defineProps<{ canvas?: HTMLCanvasElement }>();
 const canvas = computed(() => props.canvas) as Ref<HTMLCanvasElement>;
@@ -39,14 +36,15 @@ interface IModel {
     scale: number;
     url: string;
 }
-export type Models = Record<'table' | 'garlic' | 'rock', IModel>;
+const t = MODEL_NAMES.TABLE
+export type Models = Record<'table' | 'rock' | 'garlic', IModel>;
 
 // Defines a reactive object to manage models in the scene
-const models: Models = reactive({
-    table: setupModel("table", new Vector3(-0.5, 0, -0.5), 1, GLTF_TABLE),
-    garlic: setupModel("garlic", new Vector3(-0.5, 0, -0.5), 10, GLTF_GARLIC),
-    rock: setupModel("rock", new Vector3(-0.5, 0, -0.5), 0.4, GLTF_ROCK),
-});
+const models: Models = {
+    table: setupModel(MODEL_NAMES.TABLE, new Vector3(-0.5, 0, -0.5), 1, GLTF_URL.TABLE),
+    rock: setupModel(MODEL_NAMES.ROCK, new Vector3(-0.5, 0, -0.5), 0.4, GLTF_URL.ROCK),
+    garlic: setupModel(MODEL_NAMES.GARLIC, new Vector3(-0.5, 0, -0.5), 10, GLTF_URL.GARLIC),
+};
 
 // Sets up model metadata for initialization
 function setupModel(name: string, position: Vector3, scale: number, url: string): { name: string, position: Vector3, scale: number, url: string } {
@@ -72,9 +70,9 @@ function setupModel(name: string, position: Vector3, scale: number, url: string)
                     <template v-slot:GameLoop>
                         <GameLoop />
                     </template>
-                    <template v-slot:EffectComposer>
-                        <EffectComposer />
-                    </template>
+                    <!-- <template v-slot:EffectComposer>
+                        <EffectComposer/>
+                    </template> -->
                     <template v-slot:ResizerComponent>
                         <ResizerComponent />
                     </template>

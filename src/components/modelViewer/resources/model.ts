@@ -1,10 +1,15 @@
-import { Mesh, Vector3, Scene, Group, MeshToonMaterial, Color, type Object3DEventMap, MeshBasicMaterial, BoxHelper, Box3, Object3D } from "three";
+import { COLOURS, MODEL_SUB_NAMES } from "@/components/3D/constants";
+import { Mesh, Vector3, Group, MeshToonMaterial, Color, type Object3DEventMap, MeshBasicMaterial, BoxHelper, Box3, Object3D } from "three";
 import { type GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
-export class Model extends Mesh {
 
+export class Model extends Mesh {
   scaleRatio: number;
   pos: Vector3;
+
+  isSelected: boolean = false;
+  fillColour: number = COLOURS.DEFAULT_FILL;
+  outlineColour: number = COLOURS.DEFAULT_OUTLINE;
 
   group?: Group;
   modelScene?: Group<Object3DEventMap>;
@@ -16,27 +21,40 @@ export class Model extends Mesh {
 
   gltfUrl: string;
 
-
-  constructor(name: string, pos: Vector3, scaleRatio: number, gltfUrl: string) {
+  constructor(name?: string, pos?: Vector3, scaleRatio?: number, gltfUrl?: string) {
     super()
-
-    this.name = name;
-    this.scaleRatio = scaleRatio;
-    this.pos = pos;
-
-    this.gltfUrl = gltfUrl;
+    this.name = name || "";
+    this.pos = pos || new Vector3(0, 0, 0);
+    this.scaleRatio = scaleRatio || 0;
+    this.gltfUrl = gltfUrl || "";
   }
 
-  changeColour(colour: string) {
-    if (!this.modelScene)
-      return;
+  // Finds the parent of a model, recursively traversing upward until it matches the root model name
+  findModelParent(mesh: any): Group<Object3DEventMap> | null {
+    if (!mesh.parent) {
+      return null;
+    }
+
+    const rootName = 'root_model';
+    if (mesh.parent.name.includes(rootName)) {
+      return mesh.parent as Group<Object3DEventMap>;
+    }
+
+    return this.findModelParent(mesh.parent);
+  }
+
+  changeOutlineColour(colour: number) {
+    if (!this.modelScene) return;
+
+    const newColour = new Color(colour);
 
     this.modelScene.traverse((child: Object3D) => {
       const _child = child as Mesh;
 
-      if (_child.isMesh) {
-        if (!_child.name.toLowerCase().includes("outline")) {
-          (_child.material as MeshToonMaterial).color = new Color(colour);
+      if (_child.name.toLowerCase().includes(MODEL_SUB_NAMES.OUTLINE)) {
+        const mat = _child.material as MeshBasicMaterial
+        if (mat) {
+          mat.color.set(newColour);
         }
       }
     });
@@ -51,33 +69,28 @@ export class Model extends Mesh {
         (gltf: GLTF) => {
           this.modelScene = gltf.scene;
 
-          const parameters = {
-            color: new Color(0xe2eab8),
-          };
+          const matFill = new MeshToonMaterial({ color: this.fillColour });
+          matFill.opacity = 0.005;
+          const matOutline = new MeshBasicMaterial({ color: this.outlineColour});
 
-          const matToon = new MeshToonMaterial(parameters);
-          matToon.opacity = 0.005;
-          const matColor = new MeshBasicMaterial({ color: 0x3c3c3c });
-
-          gltf.scene.traverse((child: Object3D) => {
+          this.modelScene.traverse((child: Object3D) => {
             const _child = child as Mesh;
 
             if (_child.isMesh) {
               _child.geometry.computeBoundingBox();
             }
 
-            if (_child.name.toLowerCase().includes("outline")) {
-              _child.material = matColor;
+            if (_child.name.toLowerCase().includes(MODEL_SUB_NAMES.OUTLINE)) {
+              _child.material = matOutline;
             } else {
-              _child.material = matToon;
+              _child.material = matFill;
               _child.castShadow = true;
             }
 
-            _child.name += `${this.name}_child_model`;
+            _child.name += `${this.name}_${MODEL_SUB_NAMES.CHILD}`;
           });
 
-          // this.modelScene.name = "root_model";
-          this.modelScene.name = `${this.name}_root_model`;
+          this.modelScene.name = `${this.name}_${MODEL_SUB_NAMES.ROOT}`;
           this.modelScene.scale.multiplyScalar(this.scaleRatio);
           this.modelScene.position.set(this.pos.x, this.pos.y, this.pos.z);
 

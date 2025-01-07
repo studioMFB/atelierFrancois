@@ -1,9 +1,14 @@
 <script setup lang="ts">
-import { computed, inject, provide, onUnmounted } from 'vue';
+import { computed, inject, provide, onUnmounted, onMounted } from 'vue';
 
-import { BoxGeometry, Mesh, MeshBasicMaterial, PCFSoftShadowMap, PerspectiveCamera, Scene, Vector2, WebGLRenderer } from 'three';
-import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js';
+import { PCFSoftShadowMap, PerspectiveCamera, Scene, Vector2, WebGLRenderer, WebGLRenderTarget } from 'three';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { OutlinePass } from "three/examples/jsm/postprocessing/OutlinePass.js";
+import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
+
+import { useComposerStore } from '@/stores/composerStore';
+
+// const composerStore = useComposerStore();
 
 // Props to accept an optional HTML canvas element
 const props = defineProps<{
@@ -43,36 +48,84 @@ renderer.setPixelRatio(window.devicePixelRatio); // Optimize rendering for the d
 renderer.shadowMap.type = PCFSoftShadowMap; // Enable soft shadows
 renderer.shadowMap.enabled = true; // Turn on shadow map support
 
-// DEBUG
-// const geometry = new BoxGeometry(1, 1, 1);
-// const material = new MeshBasicMaterial({ color: 0x00ff00 });
-// const cube = new Mesh(geometry, material);
-// scene.value.add(cube);
-
-// Initialize the EffectComposer for post-processing effects
-// const composer = new EffectComposer(renderer);
-// Add an OutlinePass for rendering outlines around selected objects
-// const outlinePass = new OutlinePass(new Vector2(window.innerWidth, window.innerHeight), scene.value, camera.value);
-
 // Provide the renderer instance for other components to use
 provide("WebGlrenderer", renderer);
 
 let animationFrameId: number; // Track the animation frame ID to allow stopping the animation loop
 
+function setupComposer(): EffectComposer {
+
+    // Create buffer with higher sampling
+    const size = 2;
+    const renderTarget = new WebGLRenderTarget(
+        window.innerWidth * size,
+        window.innerHeight * size,
+        {
+            samples: 4, // OR 8 for Higher samples for better anti-aliasing
+            colorSpace: 'srgb' // SRGBColorSpace
+        }
+    );
+
+    const composer = new EffectComposer(renderer, renderTarget);
+    const renderPass = new RenderPass(scene.value, camera.value);
+    composer.addPass(renderPass);
+
+    const outlinePass = new OutlinePass(
+        new Vector2(window.innerWidth * size, window.innerHeight * size),
+        scene.value,
+        camera.value
+    );
+
+    // Stronger outline settings
+    outlinePass.edgeStrength = 5;    // Reduce for subtle edges
+    outlinePass.edgeGlow = 0.5;      // Reduce glow effect
+    outlinePass.edgeThickness = 1.5; // Adjust edge thickness for visibility
+    outlinePass.pulsePeriod = 0;     // Remove pulsing
+    outlinePass.visibleEdgeColor.set(0xff0000); // Bright red for visibility
+    outlinePass.hiddenEdgeColor.set(0x000000);  // Black for hidden edges
+    // outlinePass.depthTest = true;
+    // outlinePass.depthWrite = true;
+
+    composer.addPass(outlinePass);
+
+    // Store outlinePass in your store so RaycasterComponent can access it
+    useComposerStore().setOutlinePass(outlinePass);
+
+    return composer;
+}
+
+const composer = setupComposer();
+
 // Animation loop to continuously render the scene
 function animate(): void {
     animationFrameId = requestAnimationFrame(animate); // Request the next animation frame
-    renderer.render(scene.value, camera.value); // Render the scene using the camera
-    // composer.render(); // Uncomment to use the composer for post-processing
+
+    // const composer = composerStore.getComposer() as EffectComposer;
+    // composer = setupComposer();
+    if (composer) {
+        composer.render(); // Uncomment to use the composer for post-processing
+        // console.log("composer");
+    }
+    else {
+        renderer.render(scene.value, camera.value); // Render the scene using the camera
+        // console.log("renderer");
+    }
 }
 
 animate();
 
+onMounted(() => {
+    window.addEventListener('resize', () => {
+        composer.setSize(window.innerWidth, window.innerHeight);
+        composer.setPixelRatio(window.devicePixelRatio);
+    });
+});
+
 // Handle window resizing to update renderer and post-processing settings
 // function handleResize(): void {
-    // renderer.setSize(window.innerWidth, window.innerHeight);
-    // composer.setSize(window.innerWidth, window.innerHeight);
-    // outlinePass.resolution.set(window.innerWidth, window.innerHeight);
+// renderer.setSize(window.innerWidth, window.innerHeight);
+// composer.setSize(window.innerWidth, window.innerHeight);
+// outlinePass.resolution.set(window.innerWidth, window.innerHeight);
 // }
 
 // Add a listener for window resize events

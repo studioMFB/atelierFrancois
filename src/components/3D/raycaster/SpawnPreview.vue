@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, inject, type Ref, watch, computed } from 'vue';
 
-import { CircleGeometry, Mesh, MeshBasicMaterial, Scene, Vector3, Plane, Raycaster, Vector2 } from 'three';
+import { CircleGeometry, Mesh, MeshBasicMaterial, Scene, Vector3, Plane, Raycaster } from 'three';
 
-import { COLORS, PREVIEW } from './constants';
+import { COLOURS, PREVIEW } from '../constants';
 
 
 const props = defineProps<{
@@ -22,12 +22,13 @@ const scene = ref(inject("MainScene")) as Ref<Scene>;
 const raycaster = computed(() => props.raycaster) as Ref<Raycaster>;
 
 const previewMesh = ref<Mesh | null>(null);
+
 let pulseAnimation: number;
 
 function createPreviewMesh(): void {
   const geometry = new CircleGeometry(PREVIEW.SIZE, 32);
   const material = new MeshBasicMaterial({
-    color: COLORS.PREVIEW,
+    color: COLOURS.PREVIEW,
     side: 2,
     transparent: true,
     opacity: 0.5,
@@ -86,9 +87,9 @@ watch(() => props.visible, (newVisible: boolean) => {
   }
 });
 
-defineExpose(() => {
-    previewMesh: ref<Mesh | null>(null)
-})
+defineExpose({
+    previewMesh, // Expose `previewMesh` as part of the component's public API
+});
 
 onMounted(() => {
   createPreviewMesh();

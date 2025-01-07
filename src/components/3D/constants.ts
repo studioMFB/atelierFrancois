@@ -2,9 +2,12 @@ import { Vector3 } from 'three';
 
 
 // Colors
-export const COLORS = {
-    SELECTED: '#f47653',
-    UNSELECTED: '#e2eab8',
+export const COLOURS = {
+    DEFAULT_FILL: 0xe2eab8,
+    DEFAULT_OUTLINE: 0x3c3c3c,
+    SELECTED_OUTLINE: 0xf47653,
+    // DEFAULT_OUTLINE: '#e2eab8',
+    // SELECTED: '#f47653',
     PREVIEW: 0xf47653,  // Hex format for Three.js materials
 } as const;
 
@@ -51,26 +54,30 @@ export const DEFAULT_POSITIONS = {
     MODEL: new Vector3(-0.5, 0, -0.5)
 } as const;
 
-// GLTF Model Paths
-export const GLTF_PATHS = {
-    TABLE: new URL('./models/table/1/littlewood_furniture.gltf', import.meta.url).toString(),
-    GARLIC: new URL('./models/garlic/scene.gltf', import.meta.url).toString(),
-    ROCK: new URL('./models/rock/scene.gltf', import.meta.url).toString()
+export const GLTF_URL = {
+    TABLE: new URL('./../modelViewer/models/table/1/littlewood_furniture.gltf', import.meta.url).toString(),
+    GARLIC: new URL('./../modelViewer/models/garlic/scene.gltf', import.meta.url).toString(),
+    ROCK: new URL('./../modelViewer/models/rock/scene.gltf', import.meta.url).toString()
 } as const;
 
-// Rotation
 export const ROTATION = {
     SPEED: Math.PI / 2  // Rotation speed for wheel rotation
 } as const;
 
-// Model Names
 export const MODEL_NAMES = {
-    ROOT: 'root_model',
     FLOOR: 'Floor',
-    OUTLINE: 'outline'
+    TABLE: 'table',
+    ROCK: 'rock',
+    GARLIC: 'garlic'
 } as const;
 
-// Event Keys
+export const MODEL_SUB_NAMES = {
+    ROOT: 'root_model',
+    CHILD: 'child_model',
+    OUTLINE: 'outline',
+    GROUND: 'ground'
+} as const;
+
 export const KEYS = {
     TABLE: 'KeyT',
     GARLIC: 'KeyG',

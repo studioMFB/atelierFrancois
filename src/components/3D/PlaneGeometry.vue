@@ -4,7 +4,7 @@ import { computed, inject, onMounted} from 'vue';
 import { Color, DoubleSide, ExtrudeGeometry, Group, Mesh, MeshBasicMaterial, MeshStandardMaterial, 
     PlaneGeometry, Scene, ShadowMaterial, Shape, Vector2, Vector3, type Object3DEventMap } from 'three';
 
-import { useModelStore } from '@/store/modelStore';
+import { useModelStore } from '@/stores/modelStore';
 const modelStore = useModelStore();
 
 
