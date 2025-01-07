@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, type Ref } from "vue";
+import { computed, reactive, ref, type Ref } from "vue";
 
 import { Color, Vector3, Vector2 } from "three";
 
@@ -24,14 +24,34 @@ const GRID_SIZE = 5;
 const GRID_RATIO = 0.5;
 const GRID_CELL_SIZE = GRID_SIZE / GRID_RATIO;
 
+// GLTF //
+const GLTF_TABLE = new URL('./../modelViewer/models/table/1/littlewood_furniture.gltf', import.meta.url).toString();
+const GLTF_GARLIC = new URL('./../modelViewer/models/garlic/scene.gltf', import.meta.url).toString();
+const GLTF_ROCK = new URL('./../modelViewer/models/rock/scene.gltf', import.meta.url).toString();
+
 // Props
 const props = defineProps<{ canvas?: HTMLCanvasElement }>();
 const canvas = computed(() => props.canvas) as Ref<HTMLCanvasElement>;
 
-// Model URLs (if needed in the future)
-// const GLTF_TABLE = new URL('./../modelViewer/models/table/1/littlewood_furniture.gltf', import.meta.url).toString();
-// const GLTF_GARLIC = new URL('./../modelViewer/models/garlic/scene.gltf', import.meta.url).toString();
-// const GLTF_STONE = new URL('./../modelViewer/models/piedra/scene.gltf', import.meta.url).toString();
+interface IModel {
+    name: string;
+    position: Vector3;
+    scale: number;
+    url: string;
+}
+export type Models = Record<'table' | 'garlic' | 'rock', IModel>;
+
+// Defines a reactive object to manage models in the scene
+const models: Models = reactive({
+    table: setupModel("table", new Vector3(-0.5, 0, -0.5), 1, GLTF_TABLE),
+    garlic: setupModel("garlic", new Vector3(-0.5, 0, -0.5), 10, GLTF_GARLIC),
+    rock: setupModel("rock", new Vector3(-0.5, 0, -0.5), 0.4, GLTF_ROCK),
+});
+
+// Sets up model metadata for initialization
+function setupModel(name: string, position: Vector3, scale: number, url: string): { name: string, position: Vector3, scale: number, url: string } {
+    return { name, position, scale, url };
+}
 </script>
 
 <template>
@@ -41,7 +61,7 @@ const canvas = computed(() => props.canvas) as Ref<HTMLCanvasElement>;
             <template v-slot:orbitControl>
                 <OrbitControls :canvas="canvas">
                     <TransformGizmos :canvas="canvas">
-                        <RaycasterComponent ref="raycaster" :canvas="canvas" />
+                        <RaycasterComponent :models="models" ref="raycaster" :canvas="canvas" />
                     </TransformGizmos>
                 </OrbitControls>
             </template>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, inject, onMounted, onUnmounted, reactive, ref, type Ref } from 'vue';
+import { computed, inject, onMounted, onUnmounted, reactive, ref, type ComponentPublicInstance, type Ref } from 'vue';
 import { Color, Group, type Intersection, Mesh, MeshBasicMaterial, MeshToonMaterial, Object3D, type Object3DEventMap, PerspectiveCamera, Plane, PlaneGeometry, Raycaster, Scene, Vector2, Vector3 } from 'three';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
 
@@ -12,19 +12,19 @@ const modelStore = useModelStore();
 import SpawnPreview from './raycaster/SpawnPreview.vue';
 
 import { RAYCASTER, GRID } from './raycaster/constants';
+import { type Models } from "@/components/3D/ModelViewer.vue";
 
 
 // Colour //
 const COLOUR_SELECTED = '#f47653';
 const COLOUR_UNSELECTED = '#e2eab8';
-// GLTF //
-const GLTF_TABLE = new URL('./../modelViewer/models/table/1/littlewood_furniture.gltf', import.meta.url).toString();
-const GLTF_GARLIC = new URL('./../modelViewer/models/garlic/scene.gltf', import.meta.url).toString();
-const GLTF_ROCK = new URL('./../modelViewer/models/rock/scene.gltf', import.meta.url).toString();
 
 const props = defineProps<{
     canvas: HTMLCanvasElement
+    models: Models;
 }>();
+
+const models = computed(() => props.models) as Ref<Models>;
 
 const canvas = computed(() => props.canvas) as Ref<HTMLCanvasElement>;
 const scene = ref(inject("MainScene")) as Ref<Scene>;
@@ -33,12 +33,9 @@ const transformControlsGizmos = ref(inject("TransformGizmos")) as Ref<TransformC
 const controls = ref(inject("OrbitControls")) as Ref<OrbitControls>;
 
 // const spawnPreview = ref<InstanceType<typeof SpawnPreview>>();
-    import type { ComponentPublicInstance } from 'vue';
-
 type SpawnPreviewExposed = {
     previewMesh: Ref<Mesh | null>;
 };
-
 const spawnPreview = ref<ComponentPublicInstance<{}, SpawnPreviewExposed> | null>(null);
 
 const pointer = new Vector2();
@@ -196,8 +193,8 @@ function updatePointerMode(event: PointerEvent): void {
                         snappedPosition.x <= gridLimits.maxX &&
                         snappedPosition.z >= gridLimits.minZ &&
                         snappedPosition.z <= gridLimits.maxZ) {
-                            spawnPreview.value.previewMesh.position.copy(snappedPosition);
-                            spawnPreview.value.previewMesh.visible = true;
+                        spawnPreview.value.previewMesh.position.copy(snappedPosition);
+                        spawnPreview.value.previewMesh.visible = true;
                     } else if (spawnPreview.value.previewMesh) {
                         spawnPreview.value.previewMesh.visible = false;
                     }
@@ -211,34 +208,9 @@ function updatePointerMode(event: PointerEvent): void {
     }
 }
 
-// Defines a reactive object to manage models in the scene
-const models = reactive({
-    table: setupModel("table", new Vector3(-0.5, 0, -0.5), 1, GLTF_TABLE),
-    garlic: setupModel("garlic", new Vector3(-0.5, 0, -0.5), 10, GLTF_GARLIC),
-    rock: setupModel("rock", new Vector3(-0.5, 0, -0.5), 0.4, GLTF_ROCK),
-});
-
-// Sets up model metadata for initialization
-function setupModel(name: string, position: Vector3, scale: number, url: string): { name: string, position: Vector3, scale: number, url: string } {
-    return { name, position, scale, url };
-}
-
-// Adds a specified model to the scene by key
-function addModelToScene(modelKey: keyof typeof models): void {
-    const model = models[modelKey];
-
-    const modelInstance = new Model(model.name, model.position, model.scale, model.url);
-
-    modelInstance.initMesh().then((modelScene: Group<Object3DEventMap>) => {
-        scene.value.add(modelScene);
-        modelStore.addModel(modelInstance);
-        modelStore.addGroupObjects(modelScene);
-    });
-}
-
 // Adds a model to the scene at the current pointer intersection point
-function addModelToSceneAtCursor(modelKey: keyof typeof models): void {
-    const model = models[modelKey];
+function addModelToSceneAtCursor(modelKey: keyof Models): void {
+    const model = models.value[modelKey];
 
     if (!handleIntersection()) return;
 
@@ -284,24 +256,6 @@ function handlePointerEvent(event: PointerEvent): void {
         if (keyState.keyG) addModelToSceneAtCursor("garlic");
         if (keyState.keyR) addModelToSceneAtCursor("rock");
     }
-}
-
-// Add this function to visualize the spawn area
-function debugSpawnArea(): void {
-    const geometry = new PlaneGeometry(
-        gridLimits.maxX - gridLimits.minX,
-        gridLimits.maxZ - gridLimits.minZ
-    );
-    const material = new MeshBasicMaterial({
-        color: 0x00ff00,
-        transparent: true,
-        opacity: 0.2,
-        side: 2 // DoubleSide 
-    });
-    const debugPlane = new Mesh(geometry, material);
-    debugPlane.rotateX(-Math.PI / 2);
-    debugPlane.position.y = GROUND_Y_POSITION + 0.01; // Slightly above ground
-    scene.value.add(debugPlane);
 }
 
 // Handles rotation using the scroll wheel when the left mouse button is down
