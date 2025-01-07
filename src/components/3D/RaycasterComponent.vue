@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, inject, onMounted, onUnmounted, reactive, ref, type Ref } from 'vue';
-import { BufferGeometry, CircleGeometry, Color, Group, type Intersection, LineBasicMaterial, LineLoop, Mesh, MeshBasicMaterial, MeshToonMaterial, Object3D, type Object3DEventMap, PerspectiveCamera, Plane, PlaneGeometry, Raycaster, Scene, Vector2, Vector3 } from 'three';
+import { Color, Group, type Intersection, Mesh, MeshBasicMaterial, MeshToonMaterial, Object3D, type Object3DEventMap, PerspectiveCamera, Plane, PlaneGeometry, Raycaster, Scene, Vector2, Vector3 } from 'three';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
 
 import { Model } from '@/components/modelViewer/resources/model';
@@ -8,6 +8,10 @@ import type { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js
 
 import { useModelStore } from '@/store/modelStore';
 const modelStore = useModelStore();
+
+import SpawnPreview from './raycaster/SpawnPreview.vue';
+
+import { RAYCASTER, GRID } from './raycaster/constants';
 
 
 // Colour //
@@ -28,9 +32,14 @@ const camera = ref(inject("PerspectiveCamera")) as Ref<PerspectiveCamera>;
 const transformControlsGizmos = ref(inject("TransformGizmos")) as Ref<TransformControls>;
 const controls = ref(inject("OrbitControls")) as Ref<OrbitControls>;
 
-const raycaster = new Raycaster();
-raycaster.near = 0.1; // Minimum distance for intersection
-raycaster.far = 1000; // Maximum distance for intersection
+// const spawnPreview = ref<InstanceType<typeof SpawnPreview>>();
+    import type { ComponentPublicInstance } from 'vue';
+
+type SpawnPreviewExposed = {
+    previewMesh: Ref<Mesh | null>;
+};
+
+const spawnPreview = ref<ComponentPublicInstance<{}, SpawnPreviewExposed> | null>(null);
 
 const pointer = new Vector2();
 let intersect: Intersection<Object3D<Object3DEventMap>>;
@@ -41,14 +50,17 @@ let isSelected = false;
 let rotationDelta = 0;
 let cachedIntersects: Intersection<Object3D<Object3DEventMap>>[] = []; // Cache for intersection results
 
-// Defines a reactive grid configuration object to make the function more flexible
+const raycaster = new Raycaster();
+raycaster.near = RAYCASTER.NEAR;// Minimum distance for intersection
+raycaster.far = RAYCASTER.FAR;// Maximum distance for intersection
+
 const gridLimits = reactive({
-    minX: -2.5,  // Minimum X value
-    maxX: 2.5,   // Maximum X value
-    minY: 0,    // Minimum Y value (assuming Y is up)
-    maxY: 0,   // Maximum Y value
-    minZ: -2.5,  // Minimum Z value
-    maxZ: 2.5    // Maximum Z value
+    minX: GRID.LIMITS.MIN_X,
+    maxX: GRID.LIMITS.MAX_X,
+    minY: GRID.LIMITS.MIN_Y,
+    maxY: GRID.LIMITS.MAX_Y,
+    minZ: GRID.LIMITS.MIN_Z,
+    maxZ: GRID.LIMITS.MAX_Z
 });
 
 // Finds the parent of a model, recursively traversing upward until it matches the root model name
@@ -141,62 +153,6 @@ function restricMoveToBoundaries(): void {
     }
 }
 
-const spawnPreviewMesh = ref<Mesh | null>(null);
-// const spawnPreviewMesh = ref<LineLoop | null>(null);
-const PREVIEW_SIZE = 0.3; // Adjust size as needed
-const PREVIEW_COLOR = 0xf47653; // Using your selected color theme
-
-// Add this function to create the preview mesh
-function createSpawnPreview(): void {
-    const geometry = new CircleGeometry(PREVIEW_SIZE, 32);
-    
-    // hollow
-     // Extract the vertices from the circle geometry to create an outline
-    //  const points = geometry.getAttribute('position');
-    
-    // Create a new buffer geometry for the line
-    // const lineGeometry = new BufferGeometry();
-    // lineGeometry.setAttribute('position', points);
-    
-    // Create line material
-    // const material = new LineBasicMaterial({ 
-    //     color: PREVIEW_COLOR,
-    //     transparent: true,
-    //     opacity: 0.8,
-    //     linewidth: 1 // Note: due to WebGL limitations, line width is usually limited to 1
-    // });
-
-    // plain
-    const material = new MeshBasicMaterial({
-        color: PREVIEW_COLOR,
-        side: 2, // DoubleSide
-        transparent: true,
-        opacity: 0.5,
-    });
-
-    // hollow
-    // spawnPreviewMesh.value = new LineLoop(lineGeometry, material);
-    // plain
-    spawnPreviewMesh.value = new Mesh(geometry, material);
-    spawnPreviewMesh.value.rotateX(-Math.PI / 2); // Lay flat on the ground
-    spawnPreviewMesh.value.position.y = 0.5; // Slightly above ground to prevent z-fighting
-
-    spawnPreviewMesh.value.visible = false;
-    scene.value.add(spawnPreviewMesh.value);
-}
-
-let pulseAnimation: number;
-const PULSE_SPEED = .7;
-
-// Add this function to animate the preview
-function animatePreview(): void {
-    if (spawnPreviewMesh.value) {
-        const material = spawnPreviewMesh.value.material as MeshBasicMaterial;
-        material.opacity = 0.3 + Math.sin(Date.now() * 0.003 * PULSE_SPEED) * 0.2;
-    }
-    pulseAnimation = requestAnimationFrame(animatePreview);
-}
-
 // Updates the pointer position based on the event and recalculates the raycaster
 function updatePointerMode(event: PointerEvent): void {
     event.preventDefault();
@@ -209,13 +165,16 @@ function updatePointerMode(event: PointerEvent): void {
         if (raycaster && pointer && camera.value) {
             raycaster.setFromCamera(pointer, camera.value);
 
+            if (!spawnPreview.value || !spawnPreview.value.previewMesh)
+                return;
+
             // Update preview visibility based on spawn key state
-            if (spawnPreviewMesh.value) {
-                spawnPreviewMesh.value.visible = isSpawnKeyPressed();
+            if (spawnPreview.value.previewMesh) {
+                spawnPreview.value.previewMesh.visible = isSpawnKeyPressed();
             }
 
             // Only update position if preview is visible
-            if (spawnPreviewMesh.value?.visible) {
+            if (spawnPreview.value.previewMesh.visible) {
                 // Create a virtual ground plane for consistent intersection
                 const groundNormal = new Vector3(0, 1, 0);
                 const groundPlane = new Plane(groundNormal, 0);
@@ -232,15 +191,15 @@ function updatePointerMode(event: PointerEvent): void {
                     );
 
                     // Update preview position if within boundaries
-                    if (spawnPreviewMesh.value &&
+                    if (spawnPreview.value.previewMesh &&
                         snappedPosition.x >= gridLimits.minX &&
                         snappedPosition.x <= gridLimits.maxX &&
                         snappedPosition.z >= gridLimits.minZ &&
                         snappedPosition.z <= gridLimits.maxZ) {
-                        spawnPreviewMesh.value.position.copy(snappedPosition);
-                        spawnPreviewMesh.value.visible = true;
-                    } else if (spawnPreviewMesh.value) {
-                        spawnPreviewMesh.value.visible = false;
+                            spawnPreview.value.previewMesh.position.copy(snappedPosition);
+                            spawnPreview.value.previewMesh.visible = true;
+                    } else if (spawnPreview.value.previewMesh) {
+                        spawnPreview.value.previewMesh.visible = false;
                     }
                 }
             }
@@ -319,7 +278,8 @@ function handlePointerEvent(event: PointerEvent): void {
 
         restricMoveToBoundaries();
     }
-    else if (event.type === 'pointerdown') {
+    if (event.type === 'pointerdown' && event.isPrimary) {  // Check if it's the primary pointer
+        // Can also check event.button === 0 for left click
         if (keyState.keyT) addModelToSceneAtCursor("table");
         if (keyState.keyG) addModelToSceneAtCursor("garlic");
         if (keyState.keyR) addModelToSceneAtCursor("rock");
@@ -387,18 +347,11 @@ function isSpawnKeyPressed(): boolean {
 // Updates key states when key events are triggered
 function handleKeyEvent(event: KeyboardEvent, isDown: boolean): void {
     switch (event.code) {
-        case 'KeyT': keyState.keyT = isDown; addModelToSceneAtCursor("table"); break;
-        case 'KeyG': keyState.keyG = isDown; addModelToSceneAtCursor("garlic"); break;
-        case 'KeyR': keyState.keyR = isDown; addModelToSceneAtCursor("rock"); break;
+        case 'KeyT': keyState.keyT = isDown; break;
+        case 'KeyG': keyState.keyG = isDown; break;
+        case 'KeyR': keyState.keyR = isDown; break;
     }
 }
-// function handleKeyEvent(event: KeyboardEvent, isDown: boolean): void {
-//     switch (event.code) {
-//         case 'KeyT': keyState.keyT = isDown; break;
-//         case 'KeyG': keyState.keyG = isDown; break;
-//         case 'KeyR': keyState.keyR = isDown; break;
-//     }
-// }
 
 // Attaches a gizmo to a target object for transformation
 function attachGizmoToObject(targetObject: Object3D): void {
@@ -419,17 +372,31 @@ function detachGizmo(): void {
     changeColour(COLOUR_UNSELECTED);
 }
 
+function handleClick(event: MouseEvent): void {
+    // console.log('Click event triggered'); // Debug log
+    if (keyState.keyT || keyState.keyG || keyState.keyR) {
+        // console.log('Key state active:', keyState); // Debug log
+        if (keyState.keyT) addModelToSceneAtCursor("table");
+        if (keyState.keyG) addModelToSceneAtCursor("garlic");
+        if (keyState.keyR) addModelToSceneAtCursor("rock");
+    }
+}
+
 // Sets up all necessary event listeners for interactions
 function setupEventListeners(): void {
     const pointerMoveListener = (e: PointerEvent) => handlePointerEvent(e);
+    // Add both pointerdown and click handlers for better compatibility
     const pointerDownListener = (e: PointerEvent) => handlePointerEvent(e);
+    const clickListener = (e: MouseEvent) => handleClick(e);
+
     const wheelListener = (e: WheelEvent) => { onWheel(e) };
     const keyDownListener = (e: KeyboardEvent) => handleKeyEvent(e, true);
     const keyUpListener = (e: KeyboardEvent) => handleKeyEvent(e, false);
 
     document.addEventListener('pointermove', pointerMoveListener);
     document.addEventListener('pointerdown', pointerDownListener);
-    // document.addEventListener('click', () => pointerDownListener);
+    canvas.value.addEventListener('click', clickListener);  // Add click event listener
+
     document.addEventListener('wheel', wheelListener);
     document.addEventListener('keydown', keyDownListener);
     document.addEventListener('keyup', keyUpListener);
@@ -449,6 +416,7 @@ function setupEventListeners(): void {
     onUnmounted(() => {
         document.removeEventListener('pointermove', pointerMoveListener);
         document.removeEventListener('pointerdown', pointerDownListener);
+        document.removeEventListener('click', clickListener);  // Remove click event listener
         document.removeEventListener('wheel', wheelListener);
         document.removeEventListener('keydown', keyDownListener);
         document.removeEventListener('keyup', keyUpListener);
@@ -457,21 +425,10 @@ function setupEventListeners(): void {
 
 onMounted(() => {
     setupEventListeners();
-    createSpawnPreview();
-    animatePreview();
-});
-
-onUnmounted(() => {
-    if (spawnPreviewMesh.value) {
-        scene.value.remove(spawnPreviewMesh.value);
-        spawnPreviewMesh.value.geometry.dispose();
-        (spawnPreviewMesh.value.material as MeshBasicMaterial).dispose();
-    }
-
-    cancelAnimationFrame(pulseAnimation);
 });
 </script>
 
 <template>
+    <spawn-preview :visible="isSpawnKeyPressed()" :raycaster="raycaster" :grid-limits="gridLimits" ref="spawnPreview" />
     <slot></slot>
 </template>

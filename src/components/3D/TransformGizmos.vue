@@ -127,6 +127,8 @@ transformControls.setMode('translate');
 
 scene.add(transformControls);
 
+transformControls.position.set(0,0,0); // Set the position of TransformControls to the center
+
 // Ensure TransformControls has children before calculating its bounding box
 if (transformControls.children.length > 0) {
     const modelBoundingBox = new Box3().setFromObject(transformControls); // Calculate the bounding box
