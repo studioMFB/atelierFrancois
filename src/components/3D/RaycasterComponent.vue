@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, inject, onMounted, onUnmounted, reactive, ref, type ComponentPublicInstance, type Ref } from 'vue';
 
-import { Group, type Intersection, Mesh, Object3D, type Object3DEventMap, PerspectiveCamera, Plane, Raycaster, Scene, Vector2, Vector3 } from 'three';
+import { Box3, Group, type Intersection, Mesh, Object3D, type Object3DEventMap, PerspectiveCamera, Plane, Raycaster, Scene, Vector2, Vector3 } from 'three';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
 import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js';
 import type { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
@@ -177,10 +177,7 @@ function addModelToSceneAtCursor(modelKey: keyof Models): void {
         modelStore.addModel(selectedModel as Model);
         modelStore.addGroupObjects(modelScene);
 
-        const composerStore = useComposerStore();
-        outlinePass = composerStore.getOutlinePass() as OutlinePass;
-        if (outlinePass)
-            outlinePass.selectedObjects = [modelScene];
+        selectModel(modelScene);
     });
 }
 
@@ -281,7 +278,7 @@ function handlePointerEvent(event: PointerEvent): void {
             if (handleIntersection()) {
                 const targetObject = selectedModel?.findModelParent(intersect.object as Mesh);
 
-                if (targetObject && !targetObject.name.includes(MODEL_NAMES.FLOOR)) {
+                if (targetObject && !targetObject.name.includes(MODEL_NAMES.FLOOR) ) {
                     selectModel(targetObject);
                     return;
                 }
@@ -299,8 +296,28 @@ function highlightModel(targetGroupObjects: Group<Object3DEventMap>): void {
 }
 
 function attachGizmos(targetGroupObjects: Group<Object3DEventMap>): void {
-    if (transformControlsGizmos.value)
-        transformControlsGizmos.value.attach(targetGroupObjects);
+    if (!transformControlsGizmos.value) {
+        console.error("TransformControlsGizmos is not available!");
+        return;
+    }
+
+    const offset= 0.05;
+    const targetObject = targetGroupObjects as Object3D;
+
+    transformControlsGizmos.value.attach(targetObject);
+
+       // Offset the gizmo above the object
+       const boundingBox = new Box3().setFromObject(targetObject);
+       const objectWidth = boundingBox.max.x - boundingBox.min.x;
+       const objectHeight = boundingBox.max.y - boundingBox.min.y;
+       const objectDepth = boundingBox.max.z - boundingBox.min.z;
+
+        // Position the gizmo in a corner above the object's bounding box
+        transformControlsGizmos.value.position.set(
+            objectWidth * .5,
+            targetObject.position.y + objectHeight + offset,
+            objectDepth * .5
+        );
 }
 function detachGizmos(): void {
     if (transformControlsGizmos.value)
@@ -384,7 +401,6 @@ onMounted(() => {
 
     const composerStore = useComposerStore();
     outlinePass = composerStore.getOutlinePass() as OutlinePass;
-
 });
 </script>
 

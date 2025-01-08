@@ -96,6 +96,7 @@ function initMesh(isVisible: boolean, opacity: number, colour?: Color): void {
     modelScene.add(shadowGround);
 
     modelScene.name = `Floor_root_model`;
+    modelScene.layers.set(1); // Don't highlight objects above layer 0
 
     scene.value.add(modelScene);
 

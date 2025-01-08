@@ -84,7 +84,7 @@ function setupModel(name: string, position: Vector3, scale: number, url: string)
         <HemisphereLight
             :sky-colour="new Color(0xffffff)"
             :ground-colour="new Color(0xffffff)"
-            :intensity="1.05"
+            :intensity="1.35"
         />
         <SpotLight :colour="new Color(0xffffff)" :position="new Vector3(5, 9, 7)" />
         <PointLight :colour="new Color(0xff0040)" :position="new Vector3(0, 10.5, 2)" />

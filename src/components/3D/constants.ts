@@ -8,7 +8,8 @@ export const COLOURS = {
     SELECTED_OUTLINE: 0xf47653,
     // DEFAULT_OUTLINE: '#e2eab8',
     // SELECTED: '#f47653',
-    PREVIEW: 0xf47653,  // Hex format for Three.js materials
+    PREVIEW: 0xf47653,
+    GIZMOS: 0x0e73e6
 } as const;
 
 // Grid Configuration

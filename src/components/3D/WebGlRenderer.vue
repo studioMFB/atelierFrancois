@@ -83,7 +83,8 @@ function setupComposer(): EffectComposer {
         camera.value
     );
 
-    // Stronger outline settings
+    outlinePass.renderScene.layers.set(0); // Only render objects in layer 0
+    
     outlinePass.edgeStrength = 5.0;    // Reduce for subtle edges
     outlinePass.edgeGlow = 1;      // Reduce glow effect
     outlinePass.edgeThickness = 2.0; // Adjust edge thickness for visibility
