@@ -14,6 +14,7 @@ import { type Models } from "@/components/3D/ModelViewer.vue";
 
 import { useComposerStore } from '@/stores/composerStore';
 import { useModelStore } from '@/stores/modelStore';
+import { useOrbitControlsStore } from '@/stores/orbitControlsStore';
 
 
 const props = defineProps<{
@@ -28,7 +29,10 @@ const canvas = computed(() => props.canvas) as Ref<HTMLCanvasElement>;
 const scene = ref(inject("MainScene")) as Ref<Scene>;
 const camera = ref(inject("PerspectiveCamera")) as Ref<PerspectiveCamera>;
 const transformControlsGizmos = ref(inject("TransformGizmos")) as Ref<TransformControls>;
-const controls = ref(inject("OrbitControls")) as Ref<OrbitControls>;
+
+const orbitControlsStore = useOrbitControlsStore();
+const orbitControls = ref(inject("OrbitControls")) as Ref<OrbitControls>;
+const isDragging = computed(() => orbitControlsStore.isDragging);
 
 let selectedModel: Model | null = reactive(new Model());
 const pointer = new Vector2();
@@ -258,21 +262,34 @@ function handleIntersection(): boolean {
 
     return false;
 }
+let dragStartTimeout: ReturnType<typeof setTimeout> | null = null;
 
 function handlePointerEvent(event: PointerEvent): void {
     updatePointerMode(event);
 
     if (event.type === 'pointerdown') {
-        if (handleIntersection()) {
-            const targetObject = selectedModel?.findModelParent(intersect.object as Mesh);
 
-            if (targetObject && !targetObject.name.includes(MODEL_NAMES.FLOOR)) {
-                selectModel(targetObject);
+        if (dragStartTimeout) clearTimeout(dragStartTimeout);
+
+        // Delay action to distinguish between click and drag
+        dragStartTimeout = setTimeout(() => {
+
+            if (orbitControlsStore.getDragging()) {
                 return;
             }
-        }
 
-        resetSelection();
+            if (handleIntersection()) {
+                const targetObject = selectedModel?.findModelParent(intersect.object as Mesh);
+
+                if (targetObject && !targetObject.name.includes(MODEL_NAMES.FLOOR)) {
+                    selectModel(targetObject);
+                    return;
+                }
+            }
+
+            resetSelection();
+
+        }, 150); // Adjust the delay as needed (150ms is a good start)
     }
 }
 
@@ -343,12 +360,12 @@ function setupEventListeners(): void {
     document.addEventListener('keyup', keyUpListener);
 
     transformControlsGizmos.value.addEventListener("mouseDown", () => {
-        if (controls.value) controls.value.enabled = false;
+        if (orbitControls.value) orbitControls.value.enabled = false;
         isLeftMouseButtonDown = true;
     });
 
     transformControlsGizmos.value.addEventListener("mouseUp", () => {
-        if (controls.value) controls.value.enabled = true;
+        if (orbitControls.value) orbitControls.value.enabled = true;
         isLeftMouseButtonDown = false;
     });
 
@@ -366,7 +383,7 @@ onMounted(() => {
     setupEventListeners();
 
     const composerStore = useComposerStore();
-        outlinePass = composerStore.getOutlinePass() as OutlinePass;
+    outlinePass = composerStore.getOutlinePass() as OutlinePass;
 
 });
 </script>
