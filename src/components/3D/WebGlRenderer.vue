@@ -42,7 +42,14 @@ if (!canvas.value) {
 }
 
 // Initialize the WebGL renderer with anti-aliasing and attach it to the canvas
-const renderer = new WebGLRenderer({ antialias: true, canvas: canvas.value });
+const renderer = new WebGLRenderer({ 
+    canvas: canvas.value,
+    antialias: true,
+    depth: true,
+    logarithmicDepthBuffer: false, // Disable unless absolutely necessary
+ });
+
+
 renderer.setSize(canvas.value.clientWidth, canvas.value.clientHeight);
 renderer.setPixelRatio(window.devicePixelRatio); // Optimize rendering for the device's pixel ratio
 renderer.shadowMap.type = PCFSoftShadowMap; // Enable soft shadows
@@ -77,9 +84,9 @@ function setupComposer(): EffectComposer {
     );
 
     // Stronger outline settings
-    outlinePass.edgeStrength = 5;    // Reduce for subtle edges
-    outlinePass.edgeGlow = 0.5;      // Reduce glow effect
-    outlinePass.edgeThickness = 1.5; // Adjust edge thickness for visibility
+    outlinePass.edgeStrength = 5.0;    // Reduce for subtle edges
+    outlinePass.edgeGlow = 1;      // Reduce glow effect
+    outlinePass.edgeThickness = 2.0; // Adjust edge thickness for visibility
     outlinePass.pulsePeriod = 0;     // Remove pulsing
     outlinePass.visibleEdgeColor.set(0xff0000); // Bright red for visibility
     outlinePass.hiddenEdgeColor.set(0x000000);  // Black for hidden edges

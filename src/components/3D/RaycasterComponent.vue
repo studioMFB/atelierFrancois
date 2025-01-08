@@ -32,7 +32,7 @@ const camera = ref(inject("PerspectiveCamera")) as Ref<PerspectiveCamera>;
 const transformControlsGizmos = ref(inject("TransformGizmos")) as Ref<TransformControls>;
 const controls = ref(inject("OrbitControls")) as Ref<OrbitControls>;
 
-let modelInstance: Model | null = reactive(new Model());
+let selectedModel: Model | null = reactive(new Model());
 
 // const spawnPreview = ref<InstanceType<typeof SpawnPreview>>();
 type SpawnPreviewExposed = {
@@ -47,7 +47,7 @@ let intersectedGroupObject: Group<Object3DEventMap>;
 
 let isLeftMouseButtonDown = false;
 let rotationDelta = 0;
-let cachedIntersects: Intersection<Object3D<Object3DEventMap>>[] = []; // Cache for intersection results
+// let cachedIntersects: Intersection<Object3D<Object3DEventMap>>[] = []; // Cache for intersection results
 
 const raycaster = new Raycaster();
 raycaster.near = RAYCASTER.NEAR;// Minimum distance for intersection
@@ -84,8 +84,8 @@ function restrictPositionToBoundaries(position: Vector3): Vector3 {
 
 // Restricts the movement of the intersected object to the grid boundaries
 function restricMoveToBoundaries(): void {
-    if (intersectedGroupObject) {
-        intersectedGroupObject.position.copy(restrictPositionToBoundaries(intersectedGroupObject.position));
+    if (selectedModel?.modelScene) {
+        selectedModel.modelScene.position.copy(restrictPositionToBoundaries(selectedModel.modelScene.position));
     }
 }
 
@@ -140,7 +140,7 @@ function updatePointerMode(event: PointerEvent): void {
                 }
             }
 
-            cachedIntersects = [];
+            // cachedIntersects = [];
         }
     } catch (e: any) {
         console.error("Error setting raycaster:", e);
@@ -169,19 +169,21 @@ function addModelToSceneAtCursor(modelKey: keyof Models): void {
     // Ensure position is within boundaries
     const boundedPosition = restrictPositionToBoundaries(spawnPosition);
 
-    if (!modelInstance) {
-        modelInstance = reactive(new Model())
+    if (!selectedModel) {
+        selectedModel = reactive(new Model())
     }
 
-    modelInstance.name = model.name, boundedPosition, model.scale, model.url;
-    modelInstance.pos = boundedPosition;
-    modelInstance.scaleRatio = model.scale;
-    modelInstance.gltfUrl = model.url;
+    selectedModel.name = model.name, boundedPosition, model.scale, model.url;
+    selectedModel.pos = boundedPosition;
+    selectedModel.scaleRatio = model.scale;
+    selectedModel.gltfUrl = model.url;
 
-    modelInstance.initMesh().then((modelScene: Group<Object3DEventMap>) => {
+    selectedModel.initMesh().then((modelScene: Group<Object3DEventMap>) => {
         scene.value.add(modelScene);
-        modelStore.addModel(modelInstance as Model);
+        modelStore.addModel(selectedModel as Model);
         modelStore.addGroupObjects(modelScene);
+
+        outlinePass.selectedObjects = [modelScene];
     });
 }
 
@@ -192,7 +194,8 @@ function onWheel(event: WheelEvent): void {
         const rotationSpeed = Math.PI / 2;
         rotationDelta = delta * rotationSpeed;
 
-        intersectedGroupObject.rotation.y += rotationDelta;
+        if(selectedModel?.modelScene)
+            selectedModel.modelScene.rotation.y += rotationDelta;
     }
 }
 
@@ -219,7 +222,7 @@ function handleKeyEvent(event: KeyboardEvent, isDown: boolean): void {
 // Modify your intersection function to handle ground plane intersection explicitly
 function handleIntersection(): boolean {
     if (!isRaycasterReady()) {
-        console.warn("Raycaster is not ready. Check dependencies and object configurations.");
+        console.warn("Raycaster is not ready. Check dependencies and object configurations!");
         return false;
     }
 
@@ -232,6 +235,15 @@ function handleIntersection(): boolean {
     raycaster.ray.intersectPlane(groundPlane, intersectionPoint);
 
     if (intersectionPoint) {
+        // Check if point is within grid boundaries
+        if (intersectionPoint.x < gridLimits.minX &&
+            intersectionPoint.x > gridLimits.maxX &&
+            intersectionPoint.z < gridLimits.minZ &&
+            intersectionPoint.z > gridLimits.maxZ) {
+            console.warn("Outside the grid limits!");
+            return false;
+        }
+
         // Create a synthetic intersection result
         intersect = {
             point: intersectionPoint,
@@ -241,119 +253,58 @@ function handleIntersection(): boolean {
             faceIndex: 0,
             uv: new Vector2(0, 0)
         };
-
-        // Check if point is within grid boundaries
-        if (intersectionPoint.x >= gridLimits.minX &&
-            intersectionPoint.x <= gridLimits.maxX &&
-            intersectionPoint.z >= gridLimits.minZ &&
-            intersectionPoint.z <= gridLimits.maxZ) {
-            return true;
-        }
     }
 
-    // Fallback to original object intersection logic
     const intersects = raycaster.intersectObjects(modelStore.getGroupsObjects(), true)
         .sort((a, b) => a.distance - b.distance);
 
     if (intersects.length > 0) {
-        if (!modelInstance)
-            return false;
-
         intersect = intersects[0];
-        intersectedGroupObject = modelInstance.findModelParent(intersect.object as Mesh)!;
-        cachedIntersects = intersects;
         return true;
     }
 
     return false;
 }
 
-// Keep track of currently selected model
-let selectedModel: Model | null = null;
-
 function handlePointerEvent(event: PointerEvent): void {
     updatePointerMode(event);
 
-    if (event.type === 'pointermove' || event.type === 'pointerdown') {
+    if (event.type === 'pointerdown') {
         if (handleIntersection()) {
-            const modelParent = modelInstance?.findModelParent(intersect.object as Mesh);
+            const targetObject = selectedModel?.findModelParent(intersect.object as Mesh);
 
-            if (modelParent && !modelParent.name.includes(MODEL_NAMES.FLOOR)) {
-                if (event.type === 'pointerdown') {
-                    // Highlight the selected object
-                    highlightModel(modelParent);
-                    // Attach gizmo
-                    attachGizmoToObject(modelParent);
-                    selectedModel = modelInstance;
-                }
-            } else {
-                resetSelection();
+            if (targetObject && !targetObject.name.includes(MODEL_NAMES.FLOOR)) {
+                selectModel(targetObject);
+                return;
             }
-        } else {
-            resetSelection();
         }
+
+        resetSelection();
     }
 }
-
-function highlightModel(object: Object3D): void {
-    if (outlinePass) {
-        outlinePass.selectedObjects = [object];
-    }
-}
-
-// function handlePointerEvent(event: PointerEvent): void {
-//     updatePointerMode(event);
-
-//     if (event.type === 'pointermove') {
-//         if (handleIntersection()) {
-//             if (intersectedGroupObject && !intersectedGroupObject.name.includes(MODEL_NAMES.FLOOR)) {
-//                 attachGizmoToObject(intersectedGroupObject);
-//             }
-//         }
-//         restricMoveToBoundaries();
-//     }
-
-//     if (event.type === 'pointerdown' && event.isPrimary) {
-//         if (handleIntersection()) {
-//             if (intersectedGroupObject) {
-//                 if (!intersectedGroupObject.name.includes(MODEL_NAMES.FLOOR)) {
-//                     // Deselect previous model
-//                     if (selectedModel && selectedModel !== modelInstance) {
-//                         detachGizmo();
-//                     }
-
-//                     attachGizmoToObject(intersectedGroupObject);
-//                     selectedModel = modelInstance;
-//                 } else {
-//                     detachGizmo();
-//                 }
-//             }
-//         } else {
-//             detachGizmo();
-//         }
-
-//         // Handle model creation hotkeys
-//         if (keyState.keyT) addModelToSceneAtCursor(MODEL_NAMES.TABLE);
-//         if (keyState.keyR) addModelToSceneAtCursor(MODEL_NAMES.ROCK);
-//         if (keyState.keyG) addModelToSceneAtCursor(MODEL_NAMES.GARLIC);
-//     }
-// }
 
 let outlinePass: OutlinePass;
 
-// In RaycasterComponent where you handle selection:
-// Update attachGizmoToObject to use outline effect
-function attachGizmoToObject(targetObject: Object3D): void {
-    if (!targetObject || targetObject.name.includes(MODEL_NAMES.FLOOR)) {
-        resetSelection();
-        return;
-    }
+function highlightModel(targetGroupObjects: Group<Object3DEventMap>): void {
+    if (outlinePass)
+        outlinePass.selectedObjects = [targetGroupObjects];
+}
 
-    if (modelInstance) {
-        if (!modelInstance.isSelected) {
-            modelInstance.isSelected = true;
-            highlightModel(targetObject);
-            transformControlsGizmos.value.attach(targetObject);
+function attachGizmos(targetGroupObjects: Group<Object3DEventMap>): void {
+    if (transformControlsGizmos.value)
+        transformControlsGizmos.value.attach(targetGroupObjects);
+}
+
+function selectModel(targetGroupObjects: Group<Object3DEventMap>): void {
+    highlightModel(targetGroupObjects);
+    attachGizmos(targetGroupObjects);
+
+    if (selectedModel) {
+        if (selectedModel.modelScene)
+            selectedModel.modelScene = targetGroupObjects;
+
+        if (!selectedModel.isSelected) {
+            selectedModel.isSelected = true;
         }
     }
 }
@@ -373,7 +324,7 @@ function attachGizmoToObject(targetObject: Object3D): void {
 function resetSelection(): void {
     if (selectedModel) {
         selectedModel.isSelected = false;
-        selectedModel = null;
+        // selectedModel = null;
     }
 
     if (outlinePass) {
