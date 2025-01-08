@@ -8,14 +8,14 @@ import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 
 import { useComposerStore } from '@/stores/composerStore';
 
-// const composerStore = useComposerStore();
 
 // Props to accept an optional HTML canvas element
 const props = defineProps<{
     canvas?: HTMLCanvasElement
 }>();
 
-// Compute the canvas from the provided props
+const composerStore = useComposerStore();
+
 const canvas = computed(() => props.canvas);
 
 // Inject the main scene object and ensure it is provided
@@ -90,53 +90,43 @@ function setupComposer(): EffectComposer {
     outlinePass.pulsePeriod = 0;     // Remove pulsing
     outlinePass.visibleEdgeColor.set(0xff0000); // Bright red for visibility
     outlinePass.hiddenEdgeColor.set(0x000000);  // Black for hidden edges
-    // outlinePass.depthTest = true;
-    // outlinePass.depthWrite = true;
 
     composer.addPass(outlinePass);
 
-    // Store outlinePass in your store so RaycasterComponent can access it
+    // Store, so other components can access it.
+    useComposerStore().setComposer(composer);
     useComposerStore().setOutlinePass(outlinePass);
 
     return composer;
 }
 
 const composer = setupComposer();
+// let composer: EffectComposer | null;
 
 // Animation loop to continuously render the scene
 function animate(): void {
     animationFrameId = requestAnimationFrame(animate); // Request the next animation frame
 
-    // const composer = composerStore.getComposer() as EffectComposer;
     // composer = setupComposer();
+    // composer = composerStore.getComposer() as EffectComposer;
     if (composer) {
         composer.render(); // Uncomment to use the composer for post-processing
         // console.log("composer");
     }
     else {
         renderer.render(scene.value, camera.value); // Render the scene using the camera
-        // console.log("renderer");
     }
 }
 
-animate();
-
 onMounted(() => {
-    window.addEventListener('resize', () => {
-        composer.setSize(window.innerWidth, window.innerHeight);
-        composer.setPixelRatio(window.devicePixelRatio);
-    });
+    //     window.addEventListener('resize', () => {
+        //         composer.setSize(window.innerWidth, window.innerHeight);
+        //         composer.setPixelRatio(window.devicePixelRatio);
+        //     });
+        
+        // composer = composerStore.getComposer() as EffectComposer;
+        animate();
 });
-
-// Handle window resizing to update renderer and post-processing settings
-// function handleResize(): void {
-// renderer.setSize(window.innerWidth, window.innerHeight);
-// composer.setSize(window.innerWidth, window.innerHeight);
-// outlinePass.resolution.set(window.innerWidth, window.innerHeight);
-// }
-
-// Add a listener for window resize events
-// window.addEventListener("resize", handleResize);
 
 // Clean up resources and event listeners when the component is unmounted
 onUnmounted(() => {

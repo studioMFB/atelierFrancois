@@ -1,29 +1,27 @@
 <script setup lang="ts">
 import { computed, inject, onMounted, onUnmounted, reactive, ref, type ComponentPublicInstance, type Ref } from 'vue';
+
 import { Group, type Intersection, Mesh, Object3D, type Object3DEventMap, PerspectiveCamera, Plane, Raycaster, Scene, Vector2, Vector3 } from 'three';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
-
-import { MODEL_NAMES, MODEL_SUB_NAMES } from "@/components/3D/constants";
-
-import { Model } from '@/components/modelViewer/resources/model';
+import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js';
 import type { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
-import { useModelStore } from '@/stores/modelStore';
-const modelStore = useModelStore();
+import { RAYCASTER, GRID, DEFAULT_POSITIONS, MODEL_NAMES, MODEL_SUB_NAMES } from "@/components/3D/constants";
 
 import SpawnPreview from './raycaster/SpawnPreview.vue';
-
-import { RAYCASTER, GRID } from './constants';
+import { Model } from '@/components/modelViewer/resources/model';
 import { type Models } from "@/components/3D/ModelViewer.vue";
 
 import { useComposerStore } from '@/stores/composerStore';
-import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js';
+import { useModelStore } from '@/stores/modelStore';
+
 
 const props = defineProps<{
     canvas: HTMLCanvasElement
     models: Models;
 }>();
 
+const modelStore = useModelStore();
 const models = computed(() => props.models) as Ref<Models>;
 
 const canvas = computed(() => props.canvas) as Ref<HTMLCanvasElement>;
@@ -33,21 +31,18 @@ const transformControlsGizmos = ref(inject("TransformGizmos")) as Ref<TransformC
 const controls = ref(inject("OrbitControls")) as Ref<OrbitControls>;
 
 let selectedModel: Model | null = reactive(new Model());
+const pointer = new Vector2();
+let intersect: Intersection<Object3D<Object3DEventMap>>;
 
-// const spawnPreview = ref<InstanceType<typeof SpawnPreview>>();
+let outlinePass: OutlinePass | null;
+
 type SpawnPreviewExposed = {
     previewMesh: Ref<Mesh | null>;
 };
-// Create a ref for SpawnPreview
 const spawnPreview = ref<ComponentPublicInstance<{}, SpawnPreviewExposed> | null>(null);
-
-const pointer = new Vector2();
-let intersect: Intersection<Object3D<Object3DEventMap>>;
-let intersectedGroupObject: Group<Object3DEventMap>;
 
 let isLeftMouseButtonDown = false;
 let rotationDelta = 0;
-// let cachedIntersects: Intersection<Object3D<Object3DEventMap>>[] = []; // Cache for intersection results
 
 const raycaster = new Raycaster();
 raycaster.near = RAYCASTER.NEAR;// Minimum distance for intersection
@@ -61,9 +56,6 @@ const gridLimits = reactive({
     minZ: GRID.LIMITS.MIN_Z,
     maxZ: GRID.LIMITS.MAX_Z
 });
-
-// Add this constant at the top with your other constants
-const GROUND_Y_POSITION = 0; // Or whatever your ground plane Y position is
 
 // Checks if the raycaster is ready by validating its dependencies
 function isRaycasterReady(): boolean {
@@ -139,8 +131,6 @@ function updatePointerMode(event: PointerEvent): void {
                     }
                 }
             }
-
-            // cachedIntersects = [];
         }
     } catch (e: any) {
         console.error("Error setting raycaster:", e);
@@ -162,7 +152,7 @@ function addModelToSceneAtCursor(modelKey: keyof Models): void {
     // Snap to grid
     const spawnPosition = new Vector3(
         Math.round(point.x / gridSize) * gridSize,
-        GROUND_Y_POSITION, // Always spawn at ground level
+        DEFAULT_POSITIONS.GROUND_Y_POSITION, // Always spawn at ground level
         Math.round(point.z / gridSize) * gridSize
     );
 
@@ -183,7 +173,10 @@ function addModelToSceneAtCursor(modelKey: keyof Models): void {
         modelStore.addModel(selectedModel as Model);
         modelStore.addGroupObjects(modelScene);
 
-        outlinePass.selectedObjects = [modelScene];
+        const composerStore = useComposerStore();
+        outlinePass = composerStore.getOutlinePass() as OutlinePass;
+        if (outlinePass)
+            outlinePass.selectedObjects = [modelScene];
     });
 }
 
@@ -194,7 +187,7 @@ function onWheel(event: WheelEvent): void {
         const rotationSpeed = Math.PI / 2;
         rotationDelta = delta * rotationSpeed;
 
-        if(selectedModel?.modelScene)
+        if (selectedModel?.modelScene)
             selectedModel.modelScene.rotation.y += rotationDelta;
     }
 }
@@ -228,7 +221,7 @@ function handleIntersection(): boolean {
 
     // Create a virtual ground plane for consistent intersection
     const groundNormal = new Vector3(0, 1, 0);
-    const groundPlane = new Plane(groundNormal, -GROUND_Y_POSITION);
+    const groundPlane = new Plane(groundNormal, -DEFAULT_POSITIONS.GROUND_Y_POSITION);
 
     // Get intersection point with ground plane
     const intersectionPoint = new Vector3();
@@ -283,8 +276,6 @@ function handlePointerEvent(event: PointerEvent): void {
     }
 }
 
-let outlinePass: OutlinePass;
-
 function highlightModel(targetGroupObjects: Group<Object3DEventMap>): void {
     if (outlinePass)
         outlinePass.selectedObjects = [targetGroupObjects];
@@ -293,6 +284,10 @@ function highlightModel(targetGroupObjects: Group<Object3DEventMap>): void {
 function attachGizmos(targetGroupObjects: Group<Object3DEventMap>): void {
     if (transformControlsGizmos.value)
         transformControlsGizmos.value.attach(targetGroupObjects);
+}
+function detachGizmos(): void {
+    if (transformControlsGizmos.value)
+        transformControlsGizmos.value.detach();
 }
 
 function selectModel(targetGroupObjects: Group<Object3DEventMap>): void {
@@ -309,75 +304,17 @@ function selectModel(targetGroupObjects: Group<Object3DEventMap>): void {
     }
 }
 
-// Update detachGizmo to clear outline effect
-// function detachGizmo(): void {
-//     if (selectedModel) {
-//         selectedModel.isSelected = false;
-
-//         if (outlinePass)
-//             outlinePass.selectedObjects = [];
-//     }
-//     transformControlsGizmos.value.detach();
-//     selectedModel = null;
-// }
-
 function resetSelection(): void {
     if (selectedModel) {
         selectedModel.isSelected = false;
-        // selectedModel = null;
     }
 
     if (outlinePass) {
         outlinePass.selectedObjects = [];
     }
 
-    transformControlsGizmos.value.detach();
+    detachGizmos();
 }
-
-// Handles pointer events for interactions
-// function handlePointerEvent(event: PointerEvent): void {
-//     updatePointerMode(event);
-
-//     if (event.type === 'pointermove') {
-//         if (handleIntersection()) {
-
-//             if(modelInstance){
-//                 attachGizmoToObject(intersectedGroupObject);
-//             }
-//         }
-
-//         restricMoveToBoundaries();
-//     }
-//     if (event.type === 'pointerdown' && event.isPrimary) {  // Check if it's the primary pointer
-//         // Can also check event.button === 0 for left click
-//         if (keyState.keyT) addModelToSceneAtCursor(MODEL_NAMES.TABLE);
-//         if (keyState.keyR) addModelToSceneAtCursor(MODEL_NAMES.ROCK);
-//         if (keyState.keyG) addModelToSceneAtCursor(MODEL_NAMES.GARLIC);
-//     }
-// }
-
-// Attaches a gizmo to a target object for transformation
-// function attachGizmoToObject(targetObject: Object3D): void {
-//     if (!targetObject || targetObject.name.includes(MODEL_NAMES.FLOOR)) {
-//         detachGizmo();
-//         return;
-//     }
-
-//     if(modelInstance){
-//         modelInstance.isSelected = true;
-//         modelInstance.changeOutlineColour(COLOURS.SELECTED);
-//     }
-//     transformControlsGizmos.value.attach(targetObject);
-// }
-
-// Detaches the gizmo from the current object
-// function detachGizmo(): void {
-//     if(modelInstance){
-//         modelInstance.isSelected = false;
-//         modelInstance.changeOutlineColour(COLOURS.DEFAULT_OUTLINE);
-//     }
-//     transformControlsGizmos.value.detach();
-// }
 
 function handleClick(event: MouseEvent): void {
     if (keyState.keyT || keyState.keyG || keyState.keyR) {
@@ -405,8 +342,6 @@ function setupEventListeners(): void {
     document.addEventListener('keydown', keyDownListener);
     document.addEventListener('keyup', keyUpListener);
 
-    // canvas.value.addEventListener("pointerup", resetSelection);
-
     transformControlsGizmos.value.addEventListener("mouseDown", () => {
         if (controls.value) controls.value.enabled = false;
         isLeftMouseButtonDown = true;
@@ -431,7 +366,8 @@ onMounted(() => {
     setupEventListeners();
 
     const composerStore = useComposerStore();
-    outlinePass = composerStore.getOutlinePass() as OutlinePass;
+        outlinePass = composerStore.getOutlinePass() as OutlinePass;
+
 });
 </script>
 

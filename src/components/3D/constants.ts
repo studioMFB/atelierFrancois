@@ -51,7 +51,8 @@ export const MODEL_SCALES = {
 
 // Default Positions
 export const DEFAULT_POSITIONS = {
-    MODEL: new Vector3(-0.5, 0, -0.5)
+    MODEL: new Vector3(-0.5, 0, -0.5),
+    GROUND_Y_POSITION: 0,
 } as const;
 
 export const GLTF_URL = {
