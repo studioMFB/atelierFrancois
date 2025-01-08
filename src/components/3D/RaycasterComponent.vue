@@ -46,7 +46,6 @@ type SpawnPreviewExposed = {
 const spawnPreview = ref<ComponentPublicInstance<{}, SpawnPreviewExposed> | null>(null);
 
 let isLeftMouseButtonDown = false;
-let rotationDelta = 0;
 
 const raycaster = new Raycaster();
 raycaster.near = RAYCASTER.NEAR;// Minimum distance for intersection
@@ -181,15 +180,33 @@ function addModelToSceneAtCursor(modelKey: keyof Models): void {
     });
 }
 
+let isRotatingModel = false;
+function handlePointerUp(): void {
+    if (isRotatingModel) {
+        isRotatingModel = false;
+        orbitControls.value.enableZoom = true; // Re-enable zoom after interaction
+    }
+}
+
 // Handles rotation using the scroll wheel when the left mouse button is down
 function onWheel(event: WheelEvent): void {
-    if (isLeftMouseButtonDown) {
-        const delta = Math.sign(event.deltaY);
-        const rotationSpeed = Math.PI / 2;
-        rotationDelta = delta * rotationSpeed;
+    // Prevent default scroll behavior (important to stop page scrolling)
+    // BUT ERROR...
+    // event.preventDefault();
+    // event.stopPropagation();
 
-        if (selectedModel?.modelScene)
-            selectedModel.modelScene.rotation.y += rotationDelta;
+    if (selectedModel?.isSelected && selectedModel?.modelScene) {
+        // Temporarily disable zoom
+        orbitControls.value.enableZoom = false;
+        
+        // Rotate the selected model
+        const delta = Math.sign(event.deltaY);
+        const rotationSpeed = Math.PI / 4;
+        const rotationDelta = delta * rotationSpeed;
+        selectedModel.modelScene.rotation.y += rotationDelta;
+    }
+    else{
+        orbitControls.value.enableZoom = true;
     }
 }
 
@@ -278,7 +295,7 @@ function handlePointerEvent(event: PointerEvent): void {
             if (handleIntersection()) {
                 const targetObject = selectedModel?.findModelParent(intersect.object as Mesh);
 
-                if (targetObject && !targetObject.name.includes(MODEL_NAMES.FLOOR) ) {
+                if (targetObject && !targetObject.name.includes(MODEL_NAMES.FLOOR)) {
                     selectModel(targetObject);
                     return;
                 }
@@ -286,7 +303,7 @@ function handlePointerEvent(event: PointerEvent): void {
 
             resetSelection();
 
-        }, 150); // Adjust the delay as needed (150ms is a good start)
+        }, 150);
     }
 }
 
@@ -301,24 +318,29 @@ function attachGizmos(targetGroupObjects: Group<Object3DEventMap>): void {
         return;
     }
 
-    const offset= 0.05;
     const targetObject = targetGroupObjects as Object3D;
-
     transformControlsGizmos.value.attach(targetObject);
 
-       // Offset the gizmo above the object
-       const boundingBox = new Box3().setFromObject(targetObject);
-       const objectWidth = boundingBox.max.x - boundingBox.min.x;
-       const objectHeight = boundingBox.max.y - boundingBox.min.y;
-       const objectDepth = boundingBox.max.z - boundingBox.min.z;
-
-        // Position the gizmo in a corner above the object's bounding box
-        transformControlsGizmos.value.position.set(
-            objectWidth * .5,
-            targetObject.position.y + objectHeight + offset,
-            objectDepth * .5
-        );
+    // offsetGizmos(targetObject);
 }
+
+function offsetGizmos(targetObject: Object3D): void {
+    const offset = 0.05;
+
+    // Offset the gizmo above the object
+    const boundingBox = new Box3().setFromObject(targetObject);
+    const objectWidth = boundingBox.max.x - boundingBox.min.x;
+    const objectHeight = boundingBox.max.y - boundingBox.min.y;
+    const objectDepth = boundingBox.max.z - boundingBox.min.z;
+
+    // Position the gizmo in a corner above the object's bounding box
+    transformControlsGizmos.value.position.set(
+        objectWidth * .5,
+        targetObject.position.y + objectHeight + offset,
+        objectDepth * .5
+    );
+}
+
 function detachGizmos(): void {
     if (transformControlsGizmos.value)
         transformControlsGizmos.value.detach();
@@ -350,7 +372,7 @@ function resetSelection(): void {
     detachGizmos();
 }
 
-function handleClick(event: MouseEvent): void {
+function handleClick(): void {
     if (keyState.keyT || keyState.keyG || keyState.keyR) {
         if (keyState.keyT) addModelToSceneAtCursor(MODEL_NAMES.TABLE);
         if (keyState.keyR) addModelToSceneAtCursor(MODEL_NAMES.ROCK);
@@ -362,14 +384,18 @@ function handleClick(event: MouseEvent): void {
 function setupEventListeners(): void {
     const pointerUpdate = (e: PointerEvent) => handlePointerEvent(e);
     // Add both pointerdown and click handlers for better compatibility
-    const clickListener = (e: MouseEvent) => handleClick(e);
+    const clickListener = () => handleClick();
 
     const wheelListener = (e: WheelEvent) => { onWheel(e) };
     const keyDownListener = (e: KeyboardEvent) => handleKeyEvent(e, true);
     const keyUpListener = (e: KeyboardEvent) => handleKeyEvent(e, false);
 
-    document.addEventListener('pointermove', pointerUpdate);
-    document.addEventListener('pointerdown', pointerUpdate);
+    const pointerUp = () => handlePointerUp();
+
+    canvas.value.addEventListener('pointermove', pointerUpdate);
+    canvas.value.addEventListener('pointerdown', pointerUpdate);
+    canvas.value.addEventListener('pointerup', pointerUp);
+
     canvas.value.addEventListener('click', clickListener);  // Add click event listener
 
     document.addEventListener('wheel', wheelListener);
@@ -386,9 +412,16 @@ function setupEventListeners(): void {
         isLeftMouseButtonDown = false;
     });
 
+    transformControlsGizmos.value.addEventListener("wheel", () => {
+        if (orbitControls.value) orbitControls.value.enabled = true;
+        isLeftMouseButtonDown = false;
+    });
+
     onUnmounted(() => {
-        document.removeEventListener('pointermove', pointerUpdate);
-        document.removeEventListener('pointerdown', pointerUpdate);
+        canvas.value.removeEventListener('pointermove', pointerUpdate);
+        canvas.value.removeEventListener('pointerdown', pointerUpdate);
+        canvas.value.removeEventListener('pointerup', pointerUp);
+
         document.removeEventListener('click', clickListener);  // Remove click event listener
         document.removeEventListener('wheel', wheelListener);
         document.removeEventListener('keydown', keyDownListener);
