@@ -71,7 +71,7 @@ function handleDragEnd(event: DragEvent, modelKey: keyof Models) {
                             @dragstart="handleDragStart($event, key as keyof Models)"
                             @drag="handleDrag($event, key as keyof Models)"
                             @dragend="handleDragEnd($event, key as keyof Models)">
-                            <img :src="model.thumbnail" :alt="model.name">
+                            <!-- <img :src="model.thumbnail" :alt="model.name"> -->
                             <p>{{ model.name }}</p>
                         </div>
                     </div>
@@ -87,10 +87,9 @@ $menu-top: calc(1px + var(--header-height));
     position: fixed;
     display: block;
     top: $menu-top;
-
     right: 0;
     height: 100vh;
-    width: 20rem;
+    width: 12rem;
     background-color: var(--header-background);
     box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
     transition: width 0.3s ease;
@@ -119,12 +118,13 @@ $menu-top: calc(1px + var(--header-height));
 .model-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
+    gap: .8rem;
     margin-top: 16px;
 }
 
 .model-item {
     cursor: pointer;
+    height: 3rem;
     padding: 8px;
     border-radius: 8px;
     background: #f5f5f5;
@@ -139,6 +139,7 @@ $menu-top: calc(1px + var(--header-height));
         height: auto;
         margin-bottom: 8px;
         border-radius: 4px;
+        background-color: bisque;
     }
 
     p {
