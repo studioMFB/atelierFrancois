@@ -210,8 +210,8 @@ function addModelAtCursor(scene: Scene, modelKey: keyof Models): void {
 
 <template>
     <MainScene :colour="new Color(0xded6d8)">
-
         <PerspectiveCamera :position="new Vector3(4.4, 2.7, 2.0)" :zoom="1.5">
+
             <!-- OrbitControls with TransformGizmos and Raycaster -->
             <template v-slot:orbitControl>
                 <OrbitControls :canvas="canvas">
@@ -251,11 +251,6 @@ function addModelAtCursor(scene: Scene, modelKey: keyof Models): void {
             :colour2="new Color(0x888888)" />
         <PlaneGeometry :dimension="new Vector2(GRID_SIZE, GRID_SIZE)" :segment="new Vector2(1, 1)"
             :position="new Vector3(0, 0, 0)" />
-
-        <!-- Models (if needed in the future) -->
-        <!-- <ModelAsset name="table" :position="new Vector3(0, 0, -1)" :scale-ratio="1" :gltf-url="GLTF_TABLE" /> -->
-        <!-- <ModelAsset name="garlic" :position="new Vector3(0, 0, 0)" :scale-ratio="10" :gltf-url="GLTF_GARLIC" /> -->
-        <!-- <ModelAsset name="stone" :position="new Vector3(1, 0, 1)" :scale-ratio="1" :gltf-url="GLTF_STONE" /> -->
 
         <resource-explorer :models="models" @on-add-model="addModelToScene"
             @on-add-model-at-cursor="addModelAtCursor" />

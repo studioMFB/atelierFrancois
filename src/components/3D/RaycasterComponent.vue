@@ -200,20 +200,12 @@ function handlePointerEvent(event: PointerEvent | DragEvent): void {
 
         // Delay action to distinguish between click and drag
         dragStartTimeout = setTimeout(() => {
-
-            if (orbitControlsStore.getDragging()) {
-                return;
-            }
-
+            if (orbitControlsStore.getDragging()) return;
+            
             if (handleIntersection()) {
                 const targetObject = selectedModel.value?.findModelParent(intersect.object as Mesh);
-
                 if (targetObject && !targetObject.name.includes(MODEL_NAMES.FLOOR)) {
-                    // if(keyState.Delete)
-                    //     scene.value.remove(targetObject);
-                    // else
                     selectModel(targetObject);
-
                     return;
                 }
             }
