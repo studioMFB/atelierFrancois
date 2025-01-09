@@ -15,6 +15,7 @@ import { type Models } from "@/components/3D/ModelViewer.vue";
 import { useComposerStore } from '@/stores/composerStore';
 import { useModelStore } from '@/stores/modelStore';
 import { useOrbitControlsStore } from '@/stores/orbitControlsStore';
+import { useRaycasterStore } from '@/stores/raycasterStore';
 
 
 const props = defineProps<{
@@ -23,8 +24,11 @@ const props = defineProps<{
     selectedModel: Model;
 }>();
 
+const emit = defineEmits<{
+    (e: 'onAddModelAtCursor', scene: Scene, modelKey: keyof Models): void
+}>();
+
 const modelStore = useModelStore();
-const models = computed(() => props.models) as Ref<Models>;
 
 const canvas = computed(() => props.canvas) as Ref<HTMLCanvasElement>;
 const scene = ref(inject("MainScene")) as Ref<Scene>;
@@ -33,12 +37,13 @@ const transformControlsGizmos = ref(inject("TransformGizmos")) as Ref<TransformC
 
 const orbitControlsStore = useOrbitControlsStore();
 const orbitControls = ref(inject("OrbitControls")) as Ref<OrbitControls>;
-const isDragging = computed(() => orbitControlsStore.isDragging);
 
-// let selectedModel: Model= reactive(props.selectedModel);
+const raycasterStore = useRaycasterStore();
+raycasterStore.setCamera(camera.value);
+raycasterStore.setScene(scene.value);
+
 let selectedModel = computed(() => props.selectedModel) as Ref<Model>;
 
-const pointer = new Vector2();
 let isLeftMouseButtonDown = false;
 let intersect: Intersection<Object3D<Object3DEventMap>>;
 
@@ -151,12 +156,15 @@ function restricMoveToBoundaries(targetObject: Group<Object3DEventMap>): void {
 }
 
 // Updates the pointer position based on the event and recalculates the raycaster
-function updatePointerMode(event: PointerEvent): void {
+function updatePointerMode(event: PointerEvent | DragEvent): void {
     event.preventDefault();
 
     const rect = canvas.value.getBoundingClientRect();
+    const pointer = new Vector2();
     pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
     pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+    raycasterStore.updateMousePosition(pointer.x, pointer.y);
 
     try {
         if (raycaster && pointer && camera.value) {
@@ -167,7 +175,7 @@ function updatePointerMode(event: PointerEvent): void {
 
             // Update preview visibility based on spawn key state
             if (spawnPreview.value.previewMesh) {
-                spawnPreview.value.previewMesh.visible = isSpawnKeyPressed();
+                spawnPreview.value.previewMesh.visible = raycasterStore.isSpawn;
             }
 
             // Only update position if preview is visible
@@ -206,48 +214,8 @@ function updatePointerMode(event: PointerEvent): void {
     }
 }
 
-// Adds a model to the scene at the current pointer intersection point
-function addModelToSceneAtCursor(modelKey: keyof Models): void {
-    const model = models.value[modelKey];
-
-    if (!handleIntersection()) return;
-
-    // Define grid size for snapping
-    const gridSize = 0.5;
-
-    // Get the intersection point
-    const point = intersect.point.clone();
-
-    // Snap to grid
-    const spawnPosition = new Vector3(
-        Math.round(point.x / gridSize) * gridSize,
-        DEFAULT_POSITIONS.GROUND_Y_POSITION, // Always spawn at ground level
-        Math.round(point.z / gridSize) * gridSize
-    );
-
-    // Ensure position is within boundaries
-    const boundedPosition = restrictPositionToBoundaries(spawnPosition);
-
-    // if (!selectedModel) {
-    //     selectedModel = reactive(new Model());
-    // }
-    
-    if (!selectedModel.value) {
-        selectedModel.value = new Model();
-    }
-
-    selectedModel.value.name = model.name;
-    selectedModel.value.pos = boundedPosition;
-    selectedModel.value.scaleRatio = model.scale;
-    selectedModel.value.gltfUrl = model.url;
-
-    selectedModel.value.initMesh().then((modelScene: Group<Object3DEventMap>) => {
-        scene.value.add(modelScene);
-        modelStore.addModel(selectedModel.value as Model);
-        modelStore.addGroupObjects(modelScene);
-
-        selectModel(modelScene);
-    });
+function addModelonAtCursor(modelKey: keyof Models): void {
+    emit("onAddModelAtCursor", scene.value, modelKey);
 }
 
 let isRotatingModel = false;
@@ -287,8 +255,11 @@ const keyState = reactive({
     keyR: false,
 });
 
-function isSpawnKeyPressed(): boolean {
-    return keyState.keyT || keyState.keyG || keyState.keyR;
+function isSpawnKeyPressed(): void {
+    if(keyState.keyT || keyState.keyG || keyState.keyR)
+        raycasterStore.isSpawn = true;
+    else 
+        raycasterStore.isSpawn = false;
 }
 
 // Updates key states when key events are triggered
@@ -298,9 +269,10 @@ function handleKeyEvent(event: KeyboardEvent, isDown: boolean): void {
         case 'KeyG': keyState.keyG = isDown; break;
         case 'KeyR': keyState.keyR = isDown; break;
     }
+
+    isSpawnKeyPressed();
 }
 
-// Modify your intersection function to handle ground plane intersection explicitly
 function handleIntersection(): boolean {
     if (!isRaycasterReady()) {
         console.warn("Raycaster is not ready. Check dependencies and object configurations!");
@@ -346,22 +318,21 @@ function handleIntersection(): boolean {
 
     return false;
 }
+
 let dragStartTimeout: ReturnType<typeof setTimeout> | null = null;
 
-function handlePointerEvent(event: PointerEvent): void {
-    updatePointerMode(event);
-
+function handlePointerEvent(event: PointerEvent | DragEvent): void {
     if (event.type === 'pointerdown') {
-
+        
         if (dragStartTimeout) clearTimeout(dragStartTimeout);
-
+        
         // Delay action to distinguish between click and drag
         dragStartTimeout = setTimeout(() => {
-
+            
             if (orbitControlsStore.getDragging()) {
                 return;
             }
-
+            
             if (handleIntersection()) {
                 const targetObject = selectedModel.value?.findModelParent(intersect.object as Mesh);
 
@@ -370,12 +341,13 @@ function handlePointerEvent(event: PointerEvent): void {
                     return;
                 }
             }
-
+            
             resetSelection();
-
+            
         }, 150);
     }
-    else if (event.type === 'pointermove') {
+    else if (event.type === 'pointermove' || event.type === 'dragover') {
+        updatePointerMode(event);
         if (handleIntersection()) {
             const targetObject = selectedModel.value?.findModelParent(intersect.object as Mesh);
 
@@ -467,14 +439,15 @@ function resetSelection(): void {
 
 function handleClick(): void {
     if (keyState.keyT || keyState.keyG || keyState.keyR) {
-        if (keyState.keyT) addModelToSceneAtCursor(MODEL_NAMES.TABLE);
-        if (keyState.keyR) addModelToSceneAtCursor(MODEL_NAMES.ROCK);
-        if (keyState.keyG) addModelToSceneAtCursor(MODEL_NAMES.GARLIC);
+        if (keyState.keyT) addModelonAtCursor(MODEL_NAMES.TABLE);
+        if (keyState.keyR) addModelonAtCursor(MODEL_NAMES.ROCK);
+        if (keyState.keyG) addModelonAtCursor(MODEL_NAMES.GARLIC);
     }
 }
 
 // Sets up all necessary event listeners for interactions
 function setupEventListeners(): void {
+    const dragUpdate = (e: DragEvent) => handlePointerEvent(e);
     const pointerUpdate = (e: PointerEvent) => handlePointerEvent(e);
     // Add both pointerdown and click handlers for better compatibility
     const clickListener = () => handleClick();
@@ -485,6 +458,7 @@ function setupEventListeners(): void {
 
     const pointerUp = () => handlePointerUp();
 
+    canvas.value.addEventListener('dragover', dragUpdate);
     canvas.value.addEventListener('pointermove', pointerUpdate);
     canvas.value.addEventListener('pointerdown', pointerUpdate);
     canvas.value.addEventListener('pointerup', pointerUp);
@@ -509,6 +483,7 @@ function setupEventListeners(): void {
     });
 
     onUnmounted(() => {
+        canvas.value.removeEventListener('dragover', dragUpdate);
         canvas.value.removeEventListener('pointermove', pointerUpdate);
         canvas.value.removeEventListener('pointerdown', pointerUpdate);
         canvas.value.removeEventListener('pointerup', pointerUp);
@@ -529,6 +504,6 @@ onMounted(() => {
 </script>
 
 <template>
-    <spawn-preview :visible="isSpawnKeyPressed()" :raycaster="raycaster" :grid-limits="gridLimits" ref="spawnPreview" />
+    <spawn-preview :visible="raycasterStore.isSpawn" :raycaster="raycaster" :grid-limits="gridLimits" ref="spawnPreview" />
     <slot></slot>
 </template>

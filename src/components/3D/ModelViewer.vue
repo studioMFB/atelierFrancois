@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed, reactive, ref, type Ref } from "vue";
 
-import { Color, Vector3, Vector2, type Object3DEventMap, Group, Scene } from "three";
+import { Color, Vector3, Vector2, type Object3DEventMap, Group, Scene, Box3 } from "three";
 
-import { GLTF_URL, MODEL_NAMES } from "@/constants";
+import { DEFAULT_POSITIONS, GLTF_URL, GRID, MODEL_NAMES } from "@/constants";
 
 import MainScene from "@/components/3D/MainScene.vue";
 import WebGlRenderer from "@/components/3D/WebGlRenderer.vue";
@@ -23,6 +23,7 @@ import ResourceExplorer from "../menus/ResourceExplorer.vue";
 
 import { Model } from "../modelViewer/resources/model";
 import { useModelStore } from '@/stores/modelStore';
+import { useRaycasterStore } from '@/stores/raycasterStore';
 
 
 // Constants
@@ -34,8 +35,19 @@ const GRID_CELL_SIZE = GRID_SIZE / GRID_RATIO;
 const props = defineProps<{ canvas?: HTMLCanvasElement }>();
 const canvas = computed(() => props.canvas) as Ref<HTMLCanvasElement>;
 
+const gridLimits = reactive({
+    minX: GRID.LIMITS.MIN_X,
+    maxX: GRID.LIMITS.MAX_X,
+    minY: GRID.LIMITS.MIN_Y,
+    maxY: GRID.LIMITS.MAX_Y,
+    minZ: GRID.LIMITS.MIN_Z,
+    maxZ: GRID.LIMITS.MAX_Z
+});
+
 const modelStore = useModelStore();
 let selectedModel: Ref<Model> = ref(new Model());
+
+const raycasterStore = useRaycasterStore();
 
 export interface IModel {
     name: string;
@@ -70,6 +82,82 @@ function addModelToScene(scene: Scene, modelKey: keyof Models): void {
         // selectModel(modelScene);
     });
 }
+
+// Restricts a position vector to remain within reactive grid boundaries
+function restrictPositionToBoundaries(position: Vector3, targetGroupObjects?: Group<Object3DEventMap>): Vector3 {
+    if (!targetGroupObjects) {
+        return new Vector3(
+            Math.max(gridLimits.minX, Math.min(gridLimits.maxX, position.x)),
+            gridLimits.minY,
+            Math.max(gridLimits.minZ, Math.min(gridLimits.maxZ, position.z))
+        );
+    }
+
+    // Get bounding box dimensions
+    // const { size } = getBoundingBoxData(targetGroupObjects);
+
+    const bbox = new Box3().setFromObject(targetGroupObjects);
+    const size = new Vector3();
+    bbox.getSize(size);
+
+    // Half dimensions for edge calculations
+    const halfWidth = size.x / 2;
+    const halfDepth = size.z / 2;
+
+    return new Vector3(
+        Math.max(gridLimits.minX + halfWidth, Math.min(gridLimits.maxX - halfWidth, position.x)),
+        gridLimits.minY,
+        Math.max(gridLimits.minZ + halfDepth, Math.min(gridLimits.maxZ - halfDepth, position.z))
+    );
+}
+
+// Restricts the movement of the intersected object to the grid boundaries
+function restricMoveToBoundaries(targetObject: Group<Object3DEventMap>): void {
+    targetObject.position.copy(restrictPositionToBoundaries(targetObject.position, targetObject));
+}
+
+// Adds a model to the scene at the current pointer intersection point
+function addModelAtCursor(scene: Scene, modelKey: keyof Models): void {
+    const model = models[modelKey];
+
+    if (!raycasterStore.handleIntersection()) return;
+
+    // Update preview position using currentIntersect
+    const intersect = raycasterStore.getCurrentIntersect();
+
+    if (!intersect) return;
+
+    // Define grid size for snapping
+    const gridSize = 0.5;
+
+    // Get the intersection point
+    const intersectionPoint = intersect.point.clone();
+
+    // Snap to grid
+    const spawnPosition = new Vector3(
+        Math.round(intersectionPoint.x / gridSize) * gridSize,
+        DEFAULT_POSITIONS.GROUND_Y_POSITION, // Always spawn at ground level
+        Math.round(intersectionPoint.z / gridSize) * gridSize
+    );
+
+    // Ensure position is within boundaries
+    const boundedPosition = restrictPositionToBoundaries(spawnPosition);
+
+    if (!selectedModel.value) {
+        selectedModel.value = new Model();
+    }
+
+    selectedModel.value.name = model.name;
+    selectedModel.value.pos = boundedPosition;
+    selectedModel.value.scaleRatio = model.scale;
+    selectedModel.value.gltfUrl = model.url;
+
+    selectedModel.value.initMesh().then((modelScene: Group<Object3DEventMap>) => {
+        scene.add(modelScene);
+        modelStore.addModel(selectedModel.value as Model);
+        modelStore.addGroupObjects(modelScene);
+    });
+}
 </script>
 
 <template>
@@ -80,7 +168,8 @@ function addModelToScene(scene: Scene, modelKey: keyof Models): void {
             <template v-slot:orbitControl>
                 <OrbitControls :canvas="canvas">
                     <TransformGizmos :canvas="canvas">
-                        <RaycasterComponent :models="models" :selected-model="selectedModel" ref="raycaster" :canvas="canvas" />
+                        <RaycasterComponent ref="raycaster" :models="models" :selected-model="selectedModel"
+                            :canvas="canvas" @on-add-model-at-cursor="addModelAtCursor" />
                     </TransformGizmos>
                 </OrbitControls>
             </template>
@@ -102,11 +191,7 @@ function addModelToScene(scene: Scene, modelKey: keyof Models): void {
         </PerspectiveCamera>
 
         <!-- Lights -->
-        <HemisphereLight
-            :sky-colour="new Color(0xffffff)"
-            :ground-colour="new Color(0xffffff)"
-            :intensity="1.35"
-        />
+        <HemisphereLight :sky-colour="new Color(0xffffff)" :ground-colour="new Color(0xffffff)" :intensity="1.35" />
         <SpotLight :colour="new Color(0xffffff)" :position="new Vector3(5, 9, 7)" />
         <PointLight :colour="new Color(0xff0040)" :position="new Vector3(0, 10.5, 2)" />
         <PointLight :colour="new Color(0x0040ff)" :position="new Vector3(0, 4.5, 2)" />
@@ -114,23 +199,17 @@ function addModelToScene(scene: Scene, modelKey: keyof Models): void {
         <PointLight :colour="new Color(0xffaa00)" :position="new Vector3(-2, 6.5, 2)" />
 
         <!-- Helpers -->
-        <GridHelper
-            :size="GRID_SIZE"
-            :divisions="GRID_CELL_SIZE"
-            :colour1="new Color(0x888888)"
-            :colour2="new Color(0x888888)"
-        />
-        <PlaneGeometry
-            :dimension="new Vector2(GRID_SIZE, GRID_SIZE)"
-            :segment="new Vector2(1, 1)"
-            :position="new Vector3(0, 0, 0)"
-        />
+        <GridHelper :size="GRID_SIZE" :divisions="GRID_CELL_SIZE" :colour1="new Color(0x888888)"
+            :colour2="new Color(0x888888)" />
+        <PlaneGeometry :dimension="new Vector2(GRID_SIZE, GRID_SIZE)" :segment="new Vector2(1, 1)"
+            :position="new Vector3(0, 0, 0)" />
 
         <!-- Models (if needed in the future) -->
         <!-- <ModelAsset name="table" :position="new Vector3(0, 0, -1)" :scale-ratio="1" :gltf-url="GLTF_TABLE" /> -->
         <!-- <ModelAsset name="garlic" :position="new Vector3(0, 0, 0)" :scale-ratio="10" :gltf-url="GLTF_GARLIC" /> -->
         <!-- <ModelAsset name="stone" :position="new Vector3(1, 0, 1)" :scale-ratio="1" :gltf-url="GLTF_STONE" /> -->
-        
-        <resource-explorer :models="models" @on-add-model="addModelToScene"></resource-explorer>
+
+        <resource-explorer :models="models" @on-add-model="addModelToScene"
+            @on-add-model-at-cursor="addModelAtCursor" />
     </MainScene>
 </template>

@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { ref, computed, inject, type Ref } from 'vue';
 
-import { Scene } from 'three';
+import { Scene, Vector2, Vector3 } from 'three';
 
 import type { Models, IModel } from '../3D/ModelViewer.vue';
+import { useRaycasterStore } from '@/stores/raycasterStore';
 
 
 const props = defineProps<{
@@ -11,10 +12,12 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-    (e: 'onAddModel', scene: Scene, modelKey: keyof Models): void
-}>()
+    (e: 'onAddModel', scene: Scene, modelKey: keyof Models): void,
+    (e: 'onAddModelAtCursor', scene: Scene, modelKey: keyof Models): void
+}>();
 
 const scene = ref(inject("MainScene")) as Ref<Scene>;
+const raycasterStore = useRaycasterStore();
 const isCollapsed = ref(false);
 
 // Transform models data into a format suitable for display
@@ -38,41 +41,41 @@ function addModel(modelKey: keyof Models) {
     emit("onAddModel", scene.value, modelKey);
 }
 
-function handleDragStart(event: DragEvent, modelKey: string) {
-    if (event.dataTransfer) {
-        event.dataTransfer.setData('modelKey', modelKey);
-        event.dataTransfer.effectAllowed = 'copy';
-    }
+function handleDragStart(event: DragEvent, modelKey: keyof Models) {
+    // Show Spwan target
+    raycasterStore.isSpawn = true;
 }
 
-function handleDrag(event: DragEvent) {
-    // Handle drag preview position updates
+function handleDrag(event: DragEvent, modelKey: keyof Models) {
+
 }
 
-function handleDragEnd(event: DragEvent) {
-    // Clean up any drag preview
+function handleDragEnd(event: DragEvent, modelKey: keyof Models) {
+    emit("onAddModelAtCursor", scene.value, modelKey);
+    // Hide Spwan target
+    raycasterStore.isSpawn = false;
 }
 </script>
 
 <template>
     <div class="model-explorer" :class="{ 'collapsed': isCollapsed }">
         <button class="collapse-toggle" @click="toggleCollapse">
-            {{ isCollapsed ? '<' : '>' }}
-            <!-- <h2>Models</h2> -->
-        </button>
+            {{ isCollapsed ? '<' : '>' }} </button>
 
-        <div v-show="!isCollapsed" class="explorer-content">
-            <h2>Models</h2>
+                <div v-show="!isCollapsed" class="explorer-content">
+                    <h2>Models</h2>
 
-            <div class="model-grid">
-                <div v-for="(model, key) in modelList" :key="key" class="model-item" draggable="true"
-                    @click="addModel(key as keyof Models)" @dragstart="handleDragStart($event, key)"
-                    @drag="handleDrag($event)" @dragend="handleDragEnd">
-                    <img :src="model.thumbnail" :alt="model.name">
-                    <p>{{ model.name }}</p>
+                    <div class="model-grid">
+                        <div v-for="(model, key) in modelList" :key="key" class="model-item" draggable="true"
+                            @click="addModel(key as keyof Models)"
+                            @dragstart="handleDragStart($event, key as keyof Models)"
+                            @drag="handleDrag($event, key as keyof Models)"
+                            @dragend="handleDragEnd($event, key as keyof Models)">
+                            <img :src="model.thumbnail" :alt="model.name">
+                            <p>{{ model.name }}</p>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
     </div>
 </template>
 
