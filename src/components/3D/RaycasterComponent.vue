@@ -25,22 +25,20 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-    (e: 'onAddModelAtCursor', scene: Scene, modelKey: keyof Models): void
+    (e: 'onAddModelAtCursor', scene: Scene, modelKey: keyof Models): void,
+    (e: 'restricMoveToBoundaries', targetObject: Group<Object3DEventMap>): void,
 }>();
 
 const modelStore = useModelStore();
+const raycasterStore = useRaycasterStore();
+const orbitControlsStore = useOrbitControlsStore();
 
 const canvas = computed(() => props.canvas) as Ref<HTMLCanvasElement>;
 const scene = ref(inject("MainScene")) as Ref<Scene>;
 const camera = ref(inject("PerspectiveCamera")) as Ref<PerspectiveCamera>;
 const transformControlsGizmos = ref(inject("TransformGizmos")) as Ref<TransformControls>;
 
-const orbitControlsStore = useOrbitControlsStore();
 const orbitControls = ref(inject("OrbitControls")) as Ref<OrbitControls>;
-
-const raycasterStore = useRaycasterStore();
-raycasterStore.setCamera(camera.value);
-raycasterStore.setScene(scene.value);
 
 let selectedModel = computed(() => props.selectedModel) as Ref<Model>;
 
@@ -67,93 +65,6 @@ const gridLimits = reactive({
     maxZ: GRID.LIMITS.MAX_Z
 });
 
-// Checks if the raycaster is ready by validating its dependencies
-function isRaycasterReady(): boolean {
-    if (!raycaster) return false;
-    if (modelStore.getGroupsObjects().length < 1) return false;
-
-    return true;
-}
-
-// Cache bounding box and size for each object
-const boundingBoxCache = new Map<string, { box: Box3, size: Vector3 }>();
-
-function getBoundingBoxData(targetGroupObjects: Group<Object3DEventMap>) {
-    if (!boundingBoxCache.has(targetGroupObjects.uuid)) {
-        // Get corners of the bounding box in world space
-        // const box = new Box3().setFromObject(targetGroupObjects);
-        // const corners = [
-        //     new Vector3(box.min.x, box.min.y, box.min.z),
-        //     new Vector3(box.min.x, box.min.y, box.max.z),
-        //     new Vector3(box.min.x, box.max.y, box.min.z),
-        //     new Vector3(box.min.x, box.max.y, box.max.z),
-        //     new Vector3(box.max.x, box.min.y, box.min.z),
-        //     new Vector3(box.max.x, box.min.y, box.max.z),
-        //     new Vector3(box.max.x, box.max.y, box.min.z),
-        //     new Vector3(box.max.x, box.max.y, box.max.z),
-        // ].map(corner => corner.applyMatrix4(targetGroupObjects.matrixWorld));
-
-        // // Find the extremes in world space
-        // const worldBox = new Box3();
-        // corners.forEach(corner => worldBox.expandByPoint(corner));
-
-        // const size = new Vector3();
-        // worldBox.getSize(size);
-
-        const worldBox = new Box3();
-        const tempBox = new Box3();
-
-        // Traverse all meshes to get accurate bounds
-        targetGroupObjects.traverse((child) => {
-            if (child instanceof Mesh) {
-                child.geometry.computeBoundingBox();
-                tempBox.copy(child.geometry.boundingBox!);
-                tempBox.applyMatrix4(child.matrixWorld);
-                worldBox.union(tempBox);
-            }
-        });
-
-        const size = new Vector3();
-        worldBox.getSize(size);
-
-        boundingBoxCache.set(targetGroupObjects.uuid, { box: worldBox, size: size });
-    }
-
-    return boundingBoxCache.get(targetGroupObjects.uuid)!;
-}
-
-// Restricts a position vector to remain within reactive grid boundaries
-function restrictPositionToBoundaries(position: Vector3, targetGroupObjects?: Group<Object3DEventMap>): Vector3 {
-    if (!targetGroupObjects) {
-        return new Vector3(
-            Math.max(gridLimits.minX, Math.min(gridLimits.maxX, position.x)),
-            gridLimits.minY,
-            Math.max(gridLimits.minZ, Math.min(gridLimits.maxZ, position.z))
-        );
-    }
-
-    // Get bounding box dimensions
-    // const { size } = getBoundingBoxData(targetGroupObjects);
-
-    const bbox = new Box3().setFromObject(targetGroupObjects);
-    const size = new Vector3();
-    bbox.getSize(size);
-
-    // Half dimensions for edge calculations
-    const halfWidth = size.x / 2;
-    const halfDepth = size.z / 2;
-
-    return new Vector3(
-        Math.max(gridLimits.minX + halfWidth, Math.min(gridLimits.maxX - halfWidth, position.x)),
-        gridLimits.minY,
-        Math.max(gridLimits.minZ + halfDepth, Math.min(gridLimits.maxZ - halfDepth, position.z))
-    );
-}
-
-// Restricts the movement of the intersected object to the grid boundaries
-function restricMoveToBoundaries(targetObject: Group<Object3DEventMap>): void {
-    targetObject.position.copy(restrictPositionToBoundaries(targetObject.position, targetObject));
-}
 
 // Updates the pointer position based on the event and recalculates the raycaster
 function updatePointerMode(event: PointerEvent | DragEvent): void {
@@ -163,8 +74,6 @@ function updatePointerMode(event: PointerEvent | DragEvent): void {
     const pointer = new Vector2();
     pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
     pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-
-    raycasterStore.updateMousePosition(pointer.x, pointer.y);
 
     try {
         if (raycaster && pointer && camera.value) {
@@ -214,10 +123,6 @@ function updatePointerMode(event: PointerEvent | DragEvent): void {
     }
 }
 
-function addModelonAtCursor(modelKey: keyof Models): void {
-    emit("onAddModelAtCursor", scene.value, modelKey);
-}
-
 let isRotatingModel = false;
 function handlePointerUp(): void {
     if (isRotatingModel) {
@@ -228,11 +133,6 @@ function handlePointerUp(): void {
 
 // Handles rotation using the scroll wheel when the left mouse button is down
 function onWheel(event: WheelEvent): void {
-    // Prevent default scroll behavior (important to stop page scrolling)
-    // BUT ERROR...
-    // event.preventDefault();
-    // event.stopPropagation();
-
     if (selectedModel.value?.isSelected && selectedModel.value?.modelScene) {
         // Temporarily disable zoom
         orbitControls.value.enableZoom = false;
@@ -248,37 +148,7 @@ function onWheel(event: WheelEvent): void {
     }
 }
 
-// Tracks the state of keyboard inputs for specific keys
-const keyState = reactive({
-    keyT: false,
-    keyG: false,
-    keyR: false,
-});
-
-function isSpawnKeyPressed(): void {
-    if(keyState.keyT || keyState.keyG || keyState.keyR)
-        raycasterStore.isSpawn = true;
-    else 
-        raycasterStore.isSpawn = false;
-}
-
-// Updates key states when key events are triggered
-function handleKeyEvent(event: KeyboardEvent, isDown: boolean): void {
-    switch (event.code) {
-        case 'KeyT': keyState.keyT = isDown; break;
-        case 'KeyG': keyState.keyG = isDown; break;
-        case 'KeyR': keyState.keyR = isDown; break;
-    }
-
-    isSpawnKeyPressed();
-}
-
 function handleIntersection(): boolean {
-    if (!isRaycasterReady()) {
-        console.warn("Raycaster is not ready. Check dependencies and object configurations!");
-        return false;
-    }
-
     // Create a virtual ground plane for consistent intersection
     const groundNormal = new Vector3(0, 1, 0);
     const groundPlane = new Plane(groundNormal, -DEFAULT_POSITIONS.GROUND_Y_POSITION);
@@ -306,6 +176,7 @@ function handleIntersection(): boolean {
             faceIndex: 0,
             uv: new Vector2(0, 0)
         };
+        raycasterStore.setCurrentIntersect(intersect);
     }
 
     const intersects = raycaster.intersectObjects(modelStore.getGroupsObjects(), true)
@@ -313,6 +184,7 @@ function handleIntersection(): boolean {
 
     if (intersects.length > 0) {
         intersect = intersects[0];
+        raycasterStore.setCurrentIntersect(intersect);
         return true;
     }
 
@@ -323,36 +195,41 @@ let dragStartTimeout: ReturnType<typeof setTimeout> | null = null;
 
 function handlePointerEvent(event: PointerEvent | DragEvent): void {
     if (event.type === 'pointerdown') {
-        
+
         if (dragStartTimeout) clearTimeout(dragStartTimeout);
-        
+
         // Delay action to distinguish between click and drag
         dragStartTimeout = setTimeout(() => {
-            
+
             if (orbitControlsStore.getDragging()) {
                 return;
             }
-            
+
             if (handleIntersection()) {
                 const targetObject = selectedModel.value?.findModelParent(intersect.object as Mesh);
 
                 if (targetObject && !targetObject.name.includes(MODEL_NAMES.FLOOR)) {
+                    // if(keyState.Delete)
+                    //     scene.value.remove(targetObject);
+                    // else
                     selectModel(targetObject);
+
                     return;
                 }
             }
-            
+
             resetSelection();
-            
+
         }, 150);
     }
     else if (event.type === 'pointermove' || event.type === 'dragover') {
         updatePointerMode(event);
+
         if (handleIntersection()) {
             const targetObject = selectedModel.value?.findModelParent(intersect.object as Mesh);
 
             if (targetObject && !targetObject.name.includes(MODEL_NAMES.FLOOR)) {
-                restricMoveToBoundaries(targetObject);
+                emit("restricMoveToBoundaries", targetObject);
             }
         }
     }
@@ -369,32 +246,12 @@ function attachGizmos(targetGroupObjects: Group<Object3DEventMap>): void {
         return;
     }
 
-    const targetObject = targetGroupObjects as Object3D;
-    transformControlsGizmos.value.attach(targetObject);
+    transformControlsGizmos.value.attach(targetGroupObjects as Object3D);
 
     // Add gizmo change listener when selecting
     transformControlsGizmos.value.addEventListener('change', () => {
-        restricMoveToBoundaries(targetGroupObjects);
+        emit("restricMoveToBoundaries", targetGroupObjects);
     });
-
-    // offsetGizmos(targetObject);
-}
-
-function offsetGizmos(targetObject: Object3D): void {
-    const offset = 0.05;
-
-    // Offset the gizmo above the object
-    const boundingBox = new Box3().setFromObject(targetObject);
-    const objectWidth = boundingBox.max.x - boundingBox.min.x;
-    const objectHeight = boundingBox.max.y - boundingBox.min.y;
-    const objectDepth = boundingBox.max.z - boundingBox.min.z;
-
-    // Position the gizmo in a corner above the object's bounding box
-    transformControlsGizmos.value.position.set(
-        objectWidth * .5,
-        targetObject.position.y + objectHeight + offset,
-        objectDepth * .5
-    );
 }
 
 function detachGizmos(): void {
@@ -421,12 +278,12 @@ function resetSelection(): void {
         selectedModel.value.isSelected = false;
 
         // Clear cache when model is modified
-        boundingBoxCache.delete(selectedModel.value.uuid);
+        // boundingBoxCache.delete(selectedModel.value.uuid);
 
         // Remove gizmo change listener when deselecting
         transformControlsGizmos.value.removeEventListener('change', () => {
             if (selectedModel.value?.modelScene)
-                restricMoveToBoundaries(selectedModel.value?.modelScene);
+                emit("restricMoveToBoundaries", selectedModel.value?.modelScene);
         });
     }
 
@@ -437,11 +294,26 @@ function resetSelection(): void {
     detachGizmos();
 }
 
-function handleClick(): void {
-    if (keyState.keyT || keyState.keyG || keyState.keyR) {
-        if (keyState.keyT) addModelonAtCursor(MODEL_NAMES.TABLE);
-        if (keyState.keyR) addModelonAtCursor(MODEL_NAMES.ROCK);
-        if (keyState.keyG) addModelonAtCursor(MODEL_NAMES.GARLIC);
+// Tracks the state of keyboard inputs for specific keys
+const keyState = reactive({
+    Delete: false,
+});
+
+// Updates key states when key events are triggered
+function handleKeyEvent(event: KeyboardEvent, isDown: boolean): void {
+    switch (event.code) {
+        case 'Delete': {
+            keyState.Delete = isDown;
+
+            if (keyState.Delete) {
+
+                if (selectedModel.value?.modelScene) {
+                    resetSelection();
+                    scene.value.remove(selectedModel.value?.modelScene);
+                }
+            }
+            break;
+        }
     }
 }
 
@@ -449,12 +321,11 @@ function handleClick(): void {
 function setupEventListeners(): void {
     const dragUpdate = (e: DragEvent) => handlePointerEvent(e);
     const pointerUpdate = (e: PointerEvent) => handlePointerEvent(e);
-    // Add both pointerdown and click handlers for better compatibility
-    const clickListener = () => handleClick();
 
-    const wheelListener = (e: WheelEvent) => { onWheel(e) };
     const keyDownListener = (e: KeyboardEvent) => handleKeyEvent(e, true);
     const keyUpListener = (e: KeyboardEvent) => handleKeyEvent(e, false);
+
+    const wheelListener = (e: WheelEvent) => { onWheel(e) };
 
     const pointerUp = () => handlePointerUp();
 
@@ -462,8 +333,6 @@ function setupEventListeners(): void {
     canvas.value.addEventListener('pointermove', pointerUpdate);
     canvas.value.addEventListener('pointerdown', pointerUpdate);
     canvas.value.addEventListener('pointerup', pointerUp);
-
-    canvas.value.addEventListener('click', clickListener);  // Add click event listener
 
     document.addEventListener('wheel', wheelListener);
     document.addEventListener('keydown', keyDownListener);
@@ -488,7 +357,6 @@ function setupEventListeners(): void {
         canvas.value.removeEventListener('pointerdown', pointerUpdate);
         canvas.value.removeEventListener('pointerup', pointerUp);
 
-        document.removeEventListener('click', clickListener);  // Remove click event listener
         document.removeEventListener('wheel', wheelListener);
         document.removeEventListener('keydown', keyDownListener);
         document.removeEventListener('keyup', keyUpListener);
@@ -504,6 +372,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <spawn-preview :visible="raycasterStore.isSpawn" :raycaster="raycaster" :grid-limits="gridLimits" ref="spawnPreview" />
+    <spawn-preview :visible="raycasterStore.isSpawn" :raycaster="raycaster" :grid-limits="gridLimits"
+        ref="spawnPreview" />
     <slot></slot>
 </template>

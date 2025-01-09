@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, inject, type Ref } from 'vue';
 
-import { Scene, Vector2, Vector3 } from 'three';
+import { Scene } from 'three';
 
 import type { Models, IModel } from '../3D/ModelViewer.vue';
 import { useRaycasterStore } from '@/stores/raycasterStore';
@@ -13,7 +13,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
     (e: 'onAddModel', scene: Scene, modelKey: keyof Models): void,
-    (e: 'onAddModelAtCursor', scene: Scene, modelKey: keyof Models): void
+    (e: 'onAddModelAtCursor', scene: Scene, modelKey: keyof Models): void,
 }>();
 
 const scene = ref(inject("MainScene")) as Ref<Scene>;

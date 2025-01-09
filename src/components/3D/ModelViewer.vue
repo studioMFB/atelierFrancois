@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref, type Ref } from "vue";
 
-import { Color, Vector3, Vector2, type Object3DEventMap, Group, Scene, Box3 } from "three";
+import { Color, Vector3, Vector2, type Object3DEventMap, Group, Scene, Box3, Mesh } from "three";
 
 import { DEFAULT_POSITIONS, GLTF_URL, GRID, MODEL_NAMES } from "@/constants";
 
@@ -83,6 +83,54 @@ function addModelToScene(scene: Scene, modelKey: keyof Models): void {
     });
 }
 
+
+// Cache bounding box and size for each object
+const boundingBoxCache = new Map<string, { box: Box3, size: Vector3 }>();
+
+function getBoundingBoxData(targetGroupObjects: Group<Object3DEventMap>) {
+    if (!boundingBoxCache.has(targetGroupObjects.uuid)) {
+        // Get corners of the bounding box in world space
+        // const box = new Box3().setFromObject(targetGroupObjects);
+        // const corners = [
+        //     new Vector3(box.min.x, box.min.y, box.min.z),
+        //     new Vector3(box.min.x, box.min.y, box.max.z),
+        //     new Vector3(box.min.x, box.max.y, box.min.z),
+        //     new Vector3(box.min.x, box.max.y, box.max.z),
+        //     new Vector3(box.max.x, box.min.y, box.min.z),
+        //     new Vector3(box.max.x, box.min.y, box.max.z),
+        //     new Vector3(box.max.x, box.max.y, box.min.z),
+        //     new Vector3(box.max.x, box.max.y, box.max.z),
+        // ].map(corner => corner.applyMatrix4(targetGroupObjects.matrixWorld));
+
+        // // Find the extremes in world space
+        // const worldBox = new Box3();
+        // corners.forEach(corner => worldBox.expandByPoint(corner));
+
+        // const size = new Vector3();
+        // worldBox.getSize(size);
+
+        const worldBox = new Box3();
+        const tempBox = new Box3();
+
+        // Traverse all meshes to get accurate bounds
+        targetGroupObjects.traverse((child) => {
+            if (child instanceof Mesh) {
+                child.geometry.computeBoundingBox();
+                tempBox.copy(child.geometry.boundingBox!);
+                tempBox.applyMatrix4(child.matrixWorld);
+                worldBox.union(tempBox);
+            }
+        });
+
+        const size = new Vector3();
+        worldBox.getSize(size);
+
+        boundingBoxCache.set(targetGroupObjects.uuid, { box: worldBox, size: size });
+    }
+
+    return boundingBoxCache.get(targetGroupObjects.uuid)!;
+}
+
 // Restricts a position vector to remain within reactive grid boundaries
 function restrictPositionToBoundaries(position: Vector3, targetGroupObjects?: Group<Object3DEventMap>): Vector3 {
     if (!targetGroupObjects) {
@@ -120,7 +168,7 @@ function restricMoveToBoundaries(targetObject: Group<Object3DEventMap>): void {
 function addModelAtCursor(scene: Scene, modelKey: keyof Models): void {
     const model = models[modelKey];
 
-    if (!raycasterStore.handleIntersection()) return;
+    // if (!raycasterStore.handleIntersection()) return;
 
     // Update preview position using currentIntersect
     const intersect = raycasterStore.getCurrentIntersect();
@@ -169,7 +217,7 @@ function addModelAtCursor(scene: Scene, modelKey: keyof Models): void {
                 <OrbitControls :canvas="canvas">
                     <TransformGizmos :canvas="canvas">
                         <RaycasterComponent ref="raycaster" :models="models" :selected-model="selectedModel"
-                            :canvas="canvas" @on-add-model-at-cursor="addModelAtCursor" />
+                            :canvas="canvas" @on-add-model-at-cursor="addModelAtCursor" @restric-move-to-boundaries="restricMoveToBoundaries" />
                     </TransformGizmos>
                 </OrbitControls>
             </template>
