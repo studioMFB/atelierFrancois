@@ -19,9 +19,6 @@ function toggleShow() {
     <div class="menu-wrapper">
         <hamburger-button :close="show" @toggle="toggleShow"></hamburger-button>
 
-        <!-- <transition name="slide-menu"> -->
-        <!-- <div v-if="show"> -->
-        <!-- <modal-component :show="show" @update:show="toggleShow"> -->
         <div class="menu" :class="show ? ['move'] : ['']">
             <ul>
                 <li>
@@ -46,9 +43,6 @@ function toggleShow() {
                 </li>
             </ul>
         </div>
-        <!-- </modal-component> -->
-        <!-- </div> -->
-        <!-- </transition> -->
     </div>
 </template>
 
@@ -77,7 +71,6 @@ $menu-width: calc(var(--side-menu-width) *-1);
     color: #8e8f94;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     background-color: var(--header-background);
-    // backdrop-filter: blur(10px);
 
     ul {
         display: flex;
@@ -124,19 +117,4 @@ $menu-width: calc(var(--side-menu-width) *-1);
         opacity: .6;
     }
 }
-
-// .slide-menu-enter-active,
-// .slide-menu-leave-active {
-//     @include menu-common-styles;
-//     // transform: translateY(0);
-//     top:0;
-//     transition: transform var(--slide-transition) ease-in;
-// }
-
-// .slide-menu-enter-from,
-// .slide-menu-leave-to {
-//     @include menu-common-styles;
-//     // transform: translateY(0);
-//     top:0;
-//     transform: translateX(calc(var(--side-menu-width) *-1));
-// }</style>
+</style>

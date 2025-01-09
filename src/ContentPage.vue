@@ -21,21 +21,10 @@
     position: fixed;
     top: var(--header-height);
     width: 100%;
-    height: 92%;
     overflow-y: hidden;
 }
 
 .content-page {
-    // position: fixed;
-    // top: var(--header-height);
-    width: 100%;
-    height: 100%;
     overflow-y: auto;
 }
-
-// .footer {
-//     width: 100%;
-//     height: 12rem;
-//     background: var(--main-background);
-// }
 </style>

@@ -4,7 +4,7 @@ import { computed, inject, onMounted, provide, type Ref } from 'vue';
 import { BufferGeometry, Float32BufferAttribute, Line, LineBasicMaterial, Mesh, Object3D, PerspectiveCamera, Scene } from 'three';
 import { TransformControls, TransformControlsGizmo } from 'three/examples/jsm/controls/TransformControls.js';
 
-import { COLOURS } from './constants';
+import { COLOURS } from '../../constants';
 
 
 const props = defineProps<{

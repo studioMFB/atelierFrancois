@@ -7,7 +7,7 @@ import type { ModelMetadata } from './types';
 
 import { Model } from '@/components/modelViewer/resources/model';
 import { useModelStore } from '@/stores/modelStore';
-import { GLTF_URL, MODEL_SCALES, DEFAULT_POSITIONS } from '../constants';
+import { GLTF_URL, MODEL_SCALES, DEFAULT_POSITIONS } from '../../../constants';
 
 
 const scene = ref(inject("MainScene")) as Ref<Scene>;

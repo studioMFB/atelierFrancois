@@ -6,7 +6,7 @@ import { TransformControls } from 'three/examples/jsm/controls/TransformControls
 import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js';
 import type { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
-import { RAYCASTER, GRID, DEFAULT_POSITIONS, MODEL_NAMES, MODEL_SUB_NAMES } from "@/components/3D/constants";
+import { RAYCASTER, GRID, DEFAULT_POSITIONS, MODEL_NAMES, MODEL_SUB_NAMES } from "@/constants";
 
 import SpawnPreview from './raycaster/SpawnPreview.vue';
 import { Model } from '@/components/modelViewer/resources/model';

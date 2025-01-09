@@ -1,4 +1,4 @@
-import { COLOURS, MODEL_SUB_NAMES } from "@/components/3D/constants";
+import { COLOURS, MODEL_SUB_NAMES } from "@/constants";
 import { Mesh, Vector3, Group, MeshToonMaterial, Color, type Object3DEventMap, MeshBasicMaterial, BoxHelper, Box3, Object3D } from "three";
 import { type GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 

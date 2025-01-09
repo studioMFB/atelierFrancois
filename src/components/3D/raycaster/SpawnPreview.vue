@@ -3,7 +3,7 @@ import { ref, onMounted, onUnmounted, inject, type Ref, watch, computed } from '
 
 import { CircleGeometry, Mesh, MeshBasicMaterial, Scene, Vector3, Plane, Raycaster } from 'three';
 
-import { COLOURS, PREVIEW } from '../constants';
+import { COLOURS, PREVIEW } from '../../../constants';
 
 
 const props = defineProps<{

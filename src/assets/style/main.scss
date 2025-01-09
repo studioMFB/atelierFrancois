@@ -114,7 +114,7 @@
   --header-height: 5rem;
   --header-background:#e5e0d8; // #f1f6f7; 
   --main-background: #e5e0d8;
-  --side-menu-width: 25rem;
+  --side-menu-width: 20rem;
 
   --slide-transition: 0.3s;
 
@@ -148,16 +148,19 @@ html {
 body {
   width: 100%;
   height: 100%;
-  font-family: 'Lato', sans-serif;
-  font-size: 14px;
-  background: var(--main-background);
-  overflow: hidden;
-
+  margin: 0;
+  padding: 0;
+  
   font-family: var(--base-font-family);
+  font-size: 14px;
   letter-spacing: var(--letter-spacing-1);
   line-height: var(--base-line-height);
+
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  background: var(--main-background);
+  overflow: hidden;
 }
 
 a {
@@ -171,6 +174,7 @@ a {
 
 .scene-viewer {
   border: none;
-  border-radius: 10px;
+  // border-radius: 10px;
+  margin: 0;
   background-color: #060911;
 }

@@ -3,7 +3,7 @@ import { computed, type Ref } from "vue";
 
 import { Color, Vector3, Vector2 } from "three";
 
-import { GLTF_URL, MODEL_NAMES } from "@/components/3D/constants";
+import { GLTF_URL, MODEL_NAMES } from "@/constants";
 
 import MainScene from "@/components/3D/MainScene.vue";
 import WebGlRenderer from "@/components/3D/WebGlRenderer.vue";
@@ -20,6 +20,8 @@ import SpotLight from "@/components/3D/SpotLight.vue";
 import GridHelper from "@/components/3D/GridHelper.vue";
 import PlaneGeometry from "@/components/3D/PlaneGeometry.vue";
 
+import ResourceExplorer from "../menus/ResourceExplorer.vue";
+
 
 // Constants
 const GRID_SIZE = 5;
@@ -30,7 +32,7 @@ const GRID_CELL_SIZE = GRID_SIZE / GRID_RATIO;
 const props = defineProps<{ canvas?: HTMLCanvasElement }>();
 const canvas = computed(() => props.canvas) as Ref<HTMLCanvasElement>;
 
-interface IModel {
+export interface IModel {
     name: string;
     position: Vector3;
     scale: number;
@@ -53,6 +55,8 @@ function setupModel(name: string, position: Vector3, scale: number, url: string)
 </script>
 
 <template>
+    <resource-explorer :models="models"></resource-explorer>
+
     <MainScene :colour="new Color(0xded6d8)">
         <PerspectiveCamera :position="new Vector3(4.4, 2.7, 2.0)" :zoom="1.5">
             <!-- OrbitControls with TransformGizmos and Raycaster -->
