@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { computed, provide } from 'vue';
-import { Color, Scene, Fog, Group, type Object3DEventMap } from 'three';
-import type { Model } from '../modelViewer/resources/model';
+import { Color, Scene, Fog } from 'three';
 
-const props = defineProps<{ colour: Color }>();
+
+const props = defineProps<{ 
+    colour: Color 
+}>();
 
 const colour = computed(() => props.colour);
 const scene = new Scene();

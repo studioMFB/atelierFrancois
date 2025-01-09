@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed, type Ref } from "vue";
+import { computed, reactive, ref, type Ref } from "vue";
 
-import { Color, Vector3, Vector2 } from "three";
+import { Color, Vector3, Vector2, type Object3DEventMap, Group, Scene } from "three";
 
 import { GLTF_URL, MODEL_NAMES } from "@/constants";
 
@@ -9,7 +9,6 @@ import MainScene from "@/components/3D/MainScene.vue";
 import WebGlRenderer from "@/components/3D/WebGlRenderer.vue";
 import GameLoop from "@/components/3D/GameLoop.vue";
 import ResizerComponent from "@/components/3D/ResizerComponent.vue";
-import EffectComposer from "@/components/3D/EffectComposer.vue";
 import RaycasterComponent from "./RaycasterComponent.vue";
 import PerspectiveCamera from "@/components/3D/PerspectiveCamera.vue";
 import OrbitControls from "@/components/3D/OrbitControls.vue";
@@ -22,6 +21,9 @@ import PlaneGeometry from "@/components/3D/PlaneGeometry.vue";
 
 import ResourceExplorer from "../menus/ResourceExplorer.vue";
 
+import { Model } from "../modelViewer/resources/model";
+import { useModelStore } from '@/stores/modelStore';
+
 
 // Constants
 const GRID_SIZE = 5;
@@ -31,6 +33,9 @@ const GRID_CELL_SIZE = GRID_SIZE / GRID_RATIO;
 // Props
 const props = defineProps<{ canvas?: HTMLCanvasElement }>();
 const canvas = computed(() => props.canvas) as Ref<HTMLCanvasElement>;
+
+const modelStore = useModelStore();
+let selectedModel: Ref<Model> = ref(new Model());
 
 export interface IModel {
     name: string;
@@ -52,18 +57,30 @@ const models: Models = {
 function setupModel(name: string, position: Vector3, scale: number, url: string): { name: string, position: Vector3, scale: number, url: string } {
     return { name, position, scale, url };
 }
+
+function addModelToScene(scene: Scene, modelKey: keyof Models): void {
+    const _model = models[modelKey];
+    selectedModel.value = new Model(_model.name, _model.position, _model.scale, _model.url);
+
+    selectedModel.value.initMesh().then((modelScene: Group<Object3DEventMap>) => {
+        scene.add(modelScene);
+        modelStore.addModel(selectedModel.value as Model);
+        modelStore.addGroupObjects(modelScene);
+
+        // selectModel(modelScene);
+    });
+}
 </script>
 
 <template>
-    <resource-explorer :models="models"></resource-explorer>
-
     <MainScene :colour="new Color(0xded6d8)">
+
         <PerspectiveCamera :position="new Vector3(4.4, 2.7, 2.0)" :zoom="1.5">
             <!-- OrbitControls with TransformGizmos and Raycaster -->
             <template v-slot:orbitControl>
                 <OrbitControls :canvas="canvas">
                     <TransformGizmos :canvas="canvas">
-                        <RaycasterComponent :models="models" ref="raycaster" :canvas="canvas" />
+                        <RaycasterComponent :models="models" :selected-model="selectedModel" ref="raycaster" :canvas="canvas" />
                     </TransformGizmos>
                 </OrbitControls>
             </template>
@@ -113,5 +130,7 @@ function setupModel(name: string, position: Vector3, scale: number, url: string)
         <!-- <ModelAsset name="table" :position="new Vector3(0, 0, -1)" :scale-ratio="1" :gltf-url="GLTF_TABLE" /> -->
         <!-- <ModelAsset name="garlic" :position="new Vector3(0, 0, 0)" :scale-ratio="10" :gltf-url="GLTF_GARLIC" /> -->
         <!-- <ModelAsset name="stone" :position="new Vector3(1, 0, 1)" :scale-ratio="1" :gltf-url="GLTF_STONE" /> -->
+        
+        <resource-explorer :models="models" @on-add-model="addModelToScene"></resource-explorer>
     </MainScene>
 </template>

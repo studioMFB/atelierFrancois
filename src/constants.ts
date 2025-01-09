@@ -57,9 +57,9 @@ export const DEFAULT_POSITIONS = {
 } as const;
 
 export const GLTF_URL = {
-    TABLE: new URL('./../modelViewer/models/table/1/littlewood_furniture.gltf', import.meta.url).toString(),
-    GARLIC: new URL('./../modelViewer/models/garlic/scene.gltf', import.meta.url).toString(),
-    ROCK: new URL('./../modelViewer/models/rock/scene.gltf', import.meta.url).toString()
+    TABLE: new URL('@/assets/models/table/1/littlewood_furniture.gltf', import.meta.url).toString(),
+    GARLIC: new URL('@/assets//models/garlic/scene.gltf', import.meta.url).toString(),
+    ROCK: new URL('@/assets//models/rock/scene.gltf', import.meta.url).toString()
 } as const;
 
 export const ROTATION = {

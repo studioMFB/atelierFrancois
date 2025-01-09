@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, inject, type Ref } from 'vue';
 
-import { Vector3 } from 'three';
+import { Scene } from 'three';
+
 import type { Models, IModel } from '../3D/ModelViewer.vue';
 
 
@@ -10,9 +11,10 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-    (e: 'onAddModel', modelKey: keyof Models, point?: Vector3): void
+    (e: 'onAddModel', scene: Scene, modelKey: keyof Models): void
 }>()
 
+const scene = ref(inject("MainScene")) as Ref<Scene>;
 const isCollapsed = ref(false);
 
 // Transform models data into a format suitable for display
@@ -32,8 +34,8 @@ function toggleCollapse() {
     isCollapsed.value = !isCollapsed.value;
 }
 
-function handleModelClick(modelKey: keyof Models) {
-    emit("onAddModel", modelKey);
+function addModel(modelKey: keyof Models) {
+    emit("onAddModel", scene.value, modelKey);
 }
 
 function handleDragStart(event: DragEvent, modelKey: string) {
@@ -64,7 +66,7 @@ function handleDragEnd(event: DragEvent) {
 
             <div class="model-grid">
                 <div v-for="(model, key) in modelList" :key="key" class="model-item" draggable="true"
-                    @click="handleModelClick(key as keyof Models)" @dragstart="handleDragStart($event, key)"
+                    @click="addModel(key as keyof Models)" @dragstart="handleDragStart($event, key)"
                     @drag="handleDrag($event)" @dragend="handleDragEnd">
                     <img :src="model.thumbnail" :alt="model.name">
                     <p>{{ model.name }}</p>

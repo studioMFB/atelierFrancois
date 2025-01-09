@@ -20,6 +20,7 @@ import { useOrbitControlsStore } from '@/stores/orbitControlsStore';
 const props = defineProps<{
     canvas: HTMLCanvasElement
     models: Models;
+    selectedModel: Model;
 }>();
 
 const modelStore = useModelStore();
@@ -34,7 +35,9 @@ const orbitControlsStore = useOrbitControlsStore();
 const orbitControls = ref(inject("OrbitControls")) as Ref<OrbitControls>;
 const isDragging = computed(() => orbitControlsStore.isDragging);
 
-let selectedModel: Model | null = reactive(new Model());
+// let selectedModel: Model= reactive(props.selectedModel);
+let selectedModel = computed(() => props.selectedModel) as Ref<Model>;
+
 const pointer = new Vector2();
 let isLeftMouseButtonDown = false;
 let intersect: Intersection<Object3D<Object3DEventMap>>;
@@ -225,18 +228,22 @@ function addModelToSceneAtCursor(modelKey: keyof Models): void {
     // Ensure position is within boundaries
     const boundedPosition = restrictPositionToBoundaries(spawnPosition);
 
-    if (!selectedModel) {
-        selectedModel = reactive(new Model())
+    // if (!selectedModel) {
+    //     selectedModel = reactive(new Model());
+    // }
+    
+    if (!selectedModel.value) {
+        selectedModel.value = new Model();
     }
 
-    selectedModel.name = model.name, boundedPosition, model.scale, model.url;
-    selectedModel.pos = boundedPosition;
-    selectedModel.scaleRatio = model.scale;
-    selectedModel.gltfUrl = model.url;
+    selectedModel.value.name = model.name;
+    selectedModel.value.pos = boundedPosition;
+    selectedModel.value.scaleRatio = model.scale;
+    selectedModel.value.gltfUrl = model.url;
 
-    selectedModel.initMesh().then((modelScene: Group<Object3DEventMap>) => {
+    selectedModel.value.initMesh().then((modelScene: Group<Object3DEventMap>) => {
         scene.value.add(modelScene);
-        modelStore.addModel(selectedModel as Model);
+        modelStore.addModel(selectedModel.value as Model);
         modelStore.addGroupObjects(modelScene);
 
         selectModel(modelScene);
@@ -258,7 +265,7 @@ function onWheel(event: WheelEvent): void {
     // event.preventDefault();
     // event.stopPropagation();
 
-    if (selectedModel?.isSelected && selectedModel?.modelScene) {
+    if (selectedModel.value?.isSelected && selectedModel.value?.modelScene) {
         // Temporarily disable zoom
         orbitControls.value.enableZoom = false;
 
@@ -266,7 +273,7 @@ function onWheel(event: WheelEvent): void {
         const delta = Math.sign(event.deltaY);
         const rotationSpeed = Math.PI / 4;
         const rotationDelta = delta * rotationSpeed;
-        selectedModel.modelScene.rotation.y += rotationDelta;
+        selectedModel.value.modelScene.rotation.y += rotationDelta;
     }
     else {
         orbitControls.value.enableZoom = true;
@@ -356,7 +363,7 @@ function handlePointerEvent(event: PointerEvent): void {
             }
 
             if (handleIntersection()) {
-                const targetObject = selectedModel?.findModelParent(intersect.object as Mesh);
+                const targetObject = selectedModel.value?.findModelParent(intersect.object as Mesh);
 
                 if (targetObject && !targetObject.name.includes(MODEL_NAMES.FLOOR)) {
                     selectModel(targetObject);
@@ -370,7 +377,7 @@ function handlePointerEvent(event: PointerEvent): void {
     }
     else if (event.type === 'pointermove') {
         if (handleIntersection()) {
-            const targetObject = selectedModel?.findModelParent(intersect.object as Mesh);
+            const targetObject = selectedModel.value?.findModelParent(intersect.object as Mesh);
 
             if (targetObject && !targetObject.name.includes(MODEL_NAMES.FLOOR)) {
                 restricMoveToBoundaries(targetObject);
@@ -428,26 +435,26 @@ function selectModel(targetGroupObjects: Group<Object3DEventMap>): void {
     attachGizmos(targetGroupObjects);
 
     if (selectedModel) {
-        if (selectedModel.modelScene)
-            selectedModel.modelScene = targetGroupObjects;
+        if (selectedModel.value.modelScene)
+            selectedModel.value.modelScene = targetGroupObjects;
 
-        if (!selectedModel.isSelected) {
-            selectedModel.isSelected = true;
+        if (!selectedModel.value.isSelected) {
+            selectedModel.value.isSelected = true;
         }
     }
 }
 
 function resetSelection(): void {
     if (selectedModel) {
-        selectedModel.isSelected = false;
+        selectedModel.value.isSelected = false;
 
         // Clear cache when model is modified
-        boundingBoxCache.delete(selectedModel.uuid);
+        boundingBoxCache.delete(selectedModel.value.uuid);
 
         // Remove gizmo change listener when deselecting
         transformControlsGizmos.value.removeEventListener('change', () => {
-            if (selectedModel?.modelScene)
-                restricMoveToBoundaries(selectedModel?.modelScene);
+            if (selectedModel.value?.modelScene)
+                restricMoveToBoundaries(selectedModel.value?.modelScene);
         });
     }
 
