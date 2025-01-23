@@ -14,7 +14,6 @@ const renderer = ref(inject("WebGlrenderer")) as Ref<WebGLRenderer>;
 const scene = ref(inject("MainScene")) as Ref<Scene>;
 const camera = ref(inject("PerspectiveCamera")) as Ref<PerspectiveCamera>;
 
-
 function setupComposer(): EffectComposer {
     // Create buffer with higher sampling
     const size = 2;

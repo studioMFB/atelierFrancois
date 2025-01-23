@@ -11,7 +11,7 @@ import { useComposerStore } from '@/stores/composerStore';
 
 // Props to accept an optional HTML canvas element
 const props = defineProps<{
-    canvas?: HTMLCanvasElement
+    canvas: HTMLCanvasElement;
 }>();
 
 const composerStore = useComposerStore();
@@ -49,7 +49,6 @@ const renderer = new WebGLRenderer({
     logarithmicDepthBuffer: false, // Disable unless absolutely necessary
  });
 
-
 renderer.setSize(canvas.value.clientWidth, canvas.value.clientHeight);
 renderer.setPixelRatio(window.devicePixelRatio); // Optimize rendering for the device's pixel ratio
 renderer.shadowMap.type = PCFSoftShadowMap; // Enable soft shadows
@@ -61,9 +60,8 @@ provide("WebGlrenderer", renderer);
 let animationFrameId: number; // Track the animation frame ID to allow stopping the animation loop
 
 function setupComposer(): EffectComposer {
-
     // Create buffer with higher sampling
-    const size = 2;
+    const size = 1;
     const renderTarget = new WebGLRenderTarget(
         window.innerWidth * size,
         window.innerHeight * size,

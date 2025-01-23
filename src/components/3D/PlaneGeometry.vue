@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, inject, onMounted} from 'vue';
+import { computed, inject} from 'vue';
 
 import { Color, DoubleSide, ExtrudeGeometry, Group, Mesh, MeshBasicMaterial, MeshStandardMaterial, 
     PlaneGeometry, Scene, ShadowMaterial, Shape, Vector2, Vector3, type Object3DEventMap } from 'three';
@@ -70,6 +70,7 @@ function initMesh(isVisible: boolean, opacity: number, colour?: Color): void {
         visible: isVisible,
         opacity: opacity,
     });
+
     const ground = new Mesh(geometry, material);
     const name = "Main_Plane";
     ground.name = `Main_Plane_child_model`;
@@ -108,9 +109,6 @@ function initMesh(isVisible: boolean, opacity: number, colour?: Color): void {
 }
 
 initMesh(false, 1);
-
-onMounted(() => {
-})
 </script>
 
 <template>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { Color, DoubleSide, ExtrudeGeometry, Mesh, MeshBasicMaterial, Scene, Shape } from 'three';
 import { computed } from 'vue';
+
+import { Color, DoubleSide, ExtrudeGeometry, Mesh, MeshBasicMaterial, Scene, Shape } from 'three';
 
 
 const props = defineProps<{

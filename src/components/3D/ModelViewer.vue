@@ -55,7 +55,8 @@ export interface IModel {
     scale: number;
     url: string;
 }
-const t = MODEL_NAMES.TABLE
+
+const t = MODEL_NAMES.TABLE;
 export type Models = Record<'table' | 'rock' | 'garlic', IModel>;
 
 // Defines a reactive object to manage models in the scene
@@ -82,7 +83,6 @@ function addModelToScene(scene: Scene, modelKey: keyof Models): void {
         // selectModel(modelScene);
     });
 }
-
 
 // Cache bounding box and size for each object
 const boundingBoxCache = new Map<string, { box: Box3, size: Vector3 }>();

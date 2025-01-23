@@ -41,7 +41,6 @@ window.addEventListener('resize', () => {
     handleResise();
 });
 
-
 // Clean up resources and event listeners when the component is unmounted
 onUnmounted(() => {
      window.removeEventListener("resize", handleResise); // Remove the resize event listener
