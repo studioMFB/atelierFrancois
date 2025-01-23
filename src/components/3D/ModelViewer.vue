@@ -57,11 +57,12 @@ export interface IModel {
 }
 
 const t = MODEL_NAMES.TABLE;
-export type Models = Record<'table' | 'rock' | 'garlic', IModel>;
+export type Models = Record<'table' | 'bench' | 'rock' | 'garlic', IModel>;
 
 // Defines a reactive object to manage models in the scene
 const models: Models = {
     table: setupModel(MODEL_NAMES.TABLE, new Vector3(-0.5, 0, -0.5), 1, GLTF_URL.TABLE),
+    bench: setupModel(MODEL_NAMES.BENCH, new Vector3(-0.5, 0, -0.5), 1, GLTF_URL.BENCH),
     rock: setupModel(MODEL_NAMES.ROCK, new Vector3(-0.5, 0, -0.5), 0.4, GLTF_URL.ROCK),
     garlic: setupModel(MODEL_NAMES.GARLIC, new Vector3(-0.5, 0, -0.5), 10, GLTF_URL.GARLIC),
 };
