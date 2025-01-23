@@ -57,8 +57,8 @@ export const DEFAULT_POSITIONS = {
 } as const;
 
 export const GLTF_URL = {
-    TABLE: new URL('@/assets/models/tables/table_001.glb', import.meta.url).toString(),
-    BENCH: new URL('@/assets/models/benches/bench_001.glb', import.meta.url).toString(),
+    TABLE: new URL('@/assets/models/furniture/tables/table_001.glb', import.meta.url).toString(),
+    BENCH: new URL('@/assets/models/furniture/benches/bench_001.glb', import.meta.url).toString(),
     GARLIC: new URL('@/assets//models/garlic/scene.gltf', import.meta.url).toString(),
     ROCK: new URL('@/assets//models/rock/scene.gltf', import.meta.url).toString()
 } as const;
