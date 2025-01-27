@@ -1,10 +1,16 @@
+using Microsoft.AspNetCore.Mvc;
+using LilWud.API.Data;
+using Microsoft.EntityFrameworkCore;
+using LilWud.API.Models;
+
+
 // Controller for handling model requests
 [ApiController]
 [Route("api/[controller]")]
 public class ModelsController : ControllerBase
 {
     private readonly IBlobStorageService _blobStorage;
-    private readonly FurnitureDbContext _context;
+    private readonly LilWudDbContext _context;
 
     // GET api/models - Get list of available models
     [HttpGet]

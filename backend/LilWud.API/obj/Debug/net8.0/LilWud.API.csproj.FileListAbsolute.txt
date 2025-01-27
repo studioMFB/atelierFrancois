@@ -1,0 +1,8 @@
+C:\Users\francois.brunet\Documents\DEV\Research\Lil Wud website\backend\LilWud.API\obj\Debug\net8.0\LilWud.API.csproj.AssemblyReference.cache
+C:\Users\francois.brunet\Documents\DEV\Research\Lil Wud website\backend\LilWud.API\obj\Debug\net8.0\LilWud.API.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\francois.brunet\Documents\DEV\Research\Lil Wud website\backend\LilWud.API\obj\Debug\net8.0\LilWud.API.AssemblyInfoInputs.cache
+C:\Users\francois.brunet\Documents\DEV\Research\Lil Wud website\backend\LilWud.API\obj\Debug\net8.0\LilWud.API.AssemblyInfo.cs
+C:\Users\francois.brunet\Documents\DEV\Research\Lil Wud website\backend\LilWud.API\obj\Debug\net8.0\LilWud.API.csproj.CoreCompileInputs.cache
+C:\Users\francois.brunet\Documents\DEV\Research\Lil Wud website\backend\LilWud.API\obj\Debug\net8.0\LilWud.API.MvcApplicationPartsAssemblyInfo.cs
+C:\Users\francois.brunet\Documents\DEV\Research\Lil Wud website\backend\LilWud.API\obj\Debug\net8.0\LilWud.API.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\francois.brunet\Documents\DEV\Research\Lil Wud website\backend\LilWud.API\obj\Debug\net8.0\LilWud.API.sourcelink.json
