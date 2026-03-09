@@ -1,12 +1,13 @@
 import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useRef } from "react";
-import type { Vector3Tuple } from "three";
 import { MOUSE } from "three";
 import { OrbitControls as OrbitControlsImpl } from "three/examples/jsm/controls/OrbitControls.js";
 
+type CameraTarget = [number, number, number];
+
 interface OrbitCameraControlsProps {
   enabled?: boolean;
-  target?: Vector3Tuple;
+  target?: CameraTarget;
   minDistance?: number;
   maxDistance?: number;
   minPolarAngle?: number;

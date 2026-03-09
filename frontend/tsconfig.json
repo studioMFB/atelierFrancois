@@ -20,7 +20,9 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "types": [
-      "vite/client"
+      "vite/client",
+      "react",
+      "react-dom"
     ],
     "baseUrl": ".",
     "paths": {
@@ -30,24 +32,7 @@
     }
   },
   "include": [
-    "src/main.tsx",
-    "src/index.tsx",
-    "src/components/layout/**/*",
-    "src/components/planner/**/*",
-    "src/components/scene/**/*",
-    "src/components/shop/**/*",
-    "src/components/ui/**/*",
-    "src/data/**/*",
-    "src/hydrators/**/*",
-    "src/hooks/**/*",
-    "src/layouts/**/*",
-    "src/lib/**/*",
-    "src/pages/**/*",
-    "src/router/**/*",
-    "src/services/**/*",
-    "src/store/**/*",
-    "src/styles/**/*",
-    "src/types/**/*",
+    "src/**/*",
     "env.d.ts"
   ],
   "references": [

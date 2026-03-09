@@ -16,27 +16,6 @@ interface Window {
   };
 }
 
-declare module "three" {
-  export type Vector3Tuple = [number, number, number];
-  export class Group {
-    position: {
-      x: number;
-      y: number;
-      z: number;
-      set: (x: number, y: number, z: number) => void;
-    };
-    rotation: {
-      x: number;
-      y: number;
-      z: number;
-    };
-  }
-  export const MOUSE: {
-    ROTATE: number;
-    DOLLY: number;
-  };
-}
-
 declare module "three/examples/jsm/controls/OrbitControls.js" {
   export class OrbitControls {
     constructor(camera: unknown, domElement: HTMLElement);
@@ -73,27 +52,5 @@ declare module "three/examples/jsm/controls/TransformControls.js" {
     addEventListener: (type: string, listener: (event: any) => void) => void;
     removeEventListener: (type: string, listener: (event: any) => void) => void;
     dispose: () => void;
-  }
-}
-
-declare namespace JSX {
-  interface IntrinsicElements {
-    ambientLight: any;
-    boxGeometry: any;
-    circleGeometry: any;
-    color: any;
-    coneGeometry: any;
-    cylinderGeometry: any;
-    directionalLight: any;
-    fog: any;
-    gridHelper: any;
-    group: any;
-    hemisphereLight: any;
-    mesh: any;
-    meshBasicMaterial: any;
-    meshStandardMaterial: any;
-    planeGeometry: any;
-    ringGeometry: any;
-    sphereGeometry: any;
   }
 }
