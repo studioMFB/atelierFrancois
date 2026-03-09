@@ -1,0 +1,14 @@
+{
+  "expo": {
+    "name": "Lil' Wud",
+    "slug": "lil-wud",
+    "scheme": "lilwud",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "jsEngine": "hermes",
+    "experiments": {
+      "typedRoutes": false
+    }
+  }
+}
