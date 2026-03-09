@@ -8,11 +8,16 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
+.expo
 .DS_Store
 dist
 dist-ssr
 coverage
 *.local
+package-lock.json
+backend/App_Data/
+backend/dist/
+backend/.env
 
 /cypress/videos/
 /cypress/screenshots/
