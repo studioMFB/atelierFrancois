@@ -1,0 +1,56 @@
+@use "../variables" as vars;
+
+.home-intro {
+  position: relative;
+  overflow: hidden;
+  padding: 1.8rem;
+}
+
+.home-intro__content {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 1.2rem;
+  max-width: 48rem;
+}
+
+.home-intro__copy {
+  display: grid;
+  gap: 0.9rem;
+
+  h1 {
+    margin: 0;
+    font-family: var(--font-serif);
+    font-weight: 700;
+    line-height: 1.05;
+    font-size: clamp(2.4rem, 4.8vw, 4.5rem);
+    max-width: 16ch;
+  }
+}
+
+.home-intro__facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.85rem;
+  max-width: 52rem;
+}
+
+.home-intro__fact {
+  padding: 0.95rem 1rem;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.66);
+  border: 1px solid rgba(36, 57, 51, 0.06);
+  line-height: 1.45;
+}
+
+@include vars.respond-down(vars.$breakpoint-md) {
+  .home-intro__facts {
+    grid-template-columns: 1fr;
+  }
+}
+
+@include vars.respond-down(vars.$breakpoint-sm) {
+  .home-intro {
+    padding: 1.2rem;
+  }
+}

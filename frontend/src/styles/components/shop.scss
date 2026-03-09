@@ -1,0 +1,175 @@
+@use "../variables" as vars;
+
+.product-grid,
+.filter-bar {
+  display: grid;
+  gap: 1rem;
+}
+
+.product-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.filter-bar {
+  gap: 1.5rem;
+  grid-template-columns: 2fr 1fr;
+}
+
+.product-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: rgba(255, 252, 246, 0.9);
+  box-shadow: var(--shadow);
+  border: 1px solid rgba(36, 57, 51, 0.08);
+}
+
+.product-card--placeholder {
+  min-height: 28rem;
+  background: linear-gradient(120deg, rgba(238, 241, 231, 0.8), rgba(255, 252, 246, 0.8));
+}
+
+.product-card__art {
+  position: relative;
+  min-height: 18rem;
+  padding: 0;
+  display: flex;
+  align-items: stretch;
+  overflow: hidden;
+}
+
+.product-card__art--mori-bench {
+  background: linear-gradient(145deg, rgba(214, 117, 88, 0.22), rgba(184, 139, 106, 0.2)),
+    radial-gradient(circle at 70% 25%, rgba(120, 149, 125, 0.32), transparent 25%);
+}
+
+.product-card__art--atelier-table {
+  background: linear-gradient(145deg, rgba(120, 149, 125, 0.25), rgba(247, 242, 232, 0.78)),
+    radial-gradient(circle at 75% 30%, rgba(214, 117, 88, 0.22), transparent 24%);
+}
+
+.product-card__art--nest-reading-nook {
+  background: linear-gradient(145deg, rgba(140, 91, 62, 0.22), rgba(247, 242, 232, 0.8)),
+    radial-gradient(circle at 30% 25%, rgba(120, 149, 125, 0.2), transparent 24%);
+}
+
+.product-card__art--sprout-planter-cart {
+  background: linear-gradient(145deg, rgba(120, 149, 125, 0.28), rgba(247, 242, 232, 0.7)),
+    radial-gradient(circle at 78% 65%, rgba(214, 117, 88, 0.22), transparent 20%);
+}
+
+.product-card__art--cloud-lookout {
+  background: linear-gradient(145deg, rgba(215, 177, 132, 0.28), rgba(247, 242, 232, 0.78)),
+    radial-gradient(circle at 25% 24%, rgba(120, 149, 125, 0.18), transparent 20%);
+}
+
+.product-card__art--picnic-island {
+  background: linear-gradient(145deg, rgba(184, 139, 106, 0.28), rgba(247, 242, 232, 0.76)),
+    radial-gradient(circle at 70% 25%, rgba(120, 149, 125, 0.18), transparent 20%);
+}
+
+.product-card__body {
+  display: grid;
+  gap: 0.85rem;
+  padding: 1.25rem;
+
+  h3 {
+    margin: 0;
+    font-family: var(--font-serif);
+    font-size: 1.7rem;
+  }
+}
+
+.product-card__title {
+  transition: color 160ms ease;
+
+  &:hover {
+    color: var(--coral);
+  }
+}
+
+.product-card__meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: end;
+}
+
+.product-card__actions {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  justify-content: end;
+}
+
+.product-card__viewer {
+  flex: 1;
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  height: 100%;
+  min-height: 18rem;
+
+  .product-viewer {
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+  }
+}
+
+.product-detail-gallery__viewer .product-viewer,
+.product-lookbook__thumb .product-viewer {
+  width: 100%;
+  height: 100%;
+}
+
+.product-card__art .product-viewer canvas,
+.product-lookbook__thumb .product-viewer canvas {
+  pointer-events: none;
+}
+
+.product-viewer {
+  border-radius: calc(var(--radius-lg) - 10px);
+  overflow: hidden;
+
+  canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+  }
+}
+
+.product-viewer--compact {
+  min-height: 100%;
+
+  canvas {
+    min-height: 100%;
+  }
+}
+
+.product-card__tag {
+  position: absolute;
+  top: 0.9rem;
+  left: 0.9rem;
+  z-index: 2;
+  padding: 0.28rem 0.62rem;
+  background: rgba(255, 244, 237, 0.92);
+  box-shadow: 0 10px 24px rgba(36, 57, 51, 0.08);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+}
+
+@include vars.respond-down(vars.$breakpoint-lg) {
+  .product-grid,
+  .filter-bar {
+    grid-template-columns: 1fr;
+  }
+}
+
+@include vars.respond-down(vars.$breakpoint-md) {
+  .product-card__meta {
+    flex-direction: column;
+    align-items: start;
+  }
+}

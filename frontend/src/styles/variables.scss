@@ -1,0 +1,26 @@
+:root {
+  --paper: #f7f2e8;
+  --paper-strong: #fffdf7;
+  --mist: #eef1e7;
+  --sage: #78957d;
+  --sage-deep: #243933;
+  --wood: #8c5b3e;
+  --wood-soft: #b88b6a;
+  --coral: #d67558;
+  --shadow: 0 20px 60px rgba(36, 57, 51, 0.12);
+  --radius-lg: 32px;
+  --radius-md: 22px;
+  --radius-sm: 14px;
+  --font-sans: "Avenir Next", "Trebuchet MS", "Hiragino Sans", sans-serif;
+  --font-serif: "Avenir Next Condensed", "Yu Mincho", "Georgia", serif;
+}
+
+$breakpoint-lg: 1080px;
+$breakpoint-md: 860px;
+$breakpoint-sm: 640px;
+
+@mixin respond-down($breakpoint) {
+  @media (max-width: $breakpoint) {
+    @content;
+  }
+}

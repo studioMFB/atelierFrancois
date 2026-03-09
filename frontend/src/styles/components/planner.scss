@@ -1,0 +1,439 @@
+@use "../variables" as vars;
+
+.planner-page {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: minmax(0, 1fr) 25.5rem;
+  align-items: start;
+  padding-top: 2rem;
+}
+
+.planner-sidebar {
+  position: static;
+  height: auto;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+.planner-sidebar__stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-height: 0;
+}
+
+.planner-sidebar__primary {
+  display: grid;
+  gap: 1rem;
+  flex: 1;
+  align-content: start;
+}
+
+.planner-palette {
+  display: grid;
+  gap: 0.65rem;
+  align-content: start;
+}
+
+.planner-palette--scroll,
+.planner-scene-list--scroll {
+  overflow: auto;
+  min-height: 0;
+  padding-right: 0.35rem;
+  overscroll-behavior: contain;
+}
+
+.planner-palette--scroll {
+  max-height: 22rem;
+}
+
+.planner-scene-list--scroll {
+  max-height: 18rem;
+}
+
+.planner-chip {
+  text-align: left;
+  padding: 0.75rem 0.85rem;
+  background: rgba(36, 57, 51, 0.06);
+  display: grid;
+  grid-template-columns: 4.15rem minmax(0, 1fr) minmax(4.8rem, auto);
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 6rem;
+  min-width: 0;
+  overflow: hidden;
+  border-radius: 1.9rem;
+  box-shadow: inset 0 0 0 1px rgba(36, 57, 51, 0.04);
+}
+
+.planner-chip--active {
+  background: var(--sage-deep);
+  color: white;
+  box-shadow: 0 18px 32px rgba(36, 57, 51, 0.18);
+
+  .planner-chip__copy small {
+    color: rgba(255, 255, 255, 0.76);
+  }
+}
+
+.planner-chip__thumb {
+  width: 4.15rem;
+  min-width: 4.15rem;
+  height: 3.5rem;
+  border-radius: 1rem;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.5);
+
+  .product-viewer {
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+  }
+}
+
+.planner-chip__copy {
+  display: grid;
+  gap: 0.18rem;
+  align-self: center;
+  min-width: 0;
+  flex: 1;
+
+  strong,
+  small {
+    display: block;
+  }
+
+  strong {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  small {
+    color: rgba(36, 57, 51, 0.68);
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: calc(1.35em * 2);
+  }
+}
+
+.planner-chip > span:last-child {
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  font-weight: 700;
+  justify-self: end;
+  min-width: 4.8rem;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.planner-panel--palette,
+.planner-panel--scene {
+  flex-shrink: 0;
+}
+
+.planner-canvas-panel {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto auto auto;
+  gap: 1rem;
+  padding: 1.5rem;
+  overflow: hidden;
+  align-self: start;
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(circle at 0% 100%, rgba(214, 117, 88, 0.18), transparent 28%),
+    radial-gradient(circle at 100% 0%, rgba(120, 149, 125, 0.16), transparent 26%),
+    linear-gradient(145deg, rgba(255, 252, 246, 0.96), rgba(247, 242, 232, 0.9));
+  box-shadow: var(--shadow);
+  border: 1px solid rgba(36, 57, 51, 0.08);
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 1rem;
+    border-radius: calc(var(--radius-lg) - 12px);
+    border: 1px solid rgba(36, 57, 51, 0.06);
+    pointer-events: none;
+  }
+
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+.planner-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.planner-toolbar__copy {
+  max-width: 40rem;
+
+  h1 {
+    margin: 0 0 0.75rem;
+    font-family: var(--font-serif);
+    font-weight: 700;
+    line-height: 1.05;
+  }
+
+  p:last-child {
+    margin: 0;
+  }
+}
+
+.planner-tab-row {
+  margin-bottom: 0.8rem;
+}
+
+.planner-tab-copy {
+  margin: 0 0 0.9rem;
+}
+
+.planner-cheatsheet summary,
+.planner-panel summary {
+  cursor: pointer;
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  font-weight: 700;
+  list-style: none;
+
+  &::-webkit-details-marker {
+    display: none;
+  }
+
+  &::after {
+    content: "+";
+    float: right;
+    color: var(--coral);
+    font-size: 1.35rem;
+    line-height: 1;
+  }
+}
+
+.planner-panel[open] summary::after,
+.planner-cheatsheet[open] summary::after {
+  content: "−";
+}
+
+.planner-panel__body,
+.planner-cheatsheet__content {
+  display: grid;
+  gap: 0.85rem;
+  margin-top: 1rem;
+}
+
+.planner-cheatsheet__content {
+  strong {
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+
+  p {
+    margin: 0;
+  }
+}
+
+.planner-stage {
+  position: relative;
+  height: 46rem;
+  min-height: 46rem;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid rgba(36, 57, 51, 0.08);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.34),
+    0 26px 44px rgba(36, 57, 51, 0.08);
+  background:
+    linear-gradient(180deg, rgba(238, 241, 231, 0.9), rgba(255, 252, 246, 0.88)),
+    radial-gradient(circle at 18% 8%, rgba(214, 117, 88, 0.08), transparent 24%);
+
+  canvas {
+    width: 100% !important;
+    height: 46rem !important;
+  }
+}
+
+.planner-stage__hint {
+  position: absolute;
+  left: 1rem;
+  top: 1rem;
+  pointer-events: none;
+}
+
+.planner-canvas-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.15rem;
+  border-radius: calc(var(--radius-lg) - 6px);
+  background:
+    linear-gradient(135deg, rgba(255, 252, 246, 0.94), rgba(247, 242, 232, 0.84)),
+    rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(36, 57, 51, 0.08);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.64),
+    0 12px 28px rgba(36, 57, 51, 0.08);
+}
+
+.planner-canvas-actions__group,
+.planner-canvas-actions__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.planner-canvas-actions__meta {
+  justify-content: end;
+}
+
+.planner-label {
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  background: rgba(36, 57, 51, 0.92);
+  color: white;
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+.planner-utility-card__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: start;
+  margin-bottom: 1rem;
+
+  p {
+    margin: 0.35rem 0 0;
+  }
+}
+
+.planner-control-pad {
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-bottom: 0.85rem;
+
+  .ghost-button {
+    width: 100%;
+  }
+}
+
+.planner-control-pad .ghost-button:disabled,
+.planner-scene-line__actions .ghost-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.planner-scene-summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: start;
+
+  h2 {
+    margin: 0;
+  }
+
+  strong {
+    font-family: var(--font-serif);
+    font-size: 2rem;
+  }
+}
+
+.planner-scene-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.planner-scene-line {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem;
+  border-radius: var(--radius-md);
+  background: rgba(238, 241, 231, 0.72);
+
+  p {
+    margin: 0.3rem 0 0;
+  }
+}
+
+.planner-scene-line--active {
+  outline: 2px solid rgba(214, 117, 88, 0.32);
+}
+
+.planner-scene-line__actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: end;
+  flex-wrap: wrap;
+}
+
+@include vars.respond-down(vars.$breakpoint-lg) {
+  .planner-page {
+    grid-template-columns: 1fr;
+  }
+
+  .planner-sidebar {
+    position: static;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .planner-sidebar__stack {
+    max-height: none;
+    overflow: visible;
+  }
+
+  .planner-canvas-actions {
+    flex-direction: column;
+    align-items: start;
+  }
+
+  .planner-canvas-actions__meta {
+    justify-content: start;
+  }
+}
+
+@include vars.respond-down(vars.$breakpoint-sm) {
+  .planner-canvas-panel {
+    padding: 1.1rem;
+  }
+
+  .planner-chip {
+    grid-template-columns: 3.5rem minmax(0, 1fr);
+  }
+
+  .planner-chip > span:last-child {
+    grid-column: 2;
+    justify-self: start;
+  }
+
+  .planner-utility-card__header,
+  .planner-scene-summary {
+    flex-direction: column;
+  }
+
+  .planner-stage {
+    min-height: 26rem;
+    height: 26rem;
+
+    canvas {
+      min-height: 26rem;
+      height: 26rem !important;
+    }
+  }
+}

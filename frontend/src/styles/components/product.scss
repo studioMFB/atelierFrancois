@@ -1,0 +1,142 @@
+@use "../variables" as vars;
+
+.product-page {
+  gap: 1.5rem;
+}
+
+.product-detail-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(22rem, 0.85fr);
+  gap: 1.5rem;
+}
+
+.product-detail-gallery,
+.product-detail-summary {
+  display: grid;
+  gap: 1rem;
+}
+
+.product-detail-gallery__header,
+.product-price-strip {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.product-detail-gallery__viewer .product-viewer {
+  min-height: 34rem;
+
+  canvas {
+    min-height: 34rem;
+    height: 34rem !important;
+  }
+}
+
+.product-lookbook {
+  display: grid;
+  gap: 0.85rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.product-lookbook__card {
+  border: 1px solid rgba(36, 57, 51, 0.08);
+  background: rgba(255, 255, 255, 0.66);
+  border-radius: var(--radius-md);
+  padding: 0.75rem;
+  display: grid;
+  gap: 0.5rem;
+  text-align: left;
+
+  small {
+    color: rgba(36, 57, 51, 0.66);
+  }
+}
+
+.product-lookbook__card--active {
+  border-color: rgba(214, 117, 88, 0.38);
+  box-shadow: 0 16px 34px rgba(36, 57, 51, 0.1);
+}
+
+.product-lookbook__thumb {
+  border-radius: calc(var(--radius-md) - 6px);
+  overflow: hidden;
+}
+
+.product-price-strip {
+  strong {
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-family: var(--font-serif);
+    font-weight: 700;
+  }
+
+  span {
+    color: rgba(36, 57, 51, 0.66);
+  }
+}
+
+.product-spec-grid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+
+  div {
+    padding: 1rem;
+    border-radius: var(--radius-md);
+    background: rgba(238, 241, 231, 0.72);
+  }
+
+  dt,
+  dd {
+    margin: 0;
+  }
+
+  dt {
+    margin-bottom: 0.35rem;
+    color: rgba(36, 57, 51, 0.6);
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+}
+
+.lookbook-copy {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.lookbook-copy__item {
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.56);
+
+  p {
+    margin: 0.4rem 0 0;
+  }
+}
+
+@include vars.respond-down(vars.$breakpoint-lg) {
+  .product-detail-hero {
+    grid-template-columns: 1fr;
+  }
+}
+
+@include vars.respond-down(vars.$breakpoint-md) {
+  .product-lookbook,
+  .product-spec-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@include vars.respond-down(vars.$breakpoint-sm) {
+  .product-detail-gallery__viewer .product-viewer {
+    min-height: 26rem;
+
+    canvas {
+      min-height: 26rem;
+      height: 26rem !important;
+    }
+  }
+}

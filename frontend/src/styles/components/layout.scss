@@ -1,0 +1,59 @@
+@use "../variables" as vars;
+
+.app-shell {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+
+  &::before,
+  &::after {
+    content: "";
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(24px);
+    z-index: -1;
+  }
+
+  &::before {
+    top: -6rem;
+    right: -4rem;
+    width: 18rem;
+    height: 18rem;
+    background: rgba(120, 149, 125, 0.16);
+  }
+
+  &::after {
+    bottom: 2rem;
+    left: -3rem;
+    width: 14rem;
+    height: 14rem;
+    background: rgba(214, 117, 88, 0.14);
+  }
+}
+
+.app-main {
+  padding: 0 1.25rem 5rem;
+}
+
+.page-shell,
+.planner-page {
+  width: min(1200px, calc(100vw - 2rem));
+  margin: 0 auto;
+}
+
+.page-shell {
+  display: grid;
+  gap: 1.5rem;
+  padding-top: 2rem;
+}
+
+@include vars.respond-down(vars.$breakpoint-sm) {
+  .app-main {
+    padding-inline: 0.75rem;
+  }
+
+  .page-shell,
+  .planner-page {
+    width: min(100vw - 1rem, 1200px);
+  }
+}

@@ -1,0 +1,97 @@
+@use "../variables" as vars;
+
+.site-header__actions,
+.button-row,
+.button-row--compact,
+.toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.button-row--compact {
+  gap: 0.5rem;
+}
+
+.primary-button,
+.ghost-button,
+.link-button,
+.toggle-row__button,
+.planner-chip {
+  border: 0;
+  border-radius: 999px;
+  transition: transform 160ms ease, background 160ms ease, color 160ms ease;
+}
+
+.primary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.58rem;
+  padding: 0.9rem 1.2rem;
+  background: linear-gradient(135deg, var(--coral), #b4553c);
+  color: white;
+  box-shadow: var(--shadow);
+}
+
+.ghost-button,
+.toggle-row__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.58rem;
+  padding: 0.85rem 1.1rem;
+  background: rgba(255, 255, 255, 0.78);
+  color: var(--sage-deep);
+}
+
+.link-button {
+  padding: 0;
+  color: var(--coral);
+  background: transparent;
+}
+
+.toggle-row {
+  padding: 0.4rem;
+  border-radius: 999px;
+  background: rgba(36, 57, 51, 0.06);
+}
+
+.toggle-row__button--active {
+  background: var(--sage-deep);
+  color: white;
+}
+
+.primary-button:hover,
+.ghost-button:hover,
+.planner-chip:hover,
+.toggle-row__button:hover {
+  transform: translateY(-1px);
+}
+
+.button-icon {
+  width: 1rem;
+  height: 1rem;
+  flex: 0 0 auto;
+
+  svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.ghost-button--mobile {
+  display: none;
+}
+
+@include vars.respond-down(vars.$breakpoint-md) {
+  .ghost-button--mobile {
+    display: inline-flex;
+  }
+
+  .ghost-button--account {
+    display: none;
+  }
+}

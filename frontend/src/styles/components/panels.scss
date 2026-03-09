@@ -1,0 +1,63 @@
+.panel {
+  padding: 1.5rem;
+  background: rgba(255, 252, 246, 0.78);
+  box-shadow: var(--shadow);
+  border: 1px solid rgba(36, 57, 51, 0.08);
+  border-radius: var(--radius-lg);
+}
+
+.panel--quiet {
+  background: linear-gradient(160deg, rgba(238, 241, 231, 0.95), rgba(255, 252, 246, 0.8));
+}
+
+.panel--accent {
+  background: linear-gradient(160deg, rgba(214, 117, 88, 0.12), rgba(255, 252, 246, 0.84));
+}
+
+.page-shell h1,
+.page-shell h2,
+.panel h1,
+.panel h2 {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-weight: 700;
+  line-height: 1.05;
+}
+
+.pill,
+.eyebrow,
+.product-card__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  width: fit-content;
+  border-radius: 999px;
+}
+
+.pill,
+.product-card__tag {
+  padding: 0.4rem 0.7rem;
+  background: rgba(36, 57, 51, 0.08);
+  font-size: 0.85rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.65rem;
+  color: var(--coral);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.lede,
+.muted-copy,
+.panel p,
+.product-card p,
+.cart-line p {
+  line-height: 1.6;
+}
+
+.muted-copy {
+  color: rgba(36, 57, 51, 0.68);
+}
