@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 
 import LilWudWeb from "@/index";
-import "@/styles/index.scss";
+import "./styles/index.scss";
 import type { LilWudPublicState } from "@/types/app";
 
 const publicState = window.__LIL_WUD_PUBLIC_STATE__ as

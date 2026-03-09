@@ -27,12 +27,16 @@
     "baseUrl": ".",
     "paths": {
       "@/*": [
-        "src/*"
+        "module/src/*"
+      ],
+      "@app/*": [
+        "app/*"
       ]
     }
   },
   "include": [
-    "src/**/*",
+    "app/**/*",
+    "module/src/**/*",
     "env.d.ts"
   ],
   "references": [

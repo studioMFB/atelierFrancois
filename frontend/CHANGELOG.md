@@ -18,3 +18,9 @@
 - Reworked the homepage to open with a shorter intro and surface featured products sooner.
 - Rebuilt the footer around about, contact, and mascot sign-off content instead of implementation notes.
 - Added richer planner interactions, product presentation sections, and reusable UI controls across the shop flow.
+
+### Host And Style Structure
+- Split the frontend package into a host `app` layer and a React `module` layer so bootstrapping and app logic follow the station-tool-admin pattern more closely.
+- Moved the browser entrypoint and HTML shell into `frontend/app`, while keeping the routed React application inside `frontend/module/src`.
+- Replaced the single stylesheet with a component-organized SCSS structure rooted in `frontend/app/styles`.
+- Updated Vite and TypeScript path resolution so the host serves from `app/` and the React module resolves from `module/src/`.
