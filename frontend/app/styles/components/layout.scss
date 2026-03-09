@@ -3,32 +3,7 @@
 .app-shell {
   position: relative;
   min-height: 100vh;
-  overflow: hidden;
-
-  &::before,
-  &::after {
-    content: "";
-    position: fixed;
-    border-radius: 50%;
-    filter: blur(24px);
-    z-index: -1;
-  }
-
-  &::before {
-    top: -6rem;
-    right: -4rem;
-    width: 18rem;
-    height: 18rem;
-    background: rgba(120, 149, 125, 0.16);
-  }
-
-  &::after {
-    bottom: 2rem;
-    left: -3rem;
-    width: 14rem;
-    height: 14rem;
-    background: rgba(214, 117, 88, 0.14);
-  }
+  overflow: clip;
 }
 
 .app-main {

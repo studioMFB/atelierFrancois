@@ -5,6 +5,7 @@ interface PageSectionHeaderProps {
   title: string;
   description?: ReactNode;
   aside?: ReactNode;
+  ornament?: ReactNode;
 }
 
 export function PageSectionHeader({
@@ -12,15 +13,21 @@ export function PageSectionHeader({
   title,
   description,
   aside,
+  ornament,
 }: PageSectionHeaderProps) {
   return (
     <section className="section-header">
-      <div>
+      <div className="section-header__copy">
         <p className="eyebrow">{eyebrow}</p>
         <h1>{title}</h1>
         {description ? <div className="section-stack">{description}</div> : null}
       </div>
-      {aside}
+      {aside || ornament ? (
+        <div className="section-header__aside">
+          {ornament}
+          {aside}
+        </div>
+      ) : null}
     </section>
   );
 }

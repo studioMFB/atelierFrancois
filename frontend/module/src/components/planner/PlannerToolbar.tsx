@@ -1,3 +1,5 @@
+import { WudlingScatter } from "@/components/brand/WudlingScatter";
+
 interface PlannerToolbarProps {
   loadingProject: boolean
 }
@@ -13,6 +15,12 @@ export function PlannerToolbar({ loadingProject }: PlannerToolbarProps) {
           for palette, basket, controls, and project settings.
         </p>
       </div>
+      <WudlingScatter
+        className="planner-toolbar__ornament"
+        items={["cap", "plain", "sunhat"]}
+        layout="row"
+        size="sm"
+      />
     </div>
   )
 }

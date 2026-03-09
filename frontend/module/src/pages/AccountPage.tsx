@@ -6,6 +6,7 @@ import { LilWudApiError } from "@atelierfrancois/lilwud-sdk";
 import { AccountAuthForm } from "@/components/account/AccountAuthForm";
 import { AccountBenefitsPanel } from "@/components/account/AccountBenefitsPanel";
 import { AccountSummaryPanel } from "@/components/account/AccountSummaryPanel";
+import { WudlingScatter } from "@/components/brand/WudlingScatter";
 import { useAuth } from "@/hooks/useAuth";
 
 export function AccountPage() {
@@ -84,6 +85,7 @@ export function AccountPage() {
           <p className="eyebrow">Account</p>
           <h1>Create an account, then save your 3D garden concepts.</h1>
           <p>Use the same credentials on web and mobile because both apps talk to the shared API and SDK.</p>
+          <WudlingScatter items={["cap", "plain"]} layout="row" size="sm" />
         </div>
         <AccountAuthForm
           displayName={displayName}

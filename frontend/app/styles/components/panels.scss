@@ -1,17 +1,18 @@
 .panel {
   padding: 1.5rem;
-  background: rgba(255, 252, 246, 0.78);
+  background: var(--paper-strong);
   box-shadow: var(--shadow);
-  border: 1px solid rgba(36, 57, 51, 0.08);
+  border: 1px solid rgba(36, 57, 51, 0.09);
   border-radius: var(--radius-lg);
 }
 
 .panel--quiet {
-  background: linear-gradient(160deg, rgba(238, 241, 231, 0.95), rgba(255, 252, 246, 0.8));
+  background: #fbf3e3;
 }
 
 .panel--accent {
-  background: linear-gradient(160deg, rgba(214, 117, 88, 0.12), rgba(255, 252, 246, 0.84));
+  background: #fff0e4;
+  border-color: rgba(239, 122, 51, 0.18);
 }
 
 .page-shell h1,
@@ -37,7 +38,7 @@
 .pill,
 .product-card__tag {
   padding: 0.4rem 0.7rem;
-  background: rgba(36, 57, 51, 0.08);
+  background: rgba(239, 122, 51, 0.1);
   font-size: 0.85rem;
 }
 

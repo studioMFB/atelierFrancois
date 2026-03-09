@@ -21,15 +21,33 @@
 }
 
 .section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: end;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 1rem;
+  align-items: center;
+}
+
+.section-header__copy {
+  min-width: 0;
+}
+
+.section-header__aside {
+  display: grid;
+  gap: 0.75rem;
+  justify-items: end;
 }
 
 @include vars.respond-down(vars.$breakpoint-lg) {
   .section-grid,
   .saved-grid {
     grid-template-columns: 1fr;
+  }
+
+  .section-header {
+    grid-template-columns: 1fr;
+  }
+
+  .section-header__aside {
+    justify-items: start;
   }
 }

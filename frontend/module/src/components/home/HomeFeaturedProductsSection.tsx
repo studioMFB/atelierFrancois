@@ -1,5 +1,6 @@
 import type { Product } from "@atelierfrancois/lilwud-sdk";
 
+import { WudlingScatter } from "@/components/brand/WudlingScatter";
 import { ProductCardGrid } from "@/components/shop/ProductCardGrid";
 
 interface HomeFeaturedProductsSectionProps {
@@ -18,11 +19,14 @@ export function HomeFeaturedProductsSection({
   return (
     <section className="section-stack">
       <div className="section-header">
-        <div>
+        <div className="section-header__copy">
           <p className="eyebrow">Featured pieces</p>
           <h2>Start with the best-selling family setups.</h2>
         </div>
-        {error ? <p className="muted-copy">{error}</p> : null}
+        <div className="section-header__aside">
+          <WudlingScatter items={["plain", "cap", "beanie"]} layout="row" size="sm" />
+          {error ? <p className="muted-copy">{error}</p> : null}
+        </div>
       </div>
       <ProductCardGrid loading={loading} onAddToCart={onAddToCart} placeholderCount={3} products={products} />
     </section>

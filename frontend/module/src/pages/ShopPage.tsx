@@ -1,5 +1,6 @@
 import { useDeferredValue, useState } from "react";
 
+import { WudlingScatter } from "@/components/brand/WudlingScatter";
 import { PageSectionHeader } from "@/components/page/PageSectionHeader";
 import { ProductCardGrid } from "@/components/shop/ProductCardGrid";
 import { ShopFilterBar } from "@/components/shop/ShopFilterBar";
@@ -30,6 +31,7 @@ export function ShopPage() {
       <PageSectionHeader
         aside={error ? <p className="muted-copy">{error}</p> : null}
         eyebrow="Shop"
+        ornament={<WudlingScatter items={["cap", "plain"]} layout="row" size="sm" />}
         title="Choose pieces individually or plan the full garden first."
       />
 

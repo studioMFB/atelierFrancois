@@ -42,7 +42,7 @@
 
 .product-lookbook__card {
   border: 1px solid rgba(36, 57, 51, 0.08);
-  background: rgba(255, 255, 255, 0.66);
+  background: var(--paper-strong);
   border-radius: var(--radius-md);
   padding: 0.75rem;
   display: grid;
@@ -55,7 +55,7 @@
 }
 
 .product-lookbook__card--active {
-  border-color: rgba(214, 117, 88, 0.38);
+  border-color: rgba(239, 122, 51, 0.38);
   box-shadow: 0 16px 34px rgba(36, 57, 51, 0.1);
 }
 
@@ -85,7 +85,7 @@
   div {
     padding: 1rem;
     border-radius: var(--radius-md);
-    background: rgba(238, 241, 231, 0.72);
+    background: #fbf3e3;
   }
 
   dt,
@@ -110,7 +110,7 @@
 .lookbook-copy__item {
   padding: 1rem;
   border-radius: var(--radius-md);
-  background: rgba(255, 255, 255, 0.56);
+  background: rgba(255, 248, 236, 0.94);
 
   p {
     margin: 0.4rem 0 0;

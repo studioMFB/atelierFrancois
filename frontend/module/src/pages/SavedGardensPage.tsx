@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
 
+import { WudlingScatter } from "@/components/brand/WudlingScatter";
 import { PageMessagePanel } from "@/components/page/PageMessagePanel";
 import { PageSectionHeader } from "@/components/page/PageSectionHeader";
 import { SavedGardensGrid } from "@/components/savedGardens/SavedGardensGrid";
@@ -40,6 +41,7 @@ export function SavedGardensPage() {
       <PageSectionHeader
         aside={error ? <p className="muted-copy">{error}</p> : null}
         eyebrow="Saved gardens"
+        ornament={<WudlingScatter items={["beanie", "sunhat"]} layout="row" size="sm" />}
         title="Return to previous layouts and refine them over time."
       />
       <SavedGardensGrid error={error} loading={loading} onDelete={removeProject} projects={projects} />

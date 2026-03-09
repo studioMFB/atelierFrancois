@@ -1,8 +1,5 @@
+import { WudlingScatter } from "@/components/brand/WudlingScatter";
 import { BrandLogo } from "@/components/layout/BrandLogo";
-import mimi from "@/assets/brand/mimi-bunny.svg";
-import pomu from "@/assets/brand/pomu-tanuki.svg";
-import sora from "@/assets/brand/sora-fox.svg";
-import sunhatMoss from "@/assets/brand/sunhat-moss.svg";
 
 export function Footer() {
   return (
@@ -26,12 +23,8 @@ export function Footer() {
         </div>
         <div className="site-footer__section site-footer__section--mascots">
           <p className="eyebrow">The Wudlings</p>
-          <div className="site-footer__mascots">
-            <img alt="Cap Moss mascot" className="site-footer__mascot" src={pomu} />
-            <img alt="Plain Moss mascot" className="site-footer__mascot" src={mimi} />
-            <img alt="Beanie Moss mascot" className="site-footer__mascot" src={sora} />
-            <img alt="Sunhat Moss mascot" className="site-footer__mascot" src={sunhatMoss} />
-          </div>
+          <p className="muted-copy">Small moss-ball guides that keep the brand playful without taking over the task.</p>
+          <WudlingScatter className="site-footer__wudlings" layout="row" size="md" />
         </div>
       </div>
     </footer>

@@ -11,10 +11,7 @@ body {
   min-width: 320px;
   color: var(--sage-deep);
   font-family: var(--font-sans);
-  background:
-    radial-gradient(circle at top left, rgba(214, 117, 88, 0.18), transparent 32%),
-    radial-gradient(circle at top right, rgba(120, 149, 125, 0.22), transparent 28%),
-    linear-gradient(180deg, #fbf8f1 0%, #f2eee4 100%);
+  background: var(--paper);
 }
 
 a {
@@ -25,7 +22,7 @@ a {
 code {
   padding: 0.1rem 0.35rem;
   border-radius: 999px;
-  background: rgba(36, 57, 51, 0.08);
+  background: rgba(239, 122, 51, 0.12);
   font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
   font-size: 0.92em;
 }

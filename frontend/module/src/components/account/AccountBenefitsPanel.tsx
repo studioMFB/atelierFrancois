@@ -1,3 +1,5 @@
+import { WudlingScatter } from "@/components/brand/WudlingScatter";
+
 interface AccountBenefitsPanelProps {
   authenticated?: boolean;
 }
@@ -10,6 +12,7 @@ export function AccountBenefitsPanel({ authenticated = false }: AccountBenefitsP
       <p>
         The backend is set up for account registration, session tokens, and saved planner projects so web and mobile stay in sync.
       </p>
+      <WudlingScatter items={["plain", "sunhat"]} layout="row" size="sm" />
     </div>
   );
 }

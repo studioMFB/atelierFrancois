@@ -30,9 +30,10 @@
   justify-content: center;
   gap: 0.58rem;
   padding: 0.9rem 1.2rem;
-  background: linear-gradient(135deg, var(--coral), #b4553c);
+  background: var(--coral);
   color: white;
   box-shadow: var(--shadow);
+  border: 1px solid transparent;
 }
 
 .ghost-button,
@@ -42,8 +43,9 @@
   justify-content: center;
   gap: 0.58rem;
   padding: 0.85rem 1.1rem;
-  background: rgba(255, 255, 255, 0.78);
+  background: var(--paper-strong);
   color: var(--sage-deep);
+  border: 1px solid rgba(36, 57, 51, 0.08);
 }
 
 .link-button {
@@ -55,12 +57,13 @@
 .toggle-row {
   padding: 0.4rem;
   border-radius: 999px;
-  background: rgba(36, 57, 51, 0.06);
+  background: rgba(239, 122, 51, 0.08);
 }
 
 .toggle-row__button--active {
-  background: var(--sage-deep);
+  background: var(--coral);
   color: white;
+  border-color: transparent;
 }
 
 .primary-button:hover,

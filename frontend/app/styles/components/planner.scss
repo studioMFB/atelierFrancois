@@ -57,7 +57,7 @@
 .planner-chip {
   text-align: left;
   padding: 0.75rem 0.85rem;
-  background: rgba(36, 57, 51, 0.06);
+  background: rgba(255, 248, 236, 0.94);
   display: grid;
   grid-template-columns: 4.15rem minmax(0, 1fr) minmax(4.8rem, auto);
   align-items: center;
@@ -70,7 +70,7 @@
 }
 
 .planner-chip--active {
-  background: var(--sage-deep);
+  background: var(--coral);
   color: white;
   box-shadow: 0 18px 32px rgba(36, 57, 51, 0.18);
 
@@ -85,7 +85,7 @@
   height: 3.5rem;
   border-radius: 1rem;
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.7);
 
   .product-viewer {
     width: 100%;
@@ -147,10 +147,7 @@
   overflow: hidden;
   align-self: start;
   border-radius: var(--radius-lg);
-  background:
-    radial-gradient(circle at 0% 100%, rgba(214, 117, 88, 0.18), transparent 28%),
-    radial-gradient(circle at 100% 0%, rgba(120, 149, 125, 0.16), transparent 26%),
-    linear-gradient(145deg, rgba(255, 252, 246, 0.96), rgba(247, 242, 232, 0.9));
+  background: var(--paper-strong);
   box-shadow: var(--shadow);
   border: 1px solid rgba(36, 57, 51, 0.08);
 
@@ -171,7 +168,7 @@
 
 .planner-toolbar {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 1rem;
   align-items: start;
 }
@@ -189,6 +186,10 @@
   p:last-child {
     margin: 0;
   }
+}
+
+.planner-toolbar__ornament {
+  justify-self: end;
 }
 
 .planner-tab-row {
@@ -253,9 +254,7 @@
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.34),
     0 26px 44px rgba(36, 57, 51, 0.08);
-  background:
-    linear-gradient(180deg, rgba(238, 241, 231, 0.9), rgba(255, 252, 246, 0.88)),
-    radial-gradient(circle at 18% 8%, rgba(214, 117, 88, 0.08), transparent 24%);
+  background: #eef3de;
 
   canvas {
     width: 100% !important;
@@ -277,9 +276,7 @@
   gap: 1rem;
   padding: 1rem 1.15rem;
   border-radius: calc(var(--radius-lg) - 6px);
-  background:
-    linear-gradient(135deg, rgba(255, 252, 246, 0.94), rgba(247, 242, 232, 0.84)),
-    rgba(255, 255, 255, 0.6);
+  background: #fbf3e3;
   border: 1px solid rgba(36, 57, 51, 0.08);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.64),
@@ -301,7 +298,7 @@
 .planner-label {
   padding: 0.35rem 0.65rem;
   border-radius: 999px;
-  background: rgba(36, 57, 51, 0.92);
+  background: var(--sage-deep);
   color: white;
   font-size: 0.78rem;
   white-space: nowrap;
@@ -363,7 +360,7 @@
   gap: 0.75rem;
   padding: 0.9rem 1rem;
   border-radius: var(--radius-md);
-  background: rgba(238, 241, 231, 0.72);
+  background: rgba(255, 248, 236, 0.94);
 
   p {
     margin: 0.3rem 0 0;
@@ -405,6 +402,14 @@
 
   .planner-canvas-actions__meta {
     justify-content: start;
+  }
+
+  .planner-toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .planner-toolbar__ornament {
+    justify-self: start;
   }
 }
 

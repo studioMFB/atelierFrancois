@@ -5,7 +5,7 @@
   top: 0;
   z-index: 40;
   backdrop-filter: blur(18px);
-  background: rgba(251, 248, 241, 0.84);
+  background: rgba(246, 239, 217, 0.94);
   border-bottom: 1px solid rgba(36, 57, 51, 0.08);
 }
 
@@ -47,7 +47,8 @@
   gap: 0.4rem;
   padding: 0.35rem;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.56);
+  background: rgba(255, 248, 236, 0.9);
+  border: 1px solid rgba(36, 57, 51, 0.06);
 }
 
 .site-nav__link {
@@ -57,7 +58,7 @@
 }
 
 .site-nav__link--active {
-  background: var(--sage-deep);
+  background: var(--coral);
   color: white;
 }
 
