@@ -6,8 +6,18 @@
   overflow: clip;
 }
 
+.app-shell--planner {
+  min-height: 100dvh;
+}
+
 .app-main {
   padding: 0 1.25rem 5rem;
+}
+
+.app-main--planner {
+  padding: 0 1.25rem 0;
+  height: calc(100dvh - 5rem);
+  overflow: hidden;
 }
 
 .page-shell,
@@ -22,8 +32,20 @@
   padding-top: 2rem;
 }
 
+@include vars.respond-down(vars.$breakpoint-lg) {
+  .app-main--planner {
+    height: auto;
+    overflow: visible;
+    padding-bottom: 5rem;
+  }
+}
+
 @include vars.respond-down(vars.$breakpoint-sm) {
   .app-main {
+    padding-inline: 0.75rem;
+  }
+
+  .app-main--planner {
     padding-inline: 0.75rem;
   }
 

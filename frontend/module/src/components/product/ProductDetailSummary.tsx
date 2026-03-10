@@ -24,7 +24,7 @@ export function ProductDetailSummary({
       <p>{product.description}</p>
       {error ? <p className="muted-copy">{error}</p> : null}
 
-      <div className="product-price-strip">
+      <div className="product-detail-summary__price">
         <strong>£{product.price.toFixed(0)}</strong>
         <span>{presentation.leadTime}</span>
       </div>
@@ -38,7 +38,7 @@ export function ProductDetailSummary({
         </Link>
       </div>
 
-      <dl className="product-spec-grid">
+      <dl>
         <div>
           <dt>Dimensions</dt>
           <dd>{presentation.dimensions}</dd>

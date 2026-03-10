@@ -28,12 +28,11 @@ export function ShopPage() {
 
   return (
     <div className="page-shell">
-      <PageSectionHeader
+      {/* <PageSectionHeader
         aside={error ? <p className="muted-copy">{error}</p> : null}
-        eyebrow="Shop"
         ornament={<WudlingScatter items={["cap", "plain"]} layout="row" size="sm" />}
         title="Choose pieces individually or plan the full garden first."
-      />
+      /> */}
 
       <ShopFilterBar
         categories={categories}

@@ -500,9 +500,8 @@ export function PlannerPage() {
 
   return (
     <div className="planner-page">
-      <section className="planner-canvas-panel">
-        <PlannerToolbar loadingProject={loadingProject} />
-
+      <section className="planner-page__scene">
+        <div className="planner-canvas-panel">
         <PlannerCanvas
           activeAssetKey={activeAssetKey}
           onAddItem={handleAddPlannerAsset}
@@ -512,7 +511,10 @@ export function PlannerPage() {
           scene={scene}
           selectedItemId={selectedItemId}
         />
+        </div>
+      </section>
 
+      <section className="planner-page__actions">
         <PlannerCanvasActions
           futureLength={future.length}
           historyLength={history.length}
@@ -526,7 +528,7 @@ export function PlannerPage() {
         />
       </section>
 
-      <section className="planner-sidebar">
+      <section className="planner-sidebar planner-page__dock">
         <div className="planner-sidebar__stack">
           <div className="planner-sidebar__primary">
             <PlannerProjectSettingsPanel
@@ -577,19 +579,6 @@ export function PlannerPage() {
               paletteTab={paletteTab}
             />
 
-            <PlannerSceneBasketPanel
-              canAddSaleItems={Boolean(saleSceneInputs.length)}
-              onAddSaleItemsToBasket={addSceneToBasket}
-              onAddSceneLineToBasket={addSceneLineToBasket}
-              onSelectItem={setSelectedItemId}
-              onToggle={setScenePanelOpen}
-              onToggleItemLock={toggleItemLock}
-              open={scenePanelOpen}
-              sceneEntries={sceneEntries}
-              sceneTotal={sceneTotal}
-              selectedItemId={selectedItemId}
-            />
-
             <PlannerSelectedPiecePanel
               onAddItemToBasket={addItem}
               onClearSelection={() => setSelectedItemId(null)}
@@ -602,6 +591,19 @@ export function PlannerPage() {
               onToggleItemLock={toggleItemLock}
               open={selectedPanelOpen}
               selectedItem={selectedItem}
+            />
+            
+            <PlannerSceneBasketPanel
+              canAddSaleItems={Boolean(saleSceneInputs.length)}
+              onAddSaleItemsToBasket={addSceneToBasket}
+              onAddSceneLineToBasket={addSceneLineToBasket}
+              onSelectItem={setSelectedItemId}
+              onToggle={setScenePanelOpen}
+              onToggleItemLock={toggleItemLock}
+              open={scenePanelOpen}
+              sceneEntries={sceneEntries}
+              sceneTotal={sceneTotal}
+              selectedItemId={selectedItemId}
             />
 
             <PlannerCheatSheetPanel onToggle={setCheatsheetOpen} open={cheatsheetOpen} />

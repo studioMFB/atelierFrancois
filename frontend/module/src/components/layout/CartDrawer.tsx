@@ -36,15 +36,14 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
     <aside className={`cart-drawer ${open ? "cart-drawer--open" : ""}`}>
       <div className="cart-drawer__overlay" onClick={onClose} />
       <div className="cart-drawer__panel">
-        <div className="cart-drawer__header">
+        <header>
           <div>
             <p className="eyebrow">Basket</p>
-            <h2>Your outdoor edit</h2>
           </div>
           <button className="ghost-button" onClick={onClose} type="button">
             Close
           </button>
-        </div>
+        </header>
 
         {!items.length ? (
           <div className="panel panel--quiet">
@@ -57,7 +56,7 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
               <article className="cart-line" key={line.productId}>
                 <div>
                   {line.slug ? (
-                    <Link className="cart-line__title" onClick={onClose} to={`/shop/${line.slug}`}>
+                    <Link onClick={onClose} to={`/shop/${line.slug}`}>
                       {line.name}
                     </Link>
                   ) : (
@@ -67,7 +66,7 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                     £{line.unitPrice.toFixed(0)} each
                   </p>
                 </div>
-                <div className="cart-line__actions">
+                <footer>
                   <button
                     className="ghost-button"
                     onClick={() => setQuantity(line.productId, line.quantity - 1)}
@@ -90,13 +89,13 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                   >
                     Remove
                   </button>
-                </div>
+                </footer>
               </article>
             ))}
           </div>
         )}
 
-        <div className="cart-drawer__footer">
+        <footer>
           {!quote && items.length ? (
             <p className="muted-copy">
               Showing local catalog prices while the live quote is unavailable.
@@ -122,7 +121,7 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
           <button className="link-button" onClick={clear} type="button">
             Clear basket
           </button>
-        </div>
+        </footer>
       </div>
     </aside>
   );

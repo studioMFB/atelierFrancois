@@ -31,7 +31,7 @@
   gap: 0.58rem;
   padding: 0.9rem 1.2rem;
   background: var(--coral);
-  color: white;
+  color: var(--text-inverse);
   box-shadow: var(--shadow);
   border: 1px solid transparent;
 }
@@ -43,9 +43,9 @@
   justify-content: center;
   gap: 0.58rem;
   padding: 0.85rem 1.1rem;
-  background: var(--paper-strong);
+  background: var(--paper);
   color: var(--sage-deep);
-  border: 1px solid rgba(36, 57, 51, 0.08);
+  border: 1px solid var(--line-strong);
 }
 
 .link-button {
@@ -57,12 +57,12 @@
 .toggle-row {
   padding: 0.4rem;
   border-radius: 999px;
-  background: rgba(239, 122, 51, 0.08);
+  background: var(--coral-tint-soft);
 }
 
 .toggle-row__button--active {
   background: var(--coral);
-  color: white;
+  color: var(--text-inverse);
   border-color: transparent;
 }
 

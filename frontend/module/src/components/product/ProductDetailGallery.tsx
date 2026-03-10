@@ -18,17 +18,17 @@ export function ProductDetailGallery({
 }: ProductDetailGalleryProps) {
   return (
     <div className="panel product-detail-gallery">
-      <div className="product-detail-gallery__header">
+      <header>
         <p className="eyebrow">Interactive view</p>
         <span className="pill">Drag to orbit</span>
-      </div>
+      </header>
       <div className="product-detail-gallery__viewer">
         <ProductViewer assetKey={product.plannerAssetKey} interactive preset={activePreset} />
       </div>
       <div className="product-lookbook">
         {presentation.lookbook.map((scene) => (
           <button
-            className={`product-lookbook__card ${activePreset === scene.preset ? "product-lookbook__card--active" : ""}`}
+            className={`product-lookbook__card ${activePreset === scene.preset ? "is-active" : ""}`}
             key={scene.label}
             onClick={() => onPresetChange(scene.preset)}
             type="button"

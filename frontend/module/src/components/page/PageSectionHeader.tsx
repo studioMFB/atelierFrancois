@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
 interface PageSectionHeaderProps {
-  eyebrow: string;
+  eyebrow?: string;
   title: string;
   description?: ReactNode;
   aside?: ReactNode;
@@ -17,16 +17,16 @@ export function PageSectionHeader({
 }: PageSectionHeaderProps) {
   return (
     <section className="section-header">
-      <div className="section-header__copy">
-        <p className="eyebrow">{eyebrow}</p>
+      <header>
+        {eyebrow ? <p className="eyebrow">{eyebrow}</p> : null}
         <h1>{title}</h1>
         {description ? <div className="section-stack">{description}</div> : null}
-      </div>
+      </header>
       {aside || ornament ? (
-        <div className="section-header__aside">
+        <aside>
           {ornament}
           {aside}
-        </div>
+        </aside>
       ) : null}
     </section>
   );

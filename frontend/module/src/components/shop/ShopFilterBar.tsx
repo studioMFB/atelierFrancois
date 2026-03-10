@@ -16,10 +16,9 @@ export function ShopFilterBar({
   return (
     <section className="filter-bar">
       <label className="field">
-        <span>Search</span>
         <input
           onChange={(event) => onSearchChange(event.target.value)}
-          placeholder="bench, nook, planter..."
+          placeholder="Search products..."
           type="search"
           value={search}
         />

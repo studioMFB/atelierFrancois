@@ -1,16 +1,65 @@
 @use "../variables" as vars;
 
 .planner-page {
+  --planner-shell-offset: 5rem;
+  --planner-dock-width: 27rem;
+  width: min(1380px, calc(100vw - 2rem));
+  height: calc(100dvh - var(--planner-shell-offset));
+  min-height: calc(100dvh - var(--planner-shell-offset));
   display: grid;
-  gap: 1.5rem;
-  grid-template-columns: minmax(0, 1fr) 25.5rem;
+  gap: 1rem 1.5rem;
+  grid-template-columns: minmax(0, 1fr) var(--planner-dock-width);
+  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-areas:
+    "intro dock"
+    "scene dock";
   align-items: start;
-  padding-top: 2rem;
+  padding-top: 1rem;
+  overflow: hidden;
+}
+
+.planner-page__intro {
+  grid-area: intro;
+  min-width: 0;
+  max-width: 46rem;
+}
+
+.planner-page__scene {
+  grid-area: scene;
+  grid-column: 1 / -1;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+.planner-page__actions {
+  grid-column: 1;
+  grid-row: 2;
+  min-width: 0;
+  position: relative;
+  z-index: 3;
+  align-self: end;
+  justify-self: stretch;
+  margin: 0 1.25rem 1.25rem;
+  pointer-events: none;
+}
+
+.planner-page__dock {
+  grid-area: dock;
+  grid-row: 1 / span 2;
+  position: sticky;
+  top: 6.25rem;
+  height: 100%;
+  max-height: 100%;
+  align-self: start;
+  z-index: 4;
 }
 
 .planner-sidebar {
   position: static;
-  height: auto;
+  height: 100%;
   padding: 0;
   background: transparent;
   border: 0;
@@ -21,7 +70,8 @@
 .planner-sidebar__stack {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.1rem;
+  height: 100%;
   min-height: 0;
 }
 
@@ -30,6 +80,10 @@
   gap: 1rem;
   flex: 1;
   align-content: start;
+  min-height: 0;
+  overflow: auto;
+  padding-right: 0.25rem;
+  overscroll-behavior: contain;
 }
 
 .planner-palette {
@@ -47,17 +101,17 @@
 }
 
 .planner-palette--scroll {
-  max-height: 22rem;
+  max-height: clamp(18rem, 34vh, 26rem);
 }
 
 .planner-scene-list--scroll {
-  max-height: 18rem;
+  max-height: clamp(14rem, 24vh, 18rem);
 }
 
 .planner-chip {
   text-align: left;
   padding: 0.75rem 0.85rem;
-  background: rgba(255, 248, 236, 0.94);
+  background: var(--surface-panel-soft);
   display: grid;
   grid-template-columns: 4.15rem minmax(0, 1fr) minmax(4.8rem, auto);
   align-items: center;
@@ -66,16 +120,16 @@
   min-width: 0;
   overflow: hidden;
   border-radius: 1.9rem;
-  box-shadow: inset 0 0 0 1px rgba(36, 57, 51, 0.04);
+  box-shadow: inset 0 0 0 1px var(--line-faint);
 }
 
 .planner-chip--active {
   background: var(--coral);
-  color: white;
-  box-shadow: 0 18px 32px rgba(36, 57, 51, 0.18);
+  color: var(--text-inverse);
+  box-shadow: none;
 
   .planner-chip__copy small {
-    color: rgba(255, 255, 255, 0.76);
+    color: var(--text-on-coral-muted);
   }
 }
 
@@ -85,7 +139,7 @@
   height: 3.5rem;
   border-radius: 1rem;
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.7);
+  background: var(--surface-white-soft);
 
   .product-viewer {
     width: 100%;
@@ -113,7 +167,7 @@
   }
 
   small {
-    color: rgba(36, 57, 51, 0.68);
+    color: var(--text-muted);
     line-height: 1.35;
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -140,24 +194,18 @@
 
 .planner-canvas-panel {
   position: relative;
-  display: grid;
-  grid-template-rows: auto auto auto;
-  gap: 1rem;
-  padding: 1.5rem;
-  overflow: hidden;
+  display: block;
+  height: 100%;
+  min-height: 0;
+  padding: 0;
+  overflow: visible;
   align-self: start;
-  border-radius: var(--radius-lg);
-  background: var(--paper-strong);
-  box-shadow: var(--shadow);
-  border: 1px solid rgba(36, 57, 51, 0.08);
+  background: transparent;
+  box-shadow: none;
+  border: 0;
 
   &::before {
-    content: "";
-    position: absolute;
-    inset: 1rem;
-    border-radius: calc(var(--radius-lg) - 12px);
-    border: 1px solid rgba(36, 57, 51, 0.06);
-    pointer-events: none;
+    content: none;
   }
 
   > * {
@@ -169,27 +217,24 @@
 .planner-toolbar {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  gap: 1rem;
+  gap: 1.25rem;
   align-items: start;
 }
 
 .planner-toolbar__copy {
-  max-width: 40rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 2.4rem;
 
-  h1 {
-    margin: 0 0 0.75rem;
-    font-family: var(--font-serif);
-    font-weight: 700;
-    line-height: 1.05;
-  }
-
-  p:last-child {
+  .eyebrow {
     margin: 0;
   }
 }
 
 .planner-toolbar__ornament {
   justify-self: end;
+  margin-top: 0.35rem;
 }
 
 .planner-tab-row {
@@ -246,41 +291,58 @@
 
 .planner-stage {
   position: relative;
-  height: 46rem;
-  min-height: 46rem;
-  border-radius: var(--radius-lg);
+  height: 100%;
+  min-height: 0;
+  border-radius: calc(var(--radius-lg) + 8px);
   overflow: hidden;
-  border: 1px solid rgba(36, 57, 51, 0.08);
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.34),
-    0 26px 44px rgba(36, 57, 51, 0.08);
-  background: #eef3de;
+  border: 1px solid var(--line-strong);
+  box-shadow: inset 0 0 0 1px var(--surface-white-line);
+  background: var(--surface-stage);
 
   canvas {
     width: 100% !important;
-    height: 46rem !important;
+    height: 100% !important;
   }
 }
 
 .planner-stage__hint {
   position: absolute;
-  left: 1rem;
-  top: 1rem;
+  left: 1.2rem;
+  top: 1.2rem;
   pointer-events: none;
+
+  .pill {
+    background: var(--surface-panel);
+    border: 1px solid var(--line-soft);
+  }
 }
 
 .planner-canvas-actions {
+  position: relative;
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 1rem;
   padding: 1rem 1.15rem;
   border-radius: calc(var(--radius-lg) - 6px);
-  background: #fbf3e3;
-  border: 1px solid rgba(36, 57, 51, 0.08);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.64),
-    0 12px 28px rgba(36, 57, 51, 0.08);
+  background: var(--surface-tray);
+  border: 1px solid var(--line-strong);
+  box-shadow: inset 0 1px 0 var(--surface-white-lift);
+  pointer-events: auto;
+}
+
+.planner-canvas-actions__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.58rem;
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  padding: 0 0 0.35rem;
+}
+
+.planner-canvas-actions__body {
+  display: contents;
 }
 
 .planner-canvas-actions__group,
@@ -295,11 +357,25 @@
   justify-content: end;
 }
 
+.planner-canvas-actions.is-collapsed {
+  width: fit-content;
+  min-width: 0;
+  padding: 0.7rem 0.95rem;
+
+  .planner-canvas-actions__body {
+    display: none;
+  }
+
+  .planner-canvas-actions__toggle {
+    padding: 0;
+  }
+}
+
 .planner-label {
   padding: 0.35rem 0.65rem;
   border-radius: 999px;
   background: var(--sage-deep);
-  color: white;
+  color: var(--text-inverse);
   font-size: 0.78rem;
   white-space: nowrap;
 }
@@ -360,7 +436,7 @@
   gap: 0.75rem;
   padding: 0.9rem 1rem;
   border-radius: var(--radius-md);
-  background: rgba(255, 248, 236, 0.94);
+  background: var(--surface-panel-soft);
 
   p {
     margin: 0.3rem 0 0;
@@ -368,7 +444,13 @@
 }
 
 .planner-scene-line--active {
-  outline: 2px solid rgba(214, 117, 88, 0.32);
+  outline: 2px solid var(--outline-coral-soft);
+}
+
+.planner-sidebar .panel {
+  background: var(--surface-panel);
+  box-shadow: none;
+  border: 1px solid var(--line-strong);
 }
 
 .planner-scene-line__actions {
@@ -381,18 +463,45 @@
 
 @include vars.respond-down(vars.$breakpoint-lg) {
   .planner-page {
+    height: auto;
+    min-height: 0;
+    width: min(100vw - 2rem, 1200px);
     grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto auto;
+    grid-template-areas:
+      "intro"
+      "scene"
+      "actions"
+      "dock";
+    overflow: visible;
+  }
+
+  .planner-page__scene {
+    grid-column: auto;
+  }
+
+  .planner-page__actions {
+    grid-column: auto;
+    grid-row: auto;
+    margin: 0;
+    pointer-events: auto;
+  }
+
+  .planner-page__dock {
+    position: static;
+    height: auto;
+    max-height: none;
   }
 
   .planner-sidebar {
-    position: static;
-    max-height: none;
-    overflow: visible;
+    height: auto;
   }
 
-  .planner-sidebar__stack {
-    max-height: none;
+  .planner-sidebar__stack,
+  .planner-sidebar__primary {
+    height: auto;
     overflow: visible;
+    padding-right: 0;
   }
 
   .planner-canvas-actions {
@@ -414,8 +523,14 @@
 }
 
 @include vars.respond-down(vars.$breakpoint-sm) {
+  .planner-page {
+    height: auto;
+    min-height: 0;
+    width: min(100vw - 1rem, 1200px);
+  }
+
   .planner-canvas-panel {
-    padding: 1.1rem;
+    padding: 0;
   }
 
   .planner-chip {

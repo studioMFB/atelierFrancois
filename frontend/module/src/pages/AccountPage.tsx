@@ -14,8 +14,9 @@ export function AccountPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const redirectTo = location.state?.redirectTo as string | undefined;
+  const requestedMode = new URLSearchParams(location.search).get("mode");
 
-  const [mode, setMode] = useState<"login" | "register">("login");
+  const [mode, setMode] = useState<"login" | "register">(requestedMode === "register" ? "register" : "login");
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -27,6 +28,10 @@ export function AccountPage() {
       navigate(redirectTo, { replace: true });
     }
   }, [navigate, redirectTo, status]);
+
+  useEffect(() => {
+    setMode(requestedMode === "register" ? "register" : "login");
+  }, [requestedMode]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

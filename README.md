@@ -92,7 +92,7 @@ Recommended values:
 
 ## Notes
 
-- The full 3D planner is on the web app.
+- The full Garden planner is on the web app.
 - The mobile app is currently a companion app for account, shop, basket, and saved gardens.
 - If `npm install` fails partway through because of network issues, rerun it from the repo root.
 

@@ -22,7 +22,7 @@ export function ProductStoryPanels({ presentation }: ProductStoryPanelsProps) {
         <h2>Styled like a small editorial rather than a flat catalog page.</h2>
         <div className="lookbook-copy">
           {presentation.lookbook.map((scene) => (
-            <article className="lookbook-copy__item" key={scene.label}>
+            <article key={scene.label}>
               <strong>{scene.title}</strong>
               <p>{scene.copy}</p>
             </article>

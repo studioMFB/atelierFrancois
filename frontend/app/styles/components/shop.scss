@@ -20,95 +20,109 @@
   flex-direction: column;
   overflow: hidden;
   border-radius: var(--radius-lg);
-  background: var(--paper-strong);
+  background: var(--paper);
   box-shadow: var(--shadow);
-  border: 1px solid rgba(36, 57, 51, 0.08);
-}
+  border: 1px solid var(--line-strong);
 
-.product-card--placeholder {
-  min-height: 28rem;
-  background: #fbf3e3;
-}
+  &--placeholder {
+    min-height: 28rem;
+    background: var(--surface-soft);
+  }
 
-.product-card__art {
-  position: relative;
-  min-height: 18rem;
-  padding: 0;
-  display: flex;
-  align-items: stretch;
-  overflow: hidden;
-}
+  &__art {
+    position: relative;
+    min-height: 18rem;
+    padding: 0;
+    display: flex;
+    align-items: stretch;
+    overflow: hidden;
 
-.product-card__art--mori-bench {
-  background: #efe4cd;
-}
+    &--mori-bench {
+      background: var(--surface-card-bench);
+    }
 
-.product-card__art--atelier-table {
-  background: #e8efd7;
-}
+    &--atelier-table {
+      background: var(--surface-card-table);
+    }
 
-.product-card__art--nest-reading-nook {
-  background: #eee5d4;
-}
+    &--nest-reading-nook {
+      background: var(--surface-card-nook);
+    }
 
-.product-card__art--sprout-planter-cart {
-  background: #e6edd7;
-}
+    &--sprout-planter-cart {
+      background: var(--surface-card-planter);
+    }
 
-.product-card__art--cloud-lookout {
-  background: #f0e8d6;
-}
+    &--cloud-lookout {
+      background: var(--surface-card-cloud);
+    }
 
-.product-card__art--picnic-island {
-  background: #ece0cc;
-}
+    &--picnic-island {
+      background: var(--surface-card-island);
+    }
 
-.product-card__body {
-  display: grid;
-  gap: 0.85rem;
-  padding: 1.25rem;
+    .product-viewer {
+      flex: 1;
+      width: 100%;
+      height: 100%;
+      min-height: 18rem;
+      border-radius: 0;
+
+      canvas {
+        pointer-events: none;
+      }
+    }
+  }
+
+  &__tag {
+    position: absolute;
+    top: 0.9rem;
+    left: 0.9rem;
+    z-index: 2;
+    padding: 0.28rem 0.62rem;
+    background: var(--surface-tag);
+    box-shadow: var(--shadow-soft);
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
+  }
+
+  > div {
+    display: grid;
+    gap: 0.85rem;
+    padding: 1.25rem;
+  }
 
   h3 {
     margin: 0;
     font-family: var(--font-serif);
     font-size: 1.7rem;
+
+    a {
+      transition: color 160ms ease;
+
+      &:hover {
+        color: var(--coral);
+      }
+    }
   }
-}
 
-.product-card__title {
-  transition: color 160ms ease;
-
-  &:hover {
-    color: var(--coral);
-  }
-}
-
-.product-card__meta {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  align-items: end;
-}
-
-.product-card__actions {
-  display: flex;
-  gap: 0.6rem;
-  flex-wrap: wrap;
-  justify-content: end;
-}
-
-.product-card__viewer {
-  flex: 1;
-  display: flex;
-  align-items: stretch;
-  width: 100%;
-  height: 100%;
-  min-height: 18rem;
-
-  .product-viewer {
+  .product-card__art .product-viewer {
+    flex: 1;
     width: 100%;
     height: 100%;
+    min-height: 18rem;
     border-radius: 0;
+  }
+
+  > div > footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: end;
+  }
+
+  > div > footer .button-row {
+    justify-content: end;
   }
 }
 
@@ -118,7 +132,6 @@
   height: 100%;
 }
 
-.product-card__art .product-viewer canvas,
 .product-lookbook__thumb .product-viewer canvas {
   pointer-events: none;
 }
@@ -142,18 +155,6 @@
   }
 }
 
-.product-card__tag {
-  position: absolute;
-  top: 0.9rem;
-  left: 0.9rem;
-  z-index: 2;
-  padding: 0.28rem 0.62rem;
-  background: rgba(255, 237, 224, 0.96);
-  box-shadow: 0 10px 24px rgba(36, 57, 51, 0.08);
-  font-size: 0.72rem;
-  letter-spacing: 0.04em;
-}
-
 @include vars.respond-down(vars.$breakpoint-lg) {
   .product-grid,
   .filter-bar {
@@ -162,8 +163,12 @@
 }
 
 @include vars.respond-down(vars.$breakpoint-md) {
-  .product-card__meta {
+  .product-card > div > footer {
     flex-direction: column;
     align-items: start;
+  }
+
+  .product-card > div > footer .button-row {
+    justify-content: start;
   }
 }

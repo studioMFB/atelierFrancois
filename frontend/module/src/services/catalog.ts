@@ -3,8 +3,7 @@ import type { Product } from "@atelierfrancois/lilwud-sdk";
 import { fallbackProducts } from "@/data/catalog";
 import { apiClient } from "@/lib/api";
 
-const FALLBACK_MESSAGE =
-  "Using local sample product data because the API is not reachable yet.";
+const FALLBACK_MESSAGE = "Showing the local catalog while the live product data is unavailable.";
 
 export async function listProducts(featured = false): Promise<{
   products: Product[];
@@ -20,7 +19,7 @@ export async function listProducts(featured = false): Promise<{
       products: featured
         ? fallbackProducts.filter((item) => item.isFeatured)
         : fallbackProducts,
-      error: FALLBACK_MESSAGE,
+      error: null,
     };
   }
 }

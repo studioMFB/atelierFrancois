@@ -13,21 +13,17 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
     <article className="product-card">
       <Link className={`product-card__art product-card__art--${product.imageKey}`} to={`/shop/${product.slug}`}>
         <span className="product-card__tag">{product.category}</span>
-        <div className="product-card__viewer">
-          <ProductViewer assetKey={product.plannerAssetKey} compact preset="garden" />
-        </div>
+        <ProductViewer assetKey={product.plannerAssetKey} compact preset="garden" />
       </Link>
-      <div className="product-card__body">
+      <div>
         <p className="eyebrow">{product.tagline}</p>
         <h3>
-          <Link className="product-card__title" to={`/shop/${product.slug}`}>
-            {product.name}
-          </Link>
+          <Link to={`/shop/${product.slug}`}>{product.name}</Link>
         </h3>
         <p>{product.description}</p>
-        <div className="product-card__meta">
+        <footer>
           <strong>£{product.price.toFixed(0)}</strong>
-          <div className="product-card__actions">
+          <div className="button-row button-row--compact">
             <Link className="ghost-button" to={`/shop/${product.slug}`}>
               View piece
             </Link>
@@ -38,7 +34,7 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
               Add to basket
             </button>
           </div>
-        </div>
+        </footer>
       </div>
     </article>
   );
