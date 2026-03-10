@@ -15,7 +15,7 @@
 }
 
 .app-main--planner {
-  padding: 0 1.25rem 0;
+  padding: 0;
   height: calc(100dvh - 5rem);
   overflow: hidden;
 }
@@ -36,16 +36,12 @@
   .app-main--planner {
     height: auto;
     overflow: visible;
-    padding-bottom: 5rem;
+    padding: 0 0 5rem;
   }
 }
 
 @include vars.respond-down(vars.$breakpoint-sm) {
   .app-main {
-    padding-inline: 0.75rem;
-  }
-
-  .app-main--planner {
     padding-inline: 0.75rem;
   }
 

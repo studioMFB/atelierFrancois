@@ -10,7 +10,6 @@ import { PlannerPalettePanel } from '@/components/planner/PlannerPalettePanel'
 import { PlannerProjectSettingsPanel } from '@/components/planner/PlannerProjectSettingsPanel'
 import { PlannerSceneBasketPanel } from '@/components/planner/PlannerSceneBasketPanel'
 import { PlannerSelectedPiecePanel } from '@/components/planner/PlannerSelectedPiecePanel'
-import { PlannerToolbar } from '@/components/planner/PlannerToolbar'
 import { clampItemPosition } from '@/components/planner/plannerAssets'
 import {
   buildBasketInputsFromScene,
@@ -55,7 +54,6 @@ export function PlannerPage() {
       : 'furniture'
   )
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null)
-  const [loadingProject, setLoadingProject] = useState(false)
   const [saveMessage, setSaveMessage] = useState<string | null>(null)
   const [history, setHistory] = useState<PlannerScene[]>([])
   const [future, setFuture] = useState<PlannerScene[]>([])
@@ -105,8 +103,6 @@ export function PlannerPage() {
     let ignore = false
 
     async function loadProject() {
-      setLoadingProject(true)
-
       try {
         const project = await getProject(Number(queryProjectId))
         if (!ignore) {
@@ -121,10 +117,6 @@ export function PlannerPage() {
       } catch {
         if (!ignore) {
           setSaveMessage('The saved garden could not be loaded.')
-        }
-      } finally {
-        if (!ignore) {
-          setLoadingProject(false)
         }
       }
     }
@@ -502,15 +494,15 @@ export function PlannerPage() {
     <div className="planner-page">
       <section className="planner-page__scene">
         <div className="planner-canvas-panel">
-        <PlannerCanvas
-          activeAssetKey={activeAssetKey}
-          onAddItem={handleAddPlannerAsset}
-          onBeginItemInteraction={beginItemInteraction}
-          onSelectItem={setSelectedItemId}
-          onUpdateItem={patchItem}
-          scene={scene}
-          selectedItemId={selectedItemId}
-        />
+          <PlannerCanvas
+            activeAssetKey={activeAssetKey}
+            onAddItem={handleAddPlannerAsset}
+            onBeginItemInteraction={beginItemInteraction}
+            onSelectItem={setSelectedItemId}
+            onUpdateItem={patchItem}
+            scene={scene}
+            selectedItemId={selectedItemId}
+          />
         </div>
       </section>
 

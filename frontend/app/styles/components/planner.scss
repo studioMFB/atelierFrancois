@@ -1,32 +1,21 @@
 @use "../variables" as vars;
 
 .planner-page {
-  --planner-shell-offset: 5rem;
   --planner-dock-width: 27rem;
-  width: min(1380px, calc(100vw - 2rem));
-  height: calc(100dvh - var(--planner-shell-offset));
-  min-height: calc(100dvh - var(--planner-shell-offset));
+  width: 100%;
+  height: calc(100dvh - 5rem);
+  min-height: calc(100dvh - 5rem);
   display: grid;
-  gap: 1rem 1.5rem;
-  grid-template-columns: minmax(0, 1fr) var(--planner-dock-width);
-  grid-template-rows: auto minmax(0, 1fr);
-  grid-template-areas:
-    "intro dock"
-    "scene dock";
-  align-items: start;
-  padding-top: 1rem;
+  gap: 0;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  align-items: stretch;
   overflow: hidden;
 }
 
-.planner-page__intro {
-  grid-area: intro;
-  min-width: 0;
-  max-width: 46rem;
-}
-
 .planner-page__scene {
-  grid-area: scene;
-  grid-column: 1 / -1;
+  grid-column: 1;
+  grid-row: 1;
   min-width: 0;
   min-height: 0;
   height: 100%;
@@ -36,24 +25,28 @@
 
 .planner-page__actions {
   grid-column: 1;
-  grid-row: 2;
+  grid-row: 1;
   min-width: 0;
   position: relative;
   z-index: 3;
   align-self: end;
-  justify-self: stretch;
-  margin: 0 1.25rem 1.25rem;
+  justify-self: start;
+  width: min(72rem, calc(100% - var(--planner-dock-width) - 2rem));
+  max-width: calc(100% - var(--planner-dock-width) - 2rem);
+  margin: 0 0 1.25rem 1.25rem;
   pointer-events: none;
 }
 
 .planner-page__dock {
-  grid-area: dock;
-  grid-row: 1 / span 2;
-  position: sticky;
-  top: 6.25rem;
+  grid-column: 1;
+  grid-row: 1;
+  position: relative;
+  justify-self: end;
+  width: var(--planner-dock-width);
   height: 100%;
   max-height: 100%;
-  align-self: start;
+  padding: 1rem 1rem 1rem 0;
+  align-self: stretch;
   z-index: 4;
 }
 
@@ -293,9 +286,9 @@
   position: relative;
   height: 100%;
   min-height: 0;
-  border-radius: calc(var(--radius-lg) + 8px);
+  border-radius: 0;
   overflow: hidden;
-  border: 1px solid var(--line-strong);
+  border: 0;
   box-shadow: inset 0 0 0 1px var(--surface-white-line);
   background: var(--surface-stage);
 
@@ -319,10 +312,7 @@
 
 .planner-canvas-actions {
   position: relative;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
+  display: block;
   padding: 1rem 1.15rem;
   border-radius: calc(var(--radius-lg) - 6px);
   background: var(--surface-tray);
@@ -332,17 +322,58 @@
 }
 
 .planner-canvas-actions__toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.58rem;
+  position: absolute;
+  top: 0.95rem;
+  left: 0.95rem;
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
   border: 0;
   background: transparent;
-  color: var(--text-muted);
-  padding: 0 0 0.35rem;
+  color: var(--coral);
+  padding: 0;
+
+  &::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: 0;
+    bottom: calc(100% + 0.45rem);
+    padding: 0.35rem 0.55rem;
+    border-radius: 999px;
+    background: var(--sage-deep);
+    color: var(--text-inverse);
+    font-size: 0.78rem;
+    line-height: 1;
+    white-space: nowrap;
+    opacity: 0;
+    transform: translateY(0.2rem);
+    pointer-events: none;
+    transition: opacity 160ms ease, transform 160ms ease;
+  }
+
+  &:hover::after,
+  &:focus-visible::after {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.planner-canvas-actions__toggle-glyph {
+  display: block;
+  font-size: 1.95rem;
+  line-height: 0.8;
+  font-family: var(--font-serif);
+  font-weight: 700;
+  transform: translateY(-0.03em);
 }
 
 .planner-canvas-actions__body {
-  display: contents;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: start;
+  padding-left: 2.75rem;
 }
 
 .planner-canvas-actions__group,
@@ -358,8 +389,8 @@
 }
 
 .planner-canvas-actions.is-collapsed {
-  width: fit-content;
-  min-width: 0;
+  width: 3.9rem;
+  min-width: 3.9rem;
   padding: 0.7rem 0.95rem;
 
   .planner-canvas-actions__body {
@@ -367,7 +398,7 @@
   }
 
   .planner-canvas-actions__toggle {
-    padding: 0;
+    position: static;
   }
 }
 
@@ -465,32 +496,38 @@
   .planner-page {
     height: auto;
     min-height: 0;
-    width: min(100vw - 2rem, 1200px);
+    width: 100%;
     grid-template-columns: 1fr;
-    grid-template-rows: auto auto auto auto;
-    grid-template-areas:
-      "intro"
-      "scene"
-      "actions"
-      "dock";
+    grid-template-rows: auto auto auto;
+    gap: 1rem;
     overflow: visible;
   }
 
   .planner-page__scene {
     grid-column: auto;
+    grid-row: auto;
+    height: auto;
   }
 
   .planner-page__actions {
     grid-column: auto;
     grid-row: auto;
+    width: auto;
+    max-width: none;
+    justify-self: stretch;
     margin: 0;
     pointer-events: auto;
   }
 
   .planner-page__dock {
     position: static;
+    grid-column: auto;
+    grid-row: auto;
+    justify-self: stretch;
+    width: auto;
     height: auto;
     max-height: none;
+    padding: 0;
   }
 
   .planner-sidebar {
@@ -505,12 +542,14 @@
   }
 
   .planner-canvas-actions {
-    flex-direction: column;
-    align-items: start;
-  }
+    .planner-canvas-actions__body {
+      grid-template-columns: 1fr;
+      padding-right: 0;
+    }
 
-  .planner-canvas-actions__meta {
-    justify-content: start;
+    .planner-canvas-actions__meta {
+      justify-content: start;
+    }
   }
 
   .planner-toolbar {
@@ -526,7 +565,7 @@
   .planner-page {
     height: auto;
     min-height: 0;
-    width: min(100vw - 1rem, 1200px);
+    width: 100%;
   }
 
   .planner-canvas-panel {

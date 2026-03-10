@@ -30,12 +30,15 @@ export function PlannerCanvasActions({
     <div className={`planner-canvas-actions${collapsed ? ' is-collapsed' : ''}`}>
       <button
         aria-expanded={!collapsed}
+        aria-label={collapsed ? 'Show actions' : 'Hide actions'}
         className="planner-canvas-actions__toggle"
+        data-tooltip={collapsed ? 'Show actions' : 'Hide actions'}
         onClick={() => setCollapsed((current) => !current)}
         type="button"
       >
-        <ActionIcon name={collapsed ? 'up' : 'down'} />
-        {collapsed ? 'Show actions' : 'Hide actions'}
+        <span className="planner-canvas-actions__toggle-glyph" aria-hidden="true">
+          {collapsed ? '+' : '−'}
+        </span>
       </button>
       <div className="planner-canvas-actions__body">
         <div className="planner-canvas-actions__group">

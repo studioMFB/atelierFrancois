@@ -41,7 +41,7 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
             <p className="eyebrow">Basket</p>
           </div>
           <button className="ghost-button" onClick={onClose} type="button">
-            Close
+            &#x2715;
           </button>
         </header>
 

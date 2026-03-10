@@ -4,7 +4,6 @@ export function BrandLogo() {
   return (
     <div className="brand-lockup">
       <img alt="Lil' Wud logo" src={lilWudLogo} />
-      {/* <p className="eyebrow">Handmade outdoor furniture for children</p> */}
     </div>
   );
 }

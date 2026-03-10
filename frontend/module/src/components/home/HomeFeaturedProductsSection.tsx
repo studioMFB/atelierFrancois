@@ -20,7 +20,6 @@ export function HomeFeaturedProductsSection({
     <section className="section-stack home-featured">
       <div className="section-header">
         <header>
-          <p className="eyebrow">Featured pieces</p>
           <h2>Start with the best-selling family setups.</h2>
         </header>
         <aside>
