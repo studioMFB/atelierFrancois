@@ -11,11 +11,11 @@ export function ShopPage() {
   const { addItem } = useCart();
   const { products, loading, error } = useProducts();
   const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("All");
+  const [category, setCategory] = useState("All categories");
   const deferredSearch = useDeferredValue(search);
-  const categories = ["All", ...new Set(products.map((product) => product.category))];
+  const categories = ["All categories", ...new Set(products.map((product) => product.category))];
   const filteredProducts = products.filter((product) => {
-    const matchesCategory = category === "All" || product.category === category;
+    const matchesCategory = category === "All categories" || product.category === category;
     const needle = deferredSearch.trim().toLowerCase();
     const matchesSearch =
       !needle ||
@@ -52,6 +52,7 @@ export function ShopPage() {
         onAddToCart={addItem}
         placeholderCount={6}
         products={filteredProducts}
+        variant="short"
       />
     </div>
   );

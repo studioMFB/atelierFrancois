@@ -137,11 +137,11 @@ function GardenAccents({ floorRadius }: { floorRadius: number }) {
 }
 
 function RenderStaticFrame() {
-  const { invalidate } = useThree();
+  const { invalidate, size } = useThree();
 
   useEffect(() => {
     invalidate();
-  }, [invalidate]);
+  }, [invalidate, size.height, size.width]);
 
   return null;
 }

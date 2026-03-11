@@ -6,11 +6,14 @@ import { ProductViewer } from "@/components/shop/ProductViewer";
 interface ProductCardProps {
   product: Product;
   onAddToCart: (productId: number) => void;
+  variant?: "full" | "short";
 }
 
-export function ProductCard({ product, onAddToCart }: ProductCardProps) {
+export function ProductCard({ product, onAddToCart, variant = "full" }: ProductCardProps) {
+  const isShortCard = variant === "short";
+
   return (
-    <article className="product-card">
+    <article className={`product-card product-card--${variant}`}>
       <Link className={`product-card__art product-card__art--${product.imageKey}`} to={`/shop/${product.slug}`}>
         <span className="product-card__tag">{product.category}</span>
         <ProductViewer assetKey={product.plannerAssetKey} compact preset="garden" />
@@ -21,20 +24,26 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
           <Link to={`/shop/${product.slug}`}>{product.name}</Link>
         </h3>
         <p>{product.description}</p>
-        <footer>
-          <strong>£{product.price.toFixed(0)}</strong>
-          <div className="button-row button-row--compact">
-            <Link className="ghost-button" to={`/shop/${product.slug}`}>
-              View piece
-            </Link>
-            <Link className="link-button" to={`/planner?asset=${product.plannerAssetKey}`}>
-              Place in planner
-            </Link>
-            <button className="primary-button" onClick={() => onAddToCart(product.id)} type="button">
-              Add to basket
-            </button>
-          </div>
-        </footer>
+        {isShortCard ? (
+          <footer>
+            <strong>£{product.price.toFixed(0)}</strong>
+          </footer>
+        ) : (
+          <footer>
+            <strong>£{product.price.toFixed(0)}</strong>
+            <div className="button-row button-row--compact">
+              <Link className="ghost-button" to={`/shop/${product.slug}`}>
+                View piece
+              </Link>
+              <Link className="link-button" to={`/planner?asset=${product.plannerAssetKey}`}>
+                Place in planner
+              </Link>
+              <button className="primary-button" onClick={() => onAddToCart(product.id)} type="button">
+                Add to basket
+              </button>
+            </div>
+          </footer>
+        )}
       </div>
     </article>
   );

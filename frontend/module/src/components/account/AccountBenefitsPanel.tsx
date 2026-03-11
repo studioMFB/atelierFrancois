@@ -6,7 +6,7 @@ interface AccountBenefitsPanelProps {
 
 export function AccountBenefitsPanel({ authenticated = false }: AccountBenefitsPanelProps) {
   return (
-    <div className="panel panel--accent">
+    <div className="panel panel--accent account-page__panel account-benefits-panel">
       <p className="eyebrow">{authenticated ? "Why keep it?" : "Why create an account?"}</p>
       <h2>Save planner layouts, revisit them on mobile, and price baskets later.</h2>
       <p>

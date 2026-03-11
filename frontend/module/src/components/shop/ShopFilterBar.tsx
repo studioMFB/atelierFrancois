@@ -16,6 +16,7 @@ export function ShopFilterBar({
   return (
     <section className="filter-bar">
       <label className="field">
+        <span className="visually-hidden">Search</span>
         <input
           onChange={(event) => onSearchChange(event.target.value)}
           placeholder="Search products..."
@@ -24,7 +25,7 @@ export function ShopFilterBar({
         />
       </label>
       <label className="field">
-        <span>Category</span>
+        <span className="visually-hidden">Category</span>
         <select onChange={(event) => onCategoryChange(event.target.value)} value={category}>
           {categories.map((entry) => (
             <option key={entry} value={entry}>

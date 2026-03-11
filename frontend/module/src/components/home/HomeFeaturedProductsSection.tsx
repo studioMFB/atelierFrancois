@@ -27,7 +27,13 @@ export function HomeFeaturedProductsSection({
           {error ? <p className="muted-copy">{error}</p> : null}
         </aside>
       </div>
-      <ProductCardGrid loading={loading} onAddToCart={onAddToCart} placeholderCount={3} products={products} />
+      <ProductCardGrid
+        loading={loading}
+        onAddToCart={onAddToCart}
+        placeholderCount={3}
+        products={products}
+        variant="short"
+      />
     </section>
   );
 }

@@ -9,6 +9,7 @@ interface ProductCardGridProps {
   onAddToCart: (productId: number) => void;
   placeholderCount?: number;
   emptyState?: ReactNode;
+  variant?: "full" | "short";
 }
 
 export function ProductCardGrid({
@@ -17,6 +18,7 @@ export function ProductCardGrid({
   onAddToCart,
   placeholderCount = 3,
   emptyState,
+  variant = "full",
 }: ProductCardGridProps) {
   if (loading) {
     return (
@@ -35,7 +37,7 @@ export function ProductCardGrid({
   return (
     <div className="product-grid">
       {products.map((product) => (
-        <ProductCard key={product.id} onAddToCart={onAddToCart} product={product} />
+        <ProductCard key={product.id} onAddToCart={onAddToCart} product={product} variant={variant} />
       ))}
     </div>
   );

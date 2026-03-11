@@ -7,7 +7,7 @@ interface AccountSummaryPanelProps {
 
 export function AccountSummaryPanel({ user, onLogout }: AccountSummaryPanelProps) {
   return (
-    <div className="panel">
+    <div className="panel account-page__panel account-summary-panel">
       <p className="eyebrow">Account</p>
       <h1>{user.displayName}</h1>
       <p>{user.email}</p>

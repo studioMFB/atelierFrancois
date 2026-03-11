@@ -20,7 +20,7 @@
 }
 
 .cart-drawer--open .cart-drawer__overlay {
-  opacity: 0.2;
+  // opacity: 0.2;
 }
 
 .cart-drawer__panel {
@@ -58,6 +58,15 @@
   display: grid;
   gap: 0.85rem;
   align-content: start;
+}
+
+.cart-drawer__empty-state {
+  border: 0;
+  box-shadow: none;
+
+  .eyebrow {
+    color: var(--coral-text);
+  }
 }
 
 .cart-line {

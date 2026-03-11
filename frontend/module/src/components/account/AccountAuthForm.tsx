@@ -28,8 +28,8 @@ export function AccountAuthForm({
   onSubmit,
 }: AccountAuthFormProps) {
   return (
-    <form className="panel" onSubmit={(event) => void onSubmit(event)}>
-      <div className="toggle-row">
+    <form className="panel account-page__panel account-auth-form" onSubmit={(event) => void onSubmit(event)}>
+      <div className="toggle-row account-auth-form__tabs">
         <button
           className={mode === "login" ? "toggle-row__button toggle-row__button--active" : "toggle-row__button"}
           onClick={() => onModeChange("login")}

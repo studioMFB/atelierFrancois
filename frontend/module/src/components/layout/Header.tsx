@@ -6,6 +6,7 @@ import { ActionIcon } from "@/components/ui/ActionIcon";
 import plainMoss from "@/assets/brand/mimi-bunny.svg";
 import { useAuth } from "@/hooks/useAuth";
 import { useCart } from "@/hooks/useCart";
+import { routePaths } from "@/router";
 
 const navItems = [
   { to: "/", label: "Home" },
@@ -25,6 +26,17 @@ export function Header({ menuOpen, onMenuToggle, onCartToggle }: HeaderProps) {
   const location = useLocation();
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
+  const currentPath = `${location.pathname}${location.search}`;
+  const canOpenAccountModal = location.pathname !== routePaths.account;
+  const accountModalState = canOpenAccountModal
+    ? { backgroundLocation: location, redirectTo: currentPath }
+    : undefined;
+  const accountSummaryState = canOpenAccountModal
+    ? { backgroundLocation: location }
+    : undefined;
+  const savedGardensState = canOpenAccountModal
+    ? { backgroundLocation: location, redirectTo: routePaths.saved }
+    : undefined;
 
   useEffect(() => {
     setAccountMenuOpen(false);
@@ -84,11 +96,15 @@ export function Header({ menuOpen, onMenuToggle, onCartToggle }: HeaderProps) {
             <button
               aria-expanded={accountMenuOpen}
               aria-haspopup="menu"
+              aria-label={accountMenuOpen ? "Close account menu" : "Open account menu"}
               className="ghost-button ghost-button--account site-header__moss-button"
               onClick={() => setAccountMenuOpen((current) => !current)}
               type="button"
             >
               <img alt="" aria-hidden="true" src={plainMoss} />
+              <span className="visually-hidden">
+                {accountMenuOpen ? "Close account menu" : "Open account menu"}
+              </span>
             </button>
             {accountMenuOpen ? (
               <div className="site-header__account-menu" role="menu">
@@ -98,10 +114,10 @@ export function Header({ menuOpen, onMenuToggle, onCartToggle }: HeaderProps) {
                 </header>
                 {user ? (
                   <>
-                    <NavLink role="menuitem" to="/account">
+                    <NavLink role="menuitem" state={accountSummaryState} to={routePaths.account}>
                       My account
                     </NavLink>
-                    <NavLink role="menuitem" to="/saved">
+                    <NavLink role="menuitem" to={routePaths.saved}>
                       Saved gardens
                     </NavLink>
                     <button onClick={() => void logout()} role="menuitem" type="button">
@@ -110,16 +126,17 @@ export function Header({ menuOpen, onMenuToggle, onCartToggle }: HeaderProps) {
                   </>
                 ) : (
                   <>
-                    <NavLink role="menuitem" to="/account">
+                    <NavLink role="menuitem" state={accountModalState} to={routePaths.account}>
                       Sign in
                     </NavLink>
                     <NavLink
                       role="menuitem"
-                      to="/account?mode=register"
+                      state={accountModalState}
+                      to={`${routePaths.account}?mode=register`}
                     >
                       Create account
                     </NavLink>
-                    <NavLink role="menuitem" to="/saved">
+                    <NavLink role="menuitem" state={savedGardensState} to={routePaths.account}>
                       Saved gardens
                     </NavLink>
                   </>

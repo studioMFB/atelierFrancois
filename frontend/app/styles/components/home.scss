@@ -64,6 +64,10 @@
   .product-grid {
     align-items: start;
   }
+
+  .product-card {
+    --product-card-art-height: 23.5rem;
+  }
 }
 
 @include vars.respond-down(vars.$breakpoint-md) {
@@ -81,6 +85,10 @@
 
   .home-featured .section-header {
     align-items: start;
+  }
+
+  .home-featured .product-card {
+    --product-card-art-height: 20.5rem;
   }
 }
 

@@ -25,6 +25,7 @@ import { plannerPaletteByAssetKey, type PlannerPaletteTab } from '@/data/planner
 import { useAuth } from '@/hooks/useAuth'
 import { useCart } from '@/hooks/useCart'
 import { usePlannerProjects } from '@/hooks/usePlannerProjects'
+import { routePaths } from '@/router'
 
 const HISTORY_LIMIT = 60
 
@@ -441,7 +442,12 @@ export function PlannerPage() {
   async function handleSave() {
     if (status !== 'authenticated') {
       setSaveMessage('Create an account first to save your planner work.')
-      navigate('/account', { state: { redirectTo: '/planner' } })
+      navigate(routePaths.account, {
+        state: {
+          backgroundLocation: location,
+          redirectTo: `${location.pathname}${location.search}`
+        }
+      })
       return
     }
 

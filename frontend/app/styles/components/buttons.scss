@@ -30,8 +30,8 @@
   justify-content: center;
   gap: 0.58rem;
   padding: 0.9rem 1.2rem;
-  background: var(--coral);
-  color: var(--text-inverse);
+  background: var(--coral-ui);
+  color: var(--text-on-coral);
   box-shadow: var(--shadow);
   border: 1px solid transparent;
 }
@@ -50,7 +50,7 @@
 
 .link-button {
   padding: 0;
-  color: var(--coral);
+  color: var(--coral-text);
   background: transparent;
 }
 
@@ -61,8 +61,8 @@
 }
 
 .toggle-row__button--active {
-  background: var(--coral);
-  color: var(--text-inverse);
+  background: var(--coral-ui);
+  color: var(--text-on-coral);
   border-color: transparent;
 }
 

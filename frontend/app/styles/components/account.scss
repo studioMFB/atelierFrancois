@@ -1,0 +1,138 @@
+@use "../variables" as vars;
+
+.account-page {
+  .panel {
+    box-shadow: none;
+  }
+}
+
+.account-modal {
+  position: fixed;
+  inset: 5rem 0 0;
+  z-index: 90;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 2rem 1.25rem;
+  background: rgba(36, 57, 51, 0.16);
+  backdrop-filter: blur(6px);
+  overflow-y: auto;
+}
+
+.account-modal__dialog {
+  position: relative;
+  width: min(1200px, calc(100vw - 2rem));
+  padding-top: 3.5rem;
+}
+
+.account-modal__close {
+  position: absolute;
+  top: 0.5rem;
+  right: -0.3rem;
+  z-index: 2;
+}
+
+.account-page--modal {
+  .account-page__grid {
+    width: 100%;
+    margin: 0;
+  }
+}
+
+.account-page__grid {
+  align-items: start;
+}
+
+.account-page__panel {
+  height: 100%;
+}
+
+.account-page__intro {
+  display: grid;
+  align-content: start;
+  gap: 1rem;
+
+  .eyebrow,
+  .wudling-scatter {
+    margin: 0;
+  }
+
+  p {
+    margin: 0;
+  }
+}
+
+.account-auth-form {
+  display: grid;
+  gap: 0.95rem;
+  align-content: start;
+
+  .primary-button {
+    width: fit-content;
+  }
+
+  .muted-copy {
+    margin: 0;
+  }
+}
+
+.account-auth-form__tabs {
+  gap: 0.35rem;
+  padding: 0.35rem;
+  margin-bottom: 0.1rem;
+  background: var(--coral-tint-soft);
+  border: 1px solid var(--line-soft);
+  box-shadow: none;
+
+  .toggle-row__button {
+    padding: 0.78rem 1.08rem;
+    background: transparent;
+    border-color: transparent;
+    color: var(--text-nav);
+    box-shadow: none;
+    user-select: none;
+    -webkit-user-select: none;
+
+    &:hover {
+      border-color: var(--line-soft);
+    }
+  }
+
+  .toggle-row__button--active {
+    background: var(--coral-ui);
+    color: var(--text-on-coral);
+  }
+}
+
+.account-benefits-panel,
+.account-summary-panel {
+  p {
+    margin: 0;
+  }
+}
+
+@include vars.respond-down(vars.$breakpoint-lg) {
+  .account-modal__dialog {
+    width: 100%;
+    padding-top: 3rem;
+  }
+
+  .account-modal__close {
+    top: 1rem;
+    right: 1rem;
+  }
+
+  .account-page__panel {
+    height: auto;
+  }
+}
+
+@include vars.respond-down(vars.$breakpoint-sm) {
+  .account-modal {
+    padding-inline: 0.75rem;
+  }
+
+  .account-modal__dialog {
+    width: min(100vw - 1rem, 1200px);
+  }
+}

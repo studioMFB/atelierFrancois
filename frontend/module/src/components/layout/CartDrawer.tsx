@@ -46,7 +46,7 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
         </header>
 
         {!items.length ? (
-          <div className="panel panel--quiet">
+          <div className="panel panel--quiet cart-drawer__empty-state">
             <p className="eyebrow">Empty for now</p>
             <p>Pick pieces from the shop or planner and they will appear here.</p>
           </div>
