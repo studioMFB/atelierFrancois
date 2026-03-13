@@ -14,7 +14,7 @@
   justify-content: center;
   align-items: flex-start;
   padding: 2rem 1.25rem;
-  background: rgba(36, 57, 51, 0.16);
+  background: var(--overlay-scrim);
   backdrop-filter: blur(6px);
   overflow-y: auto;
 }
@@ -81,14 +81,14 @@
   padding: 0.35rem;
   margin-bottom: 0.1rem;
   background: var(--coral-tint-soft);
-  border: 1px solid var(--line-soft);
+  border: 1px solid var(--toggle-border);
   box-shadow: none;
 
   .toggle-row__button {
     padding: 0.78rem 1.08rem;
-    background: transparent;
-    border-color: transparent;
-    color: var(--text-nav);
+    background: var(--toggle-button-bg);
+    border-color: var(--toggle-button-border);
+    color: var(--toggle-button-color);
     box-shadow: none;
     user-select: none;
     -webkit-user-select: none;
@@ -99,8 +99,8 @@
   }
 
   .toggle-row__button--active {
-    background: var(--coral-ui);
-    color: var(--text-on-coral);
+    background: var(--toggle-active-bg);
+    color: var(--toggle-active-color);
   }
 }
 

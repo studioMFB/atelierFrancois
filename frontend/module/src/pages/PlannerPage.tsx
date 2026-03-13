@@ -1,5 +1,9 @@
 import type { PlannerItem, PlannerScene } from '@atelierfrancois/lilwud-sdk'
-import { createEmptyPlannerScene, type PlannerSurfaceTheme } from '@atelierfrancois/lilwud-sdk'
+import {
+  createEmptyPlannerScene,
+  type PlannerMoodLighting,
+  type PlannerSurfaceTheme
+} from '@atelierfrancois/lilwud-sdk'
 import { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
@@ -540,6 +544,15 @@ export function PlannerPage() {
                   { recordHistory: false }
                 )
               }
+              onMoodLightingChange={(moodLighting) =>
+                applyScene(
+                  {
+                    ...scene,
+                    moodLighting
+                  },
+                  { recordHistory: false }
+                )
+              }
               onProjectNameChange={setProjectName}
               onSummaryChange={setSummary}
               onThemeChange={(surfaceTheme) =>
@@ -561,6 +574,7 @@ export function PlannerPage() {
                   { recordHistory: false }
                 )
               }
+              moodLighting={scene.moodLighting as PlannerMoodLighting}
               open={projectPanelOpen}
               projectName={projectName}
               summary={summary}

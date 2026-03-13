@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 
 import { BrandLogo } from "@/components/layout/BrandLogo";
+import { styleModeOptions, type StyleMode } from "@/components/layout/styleModes";
 import { ActionIcon } from "@/components/ui/ActionIcon";
 import plainMoss from "@/assets/brand/mimi-bunny.svg";
 import { useAuth } from "@/hooks/useAuth";
@@ -18,9 +19,17 @@ interface HeaderProps {
   menuOpen: boolean;
   onMenuToggle: () => void;
   onCartToggle: () => void;
+  onStyleModeChange: (mode: StyleMode) => void;
+  styleMode: StyleMode;
 }
 
-export function Header({ menuOpen, onMenuToggle, onCartToggle }: HeaderProps) {
+export function Header({
+  menuOpen,
+  onMenuToggle,
+  onCartToggle,
+  onStyleModeChange,
+  styleMode,
+}: HeaderProps) {
   const { logout, user } = useAuth();
   const { items } = useCart();
   const location = useLocation();
@@ -141,6 +150,24 @@ export function Header({ menuOpen, onMenuToggle, onCartToggle }: HeaderProps) {
                     </NavLink>
                   </>
                 )}
+                <section className="site-header__account-menu-section">
+                  <p className="eyebrow">Interface style</p>
+                  <div className="site-header__style-mode-grid" role="group" aria-label="Interface style">
+                    {styleModeOptions.map((option) => (
+                      <button
+                        key={option.value}
+                        aria-pressed={styleMode === option.value}
+                        className="site-header__style-mode"
+                        onClick={() => onStyleModeChange(option.value)}
+                        role="menuitem"
+                        type="button"
+                      >
+                        <span>{option.label}</span>
+                        <small>{option.description}</small>
+                      </button>
+                    ))}
+                  </div>
+                </section>
               </div>
             ) : null}
           </div>

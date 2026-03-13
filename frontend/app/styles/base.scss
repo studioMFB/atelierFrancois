@@ -9,9 +9,10 @@ html {
 body {
   margin: 0;
   min-width: 320px;
-  color: var(--sage-deep);
+  color: var(--text-primary);
+  font-weight: var(--body-font-weight);
   font-family: var(--font-sans);
-  background: var(--paper);
+  background: var(--app-bg);
 }
 
 a {
@@ -22,7 +23,7 @@ a {
 code {
   padding: 0.1rem 0.35rem;
   border-radius: 999px;
-  background: var(--coral-tint-strong);
+  background: var(--code-bg);
   font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
   font-size: 0.92em;
 }

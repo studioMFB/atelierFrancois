@@ -20,7 +20,7 @@
 .toggle-row__button,
 .planner-chip {
   border: 0;
-  border-radius: 999px;
+  border-radius: var(--button-radius);
   transition: transform 160ms ease, background 160ms ease, color 160ms ease;
 }
 
@@ -30,10 +30,10 @@
   justify-content: center;
   gap: 0.58rem;
   padding: 0.9rem 1.2rem;
-  background: var(--coral-ui);
-  color: var(--text-on-coral);
-  box-shadow: var(--shadow);
-  border: 1px solid transparent;
+  background: var(--button-primary-bg);
+  color: var(--button-primary-color);
+  box-shadow: var(--button-primary-shadow);
+  border: 1px solid var(--button-primary-border);
 }
 
 .ghost-button,
@@ -43,27 +43,28 @@
   justify-content: center;
   gap: 0.58rem;
   padding: 0.85rem 1.1rem;
-  background: var(--paper);
-  color: var(--sage-deep);
-  border: 1px solid var(--line-strong);
+  background: var(--button-ghost-bg);
+  color: var(--button-ghost-color);
+  border: 1px solid var(--button-ghost-border);
 }
 
 .link-button {
   padding: 0;
-  color: var(--coral-text);
+  color: var(--button-link-color);
   background: transparent;
 }
 
 .toggle-row {
   padding: 0.4rem;
-  border-radius: 999px;
-  background: var(--coral-tint-soft);
+  border-radius: var(--pill-radius);
+  background: var(--toggle-bg);
+  border: 1px solid var(--toggle-border);
 }
 
 .toggle-row__button--active {
-  background: var(--coral-ui);
-  color: var(--text-on-coral);
-  border-color: transparent;
+  background: var(--toggle-active-bg);
+  color: var(--toggle-active-color);
+  border-color: var(--toggle-active-border);
 }
 
 .primary-button:hover,

@@ -18,11 +18,13 @@
 
     h1 {
       margin: 0;
-      font-family: var(--font-serif);
-      font-weight: 700;
-      line-height: 1.05;
-      font-size: clamp(3.6rem, 7.2vw, 5.8rem);
-      max-width: 10ch;
+      color: var(--heading-color);
+      font-family: var(--hero-font-family);
+      font-weight: var(--hero-font-weight);
+      letter-spacing: var(--hero-letter-spacing);
+      line-height: var(--hero-line-height);
+      font-size: clamp(var(--hero-size-min), 7.2vw, var(--hero-size-max));
+      max-width: var(--hero-max-width);
     }
 
     .eyebrow {
@@ -78,7 +80,7 @@
       gap: 1.15rem;
 
       h1 {
-        font-size: clamp(2.9rem, 12vw, 4.4rem);
+        font-size: clamp(var(--hero-size-mobile-min), 12vw, var(--hero-size-mobile-max));
       }
     }
   }

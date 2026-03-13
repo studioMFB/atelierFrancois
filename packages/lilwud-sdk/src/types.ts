@@ -50,6 +50,12 @@ export type PlannerSurfaceTheme =
   | "stone"
   | "mulch";
 
+export type PlannerMoodLighting =
+  | "morning"
+  | "midday"
+  | "evening"
+  | "dawn";
+
 export interface PlannerItem {
   id: string;
   productId: number | null;
@@ -63,6 +69,7 @@ export interface PlannerItem {
 
 export interface PlannerScene {
   version: 1;
+  moodLighting: PlannerMoodLighting;
   surfaceTheme: PlannerSurfaceTheme;
   width: number;
   depth: number;

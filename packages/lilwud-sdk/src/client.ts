@@ -1,6 +1,7 @@
 import type {
   ApiErrorShape,
   AuthResponse,
+  PlannerMoodLighting,
   CartItemInput,
   CartQuote,
   PlannerProject,
@@ -10,6 +11,13 @@ import type {
   Product,
   User,
 } from "./types";
+
+const plannerMoodLightingValues: PlannerMoodLighting[] = [
+  "morning",
+  "midday",
+  "evening",
+  "dawn",
+];
 
 export class LilWudApiError extends Error {
   status: number;
@@ -185,6 +193,7 @@ export function createEmptyPlannerScene(
 ): PlannerScene {
   return {
     version: 1,
+    moodLighting: "evening",
     surfaceTheme: "moss",
     width: 8,
     depth: 8,
@@ -201,11 +210,36 @@ export function parsePlannerScene(sceneJson: string): PlannerScene {
   const parsed = JSON.parse(sceneJson) as Partial<PlannerScene>;
 
   return createEmptyPlannerScene({
+    moodLighting: parsePlannerMoodLighting(parsed.moodLighting),
     surfaceTheme: parsed.surfaceTheme ?? "moss",
     width: parsed.width ?? 8,
     depth: parsed.depth ?? 8,
     items: parsed.items ?? [],
   });
+}
+
+function parsePlannerMoodLighting(value: unknown): PlannerMoodLighting {
+  if (value === "current") {
+    return "evening";
+  }
+
+  if (value === "soft-daylight") {
+    return "dawn";
+  }
+
+  if (value === "golden-hour" || value === "mauve-studio") {
+    return "morning";
+  }
+
+  if (value === "blue-hour") {
+    return "midday";
+  }
+
+  if (typeof value === "string" && plannerMoodLightingValues.includes(value as PlannerMoodLighting)) {
+    return value as PlannerMoodLighting;
+  }
+
+  return "evening";
 }
 
 function toPlannerRequest(payload: PlannerProjectPayload) {

@@ -8,10 +8,10 @@ interface PlannerAssetSpec {
 }
 
 export const plannerThemeColors: Record<PlannerSurfaceTheme, string> = {
-  moss: "#dbe4d2",
-  sand: "#ead9bb",
-  stone: "#d8dbdd",
-  mulch: "#9b7358",
+  moss: "#c9d9ae",
+  sand: "#e7cf9f",
+  stone: "#c8d0d8",
+  mulch: "#b17a5d",
 };
 
 export const plannerAssets: Record<string, PlannerAssetSpec> = {

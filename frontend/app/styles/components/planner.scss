@@ -45,9 +45,12 @@
   width: var(--planner-dock-width);
   height: 100%;
   max-height: 100%;
-  padding: 1rem 1rem 1rem 0;
+  padding: 1rem;
   align-self: stretch;
   z-index: 4;
+  background: var(--planner-dock-bg);
+  border-left: var(--planner-dock-border);
+  box-shadow: var(--planner-dock-shadow);
 }
 
 .planner-sidebar {
@@ -58,6 +61,21 @@
   border: 0;
   box-shadow: none;
   border-radius: 0;
+}
+
+.planner-page__dock {
+  .panel,
+  .planner-panel {
+    background: var(--planner-panel-bg);
+    box-shadow: var(--planner-panel-shadow);
+    border-color: var(--line-soft);
+    border-radius: var(--planner-panel-radius);
+  }
+
+  .planner-panel--palette,
+  .planner-panel--scene {
+    background: var(--planner-panel-soft-bg);
+  }
 }
 
 .planner-sidebar__stack {
@@ -75,7 +93,7 @@
   align-content: start;
   min-height: 0;
   overflow: auto;
-  padding-right: 0.25rem;
+  padding: 0.25rem 0.25rem 0.25rem 0;
   overscroll-behavior: contain;
 }
 
@@ -104,7 +122,7 @@
 .planner-chip {
   text-align: left;
   padding: 0.75rem 0.85rem;
-  background: var(--surface-panel-soft);
+  background: var(--planner-chip-bg);
   display: grid;
   grid-template-columns: 4.15rem minmax(0, 1fr) minmax(4.8rem, auto);
   align-items: center;
@@ -113,17 +131,17 @@
   min-width: 0;
   overflow: hidden;
   border-radius: 1.9rem;
-  box-shadow: inset 0 0 0 1px var(--line-faint);
+  box-shadow: inset 0 0 0 1px var(--planner-chip-border);
 }
 
 .planner-chip--active {
-  background: var(--coral-chip);
-  color: var(--text-on-coral);
+  background: var(--planner-chip-active-bg);
+  color: var(--planner-chip-active-color);
   box-shadow: none;
 
   .planner-chip__copy strong,
   .planner-chip > span:last-child {
-    color: var(--text-on-coral);
+    color: var(--planner-chip-active-color);
   }
 
   .planner-chip__copy small {
@@ -199,8 +217,9 @@
   overflow: visible;
   align-self: start;
   background: transparent;
-  box-shadow: none;
+  box-shadow: var(--planner-stage-shell-shadow);
   border: 0;
+  border-radius: var(--planner-stage-radius);
 
   &::before {
     content: none;
@@ -239,25 +258,25 @@
   margin-bottom: 0.8rem;
   gap: 0.35rem;
   padding: 0.35rem;
-  background: var(--surface-paper-90);
-  border: 1px solid var(--line-soft);
+  background: var(--planner-control-bg);
+  border: 1px solid var(--planner-control-border);
   box-shadow: none;
 
   .toggle-row__button {
     padding: 0.78rem 1.08rem;
-    background: transparent;
-    border-color: transparent;
-    color: var(--text-nav);
+    background: var(--toggle-button-bg);
+    border-color: var(--toggle-button-border);
+    color: var(--planner-control-text);
     box-shadow: none;
 
     &:hover{
-      border-color: var(--line-soft);
+      border-color: var(--planner-control-hover-border);
     }
   }
 
   .toggle-row__button--active {
-    background: var(--coral-ui);
-    color: var(--text-on-coral);
+    background: var(--planner-control-active-bg);
+    color: var(--planner-control-active-color);
   }
 }
 
@@ -325,11 +344,11 @@
   position: relative;
   height: 100%;
   min-height: 0;
-  border-radius: 0;
+  border-radius: var(--planner-stage-radius);
   overflow: hidden;
-  border: 0;
-  box-shadow: inset 0 0 0 1px var(--surface-white-line);
-  background: var(--surface-stage);
+  border: var(--planner-stage-border);
+  box-shadow: var(--planner-stage-shadow);
+  background: var(--planner-canvas-wrapper-bg);
 
   canvas {
     width: 100% !important;
@@ -344,8 +363,8 @@
   pointer-events: none;
 
   .pill {
-    background: var(--surface-panel);
-    border: 1px solid var(--line-soft);
+    background: var(--planner-hint-bg);
+    border: 1px solid var(--planner-hint-border);
   }
 }
 
@@ -353,10 +372,10 @@
   position: relative;
   display: block;
   padding: 1rem 1.15rem;
-  border-radius: calc(var(--radius-lg) - 6px);
-  background: var(--surface-tray);
-  border: 1px solid var(--line-strong);
-  box-shadow: inset 0 1px 0 var(--surface-white-lift);
+  border-radius: var(--planner-actions-radius);
+  background: var(--planner-control-bg);
+  border: 1px solid var(--planner-control-border);
+  box-shadow: var(--planner-actions-shadow);
   pointer-events: auto;
 }
 
@@ -444,8 +463,8 @@
 .planner-label {
   padding: 0.35rem 0.65rem;
   border-radius: 999px;
-  background: var(--sage-deep);
-  color: var(--text-inverse);
+  background: var(--pill-bg);
+  color: var(--pill-color);
   font-size: 0.78rem;
   white-space: nowrap;
 }
@@ -506,7 +525,8 @@
   gap: 0.75rem;
   padding: 0.9rem 1rem;
   border-radius: var(--radius-md);
-  background: var(--surface-panel-soft);
+  background: var(--planner-card-bg);
+  border: 1px solid var(--line-soft);
 
   p {
     margin: 0.3rem 0 0;
@@ -518,10 +538,10 @@
 }
 
 .planner-sidebar .panel {
-  background: var(--surface-panel);
-  // background: var(--paper);
-  box-shadow: none;
+  background: var(--planner-panel-bg);
+  box-shadow: var(--planner-panel-shadow);
   border: 1px solid var(--line-strong);
+  border-radius: var(--planner-panel-radius);
 }
 
 .planner-scene-line__actions {

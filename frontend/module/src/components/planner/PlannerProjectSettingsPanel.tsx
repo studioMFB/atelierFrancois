@@ -1,4 +1,4 @@
-import type { PlannerSurfaceTheme } from '@atelierfrancois/lilwud-sdk'
+import type { PlannerMoodLighting, PlannerSurfaceTheme } from '@atelierfrancois/lilwud-sdk'
 
 import { plannerThemes } from '@/data/brand'
 import { PlannerSectionPanel } from '@/components/planner/PlannerSectionPanel'
@@ -6,11 +6,13 @@ import { PlannerSectionPanel } from '@/components/planner/PlannerSectionPanel'
 interface PlannerProjectSettingsPanelProps {
   depth: number
   onDepthChange: (value: number) => void
+  onMoodLightingChange: (value: PlannerMoodLighting) => void
   onProjectNameChange: (value: string) => void
   onSummaryChange: (value: string) => void
   onThemeChange: (value: PlannerSurfaceTheme) => void
   onToggle: (open: boolean) => void
   onWidthChange: (value: number) => void
+  moodLighting: PlannerMoodLighting
   open: boolean
   projectName: string
   summary: string
@@ -18,14 +20,23 @@ interface PlannerProjectSettingsPanelProps {
   width: number
 }
 
+const moodLightingOptions: Array<{ label: string; value: PlannerMoodLighting }> = [
+  { label: 'morning', value: 'morning' },
+  { label: 'midday', value: 'midday' },
+  { label: 'evening', value: 'evening' },
+  { label: 'dawn', value: 'dawn' }
+]
+
 export function PlannerProjectSettingsPanel({
   depth,
   onDepthChange,
+  onMoodLightingChange,
   onProjectNameChange,
   onSummaryChange,
   onThemeChange,
   onToggle,
   onWidthChange,
+  moodLighting,
   open,
   projectName,
   summary,
@@ -75,6 +86,19 @@ export function PlannerProjectSettingsPanel({
           {plannerThemes.map((theme) => (
             <option key={theme.value} value={theme.value}>
               {theme.label}
+            </option>
+          ))}
+        </select>
+      </label>
+      <label className="field">
+        <span>Mood lighting</span>
+        <select
+          onChange={(event) => onMoodLightingChange(event.target.value as PlannerMoodLighting)}
+          value={moodLighting}
+        >
+          {moodLightingOptions.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
             </option>
           ))}
         </select>

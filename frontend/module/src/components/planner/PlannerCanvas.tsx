@@ -1,6 +1,11 @@
-import type { PlannerItem, PlannerScene } from "@atelierfrancois/lilwud-sdk";
+import type {
+  PlannerItem,
+  PlannerMoodLighting,
+  PlannerScene,
+} from "@atelierfrancois/lilwud-sdk";
 import { Canvas } from "@react-three/fiber";
-import { useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import * as THREE from "three";
 
 import {
   clampItemPosition,
@@ -39,10 +44,15 @@ export function PlannerCanvas({
 }: PlannerCanvasProps) {
   const groundColor = plannerThemeColors[scene.surfaceTheme];
   const largestDimension = Math.max(scene.width, scene.depth);
+  const moodLighting = plannerMoodLightingPresets[scene.moodLighting];
+  const plannerTheme = usePlannerCanvasTheme();
+  // Keep the orbit center on the board itself, then bias the framing with the
+  // camera position so the scene reads slightly left against the right dock.
+  const cameraTarget: [number, number, number] = [0, 0.02, 0];
   const cameraPosition: [number, number, number] = [
-    largestDimension * 0.9,
-    Math.max(5.5, largestDimension * 0.72),
-    largestDimension * 1.02,
+    largestDimension * 0.68,
+    Math.max(5.2, largestDimension * 0.68),
+    largestDimension * 1.04,
   ];
   const [orbitEnabled, setOrbitEnabled] = useState(true);
   const [hoveredItemId, setHoveredItemId] = useState<string | null>(null);
@@ -59,14 +69,26 @@ export function PlannerCanvas({
         }}
         shadows
       >
-        <color args={["#eef1e7"]} attach="background" />
-        <fog args={["#eef1e7", largestDimension * 1.5, largestDimension * 3.8]} attach="fog" />
-        <ambientLight intensity={1.05} />
-        <hemisphereLight color="#fff8ee" groundColor="#c9d6c4" intensity={0.7} />
+        <color args={[moodLighting.background]} attach="background" />
+        <fog
+          args={[
+            moodLighting.fog,
+            largestDimension * moodLighting.fogNearMultiplier,
+            largestDimension * moodLighting.fogFarMultiplier,
+          ]}
+          attach="fog"
+        />
+        <ambientLight color={moodLighting.ambientColor} intensity={moodLighting.ambientIntensity} />
+        <hemisphereLight
+          color={moodLighting.hemisphereColor}
+          groundColor={moodLighting.hemisphereGroundColor}
+          intensity={moodLighting.hemisphereIntensity}
+        />
         <directionalLight
           castShadow
-          intensity={1.4}
-          position={[largestDimension * 0.72, largestDimension * 1.3, largestDimension * 0.5]}
+          color={moodLighting.directionalColor}
+          intensity={moodLighting.directionalIntensity}
+          position={[largestDimension * 0.68, largestDimension * 1.18, largestDimension * 0.58]}
           shadow-mapSize-height={2048}
           shadow-mapSize-width={2048}
         />
@@ -75,16 +97,27 @@ export function PlannerCanvas({
           enabled={orbitEnabled}
           maxDistance={Math.max(16, largestDimension * 2.4)}
           minDistance={Math.max(4.5, largestDimension * 0.62)}
-          target={[0, 0.45, 0]}
+          target={cameraTarget}
         />
 
+          <RoundedStagePlatform
+            depth={scene.depth + 0.9}
+            groundColor={groundColor}
+            width={scene.width + 0.9}
+          />
+
         <gridHelper
-          args={[largestDimension, Math.round(largestDimension * 2), "#8ba18b", "#cbd6c8"]}
-          position={[0, 0.01, 0]}
+          args={[
+            largestDimension,
+            Math.round(largestDimension * 2),
+            plannerTheme.gridColor,
+            plannerTheme.gridSoftColor,
+          ]}
+          position={[0, 0.05, 0]}
         />
 
         <mesh
-          receiveShadow
+          position={[0, 0.045, 0]}
           rotation={[-Math.PI / 2, 0, 0]}
           onClick={(event: any) => {
             event.stopPropagation();
@@ -115,7 +148,7 @@ export function PlannerCanvas({
           }}
         >
           <planeGeometry args={[scene.width, scene.depth]} />
-          <meshStandardMaterial color={groundColor} />
+          <meshStandardMaterial color={groundColor} opacity={0} transparent />
         </mesh>
 
         {scene.items.map((item) => (
@@ -147,6 +180,155 @@ export function PlannerCanvas({
         </span>
       </div>
     </div>
+  );
+}
+
+interface PlannerMoodLightingPreset {
+  ambientColor: string;
+  ambientIntensity: number;
+  background: string;
+  directionalColor: string;
+  directionalIntensity: number;
+  fog: string;
+  fogFarMultiplier: number;
+  fogNearMultiplier: number;
+  hemisphereColor: string;
+  hemisphereGroundColor: string;
+  hemisphereIntensity: number;
+}
+
+interface PlannerCanvasTheme {
+  gridColor: string;
+  gridSoftColor: string;
+}
+
+const defaultPlannerCanvasTheme: PlannerCanvasTheme = {
+  gridColor: "#73777d",
+  gridSoftColor: "#b8b7b2",
+};
+
+const plannerMoodLightingPresets: Record<PlannerMoodLighting, PlannerMoodLightingPreset> = {
+  evening: {
+    ambientColor: "#ffffff",
+    ambientIntensity: 0.92,
+    background: "#d8ccd4",
+    directionalColor: "#fff7ef",
+    directionalIntensity: 1.25,
+    fog: "#ddd5da",
+    fogFarMultiplier: 3.6,
+    fogNearMultiplier: 1.2,
+    hemisphereColor: "#fff7ef",
+    hemisphereGroundColor: "#d8d5cf",
+    hemisphereIntensity: 0.72,
+  },
+  dawn: {
+    ambientColor: "#f9faf6",
+    ambientIntensity: 0.88,
+    background: "#e2e8df",
+    directionalColor: "#fff8f0",
+    directionalIntensity: 1.12,
+    fog: "#edf2eb",
+    fogFarMultiplier: 3.85,
+    fogNearMultiplier: 1.35,
+    hemisphereColor: "#f7fbf3",
+    hemisphereGroundColor: "#d6ddd3",
+    hemisphereIntensity: 0.66,
+  },
+  morning: {
+    ambientColor: "#fff7e8",
+    ambientIntensity: 0.88,
+    background: "#ecd8af",
+    directionalColor: "#ffe6b8",
+    directionalIntensity: 1.02,
+    fog: "#f2e4bf",
+    fogFarMultiplier: 4.05,
+    fogNearMultiplier: 1.48,
+    hemisphereColor: "#fff1cf",
+    hemisphereGroundColor: "#dccba8",
+    hemisphereIntensity: 0.62,
+  },
+  midday: {
+    ambientColor: "#edf2ff",
+    ambientIntensity: 0.76,
+    background: "#cdd7e6",
+    directionalColor: "#f7e8df",
+    directionalIntensity: 0.92,
+    fog: "#d8e0ee",
+    fogFarMultiplier: 4.1,
+    fogNearMultiplier: 1.52,
+    hemisphereColor: "#e4edff",
+    hemisphereGroundColor: "#bfcad7",
+    hemisphereIntensity: 0.58,
+  },
+};
+
+function usePlannerCanvasTheme(): PlannerCanvasTheme {
+  const [theme, setTheme] = useState<PlannerCanvasTheme>(defaultPlannerCanvasTheme);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const readTheme = () => {
+      const styles = window.getComputedStyle(document.documentElement);
+      setTheme({
+        gridColor: styles.getPropertyValue("--planner-grid-color").trim() || defaultPlannerCanvasTheme.gridColor,
+        gridSoftColor:
+          styles.getPropertyValue("--planner-grid-soft-color").trim() ||
+          defaultPlannerCanvasTheme.gridSoftColor,
+      });
+    };
+
+    readTheme();
+
+    const observer = new MutationObserver(readTheme);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-style-mode"],
+    });
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
+  return theme;
+}
+
+interface RoundedStagePlatformProps {
+  width: number;
+  depth: number;
+  groundColor: string;
+}
+
+function RoundedStagePlatform({ width, depth, groundColor }: RoundedStagePlatformProps) {
+  const geometry = useMemo(() => createRoundedPlatformGeometry(width, depth), [depth, width]);
+  const insetGeometry = useMemo(
+    () => createRoundedInsetGeometry(Math.max(width - 0.2, 1), Math.max(depth - 0.2, 1)),
+    [depth, width],
+  );
+  const { rimColor, insetColor } = useMemo(() => {
+    const inset = new THREE.Color(groundColor);
+    const rim = new THREE.Color(groundColor);
+    inset.offsetHSL(0, -0.05, 0.03);
+    rim.offsetHSL(0, -0.1, 0.1);
+
+    return {
+      rimColor: `#${rim.getHexString()}`,
+      insetColor: `#${inset.getHexString()}`,
+    };
+  }, [groundColor]);
+
+  return (
+    <group>
+      <mesh castShadow receiveShadow geometry={geometry}>
+        <meshStandardMaterial color={rimColor} roughness={0.96} metalness={0} />
+      </mesh>
+      <mesh geometry={insetGeometry} position={[0, 0.012, 0]}>
+        <meshStandardMaterial color={insetColor} roughness={0.98} metalness={0} />
+      </mesh>
+    </group>
   );
 }
 
@@ -432,4 +614,45 @@ function positionsMatch(
   right: [number, number, number],
 ) {
   return left[0] === right[0] && left[1] === right[1] && left[2] === right[2];
+}
+
+function createRoundedPlatformGeometry(width: number, depth: number) {
+  const radius = Math.min(Math.max(Math.min(width, depth) * 0.08, 0.35), 0.72);
+  const shape = createRoundedRectangleShape(width, depth, radius);
+  const geometry = new THREE.ExtrudeGeometry(shape, {
+    bevelEnabled: false,
+    depth: 0.18,
+    steps: 1,
+  });
+  geometry.rotateX(Math.PI / 2);
+  return geometry;
+}
+
+function createRoundedInsetGeometry(width: number, depth: number) {
+  const radius = Math.min(Math.max(Math.min(width, depth) * 0.08, 0.28), 0.64);
+  const shape = createRoundedRectangleShape(width, depth, radius);
+  const geometry = new THREE.ShapeGeometry(shape);
+  geometry.rotateX(Math.PI / 2);
+  return geometry;
+}
+
+function createRoundedRectangleShape(width: number, depth: number, radius: number) {
+  const boundedRadius = Math.min(radius, width / 2, depth / 2);
+  const left = -width / 2;
+  const top = depth / 2;
+  const right = width / 2;
+  const bottom = -depth / 2;
+  const shape = new THREE.Shape();
+
+  shape.moveTo(left + boundedRadius, top);
+  shape.lineTo(right - boundedRadius, top);
+  shape.quadraticCurveTo(right, top, right, top - boundedRadius);
+  shape.lineTo(right, bottom + boundedRadius);
+  shape.quadraticCurveTo(right, bottom, right - boundedRadius, bottom);
+  shape.lineTo(left + boundedRadius, bottom);
+  shape.quadraticCurveTo(left, bottom, left, bottom + boundedRadius);
+  shape.lineTo(left, top - boundedRadius);
+  shape.quadraticCurveTo(left, top, left + boundedRadius, top);
+
+  return shape;
 }

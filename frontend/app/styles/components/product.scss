@@ -41,9 +41,10 @@
 }
 
 .product-lookbook__card {
-  border: 1px solid var(--line-strong);
-  background: var(--paper);
+  border: 1px solid var(--card-border);
+  background: var(--card-bg);
   border-radius: var(--radius-md);
+  box-shadow: var(--card-shadow);
   padding: 0.75rem;
   display: grid;
   gap: 0.5rem;
@@ -67,8 +68,9 @@
 .product-detail-summary__price {
   strong {
     font-size: clamp(2rem, 4vw, 3rem);
-    font-family: var(--font-serif);
-    font-weight: 700;
+    color: var(--heading-color);
+    font-family: var(--heading-font-family);
+    font-weight: var(--heading-font-weight);
   }
 
   span {
@@ -85,7 +87,7 @@
   div {
     padding: 1rem;
     border-radius: var(--radius-md);
-    background: var(--surface-soft);
+    background: var(--card-bg-soft);
   }
 
   dt,
@@ -109,7 +111,9 @@
   article {
     padding: 1rem;
     border-radius: var(--radius-md);
-    background: var(--surface-paper-94);
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    box-shadow: var(--panel-shadow);
   }
 
   p {

@@ -7,9 +7,10 @@
   textarea {
     width: 100%;
     padding: 0.95rem 1rem;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--line-input);
-    background: var(--paper);
+    border-radius: var(--form-radius);
+    border: 1px solid var(--form-border);
+    background: var(--form-bg);
+    color: var(--text-primary);
   }
 }
 

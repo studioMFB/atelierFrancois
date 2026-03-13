@@ -16,6 +16,11 @@
 
   .field {
     gap: 0;
+
+    input,
+    select {
+      border-radius: var(--radius-round);
+    }
   }
 }
 
@@ -24,13 +29,14 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border-radius: var(--radius-lg);
-  background: var(--paper);
-  border: 1px solid var(--line-strong);
+  border-radius: var(--card-radius);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  box-shadow: var(--card-shadow);
 
   &--placeholder {
     min-height: 28rem;
-    background: var(--surface-soft);
+    background: var(--card-bg-soft);
   }
 
   &__art {
@@ -84,8 +90,8 @@
     left: 0.9rem;
     z-index: 2;
     padding: 0.28rem 0.62rem;
-    background: var(--surface-tag);
-    box-shadow: var(--shadow-soft);
+    background: var(--card-tag-bg);
+    box-shadow: var(--card-tag-shadow);
     font-size: 0.72rem;
     letter-spacing: 0.04em;
   }
@@ -116,7 +122,10 @@
 
   h3 {
     margin: 0;
-    font-family: var(--font-serif);
+    color: var(--heading-color);
+    font-family: var(--heading-font-family);
+    font-weight: var(--heading-font-weight);
+    letter-spacing: var(--heading-letter-spacing);
     font-size: 1.7rem;
 
     a {
