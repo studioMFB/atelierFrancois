@@ -5,6 +5,7 @@ interface PlannerAssetSpec {
   label: string;
   footprint: [number, number];
   color: string;
+  description?: string;
 }
 
 export const plannerThemeColors: Record<PlannerSurfaceTheme, string> = {
@@ -80,24 +81,28 @@ export const plannerAssets: Record<string, PlannerAssetSpec> = {
     label: "Cap Moss",
     footprint: [0.95, 0.95],
     color: "#c6e42a",
+    description: "A bright moss-ball guide in a green cap, ready to sit near the first bench or path edge.",
   },
   "mimi-bunny": {
     assetKey: "mimi-bunny",
     label: "Plain Moss",
     footprint: [0.9, 0.9],
     color: "#c3e128",
+    description: "The plain smiling moss ball, perfect for the simplest little garden vignette.",
   },
   "sora-fox": {
     assetKey: "sora-fox",
     label: "Beanie Moss",
     footprint: [0.95, 0.95],
     color: "#c8e52c",
+    description: "A moss ball in a knitted beanie that makes the scene feel softer and more collectible.",
   },
   "sunhat-moss": {
     assetKey: "sunhat-moss",
     label: "Sunhat Moss",
     footprint: [0.98, 0.98],
     color: "#c7e52c",
+    description: "A cheerful moss ball in a yellow sunhat for the warmest garden corners.",
   },
 };
 
