@@ -5,6 +5,7 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   root: './app',
   envDir: '.',
+  assetsInclude: ['**/*.glb'],
   plugins: [react()],
   server: {
     port: 1234,

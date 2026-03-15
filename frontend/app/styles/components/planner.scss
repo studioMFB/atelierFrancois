@@ -287,6 +287,7 @@
 .planner-cheatsheet summary,
 .planner-panel summary {
   cursor: pointer;
+  color: var(--heading-color);
   font-family: var(--font-serif);
   font-size: 1.15rem;
   font-weight: 700;
@@ -462,7 +463,7 @@
 
 .planner-label {
   padding: 0.35rem 0.65rem;
-  border-radius: 999px;
+  border-radius: var(--pill-radius);
   background: var(--pill-bg);
   color: var(--pill-color);
   font-size: 0.78rem;
@@ -506,6 +507,7 @@
 
   h2 {
     margin: 0;
+    color: var(--heading-color);
   }
 
   strong {

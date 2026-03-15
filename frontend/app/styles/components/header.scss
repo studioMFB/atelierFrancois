@@ -125,7 +125,7 @@
   padding: 0.9rem;
   display: grid;
   gap: 0.35rem;
-  border-radius: 1.5rem;
+  border-radius: var(--panel-radius);
   background: var(--site-header-menu-bg);
   border: 1px solid var(--site-header-menu-border);
   box-shadow: var(--site-header-menu-shadow);
@@ -155,7 +155,7 @@
     color: var(--sage-deep);
     text-align: left;
     padding: 0.75rem 0.8rem;
-    border-radius: 1rem;
+    border-radius: var(--radius-sm);
     transition: background 160ms ease, color 160ms ease;
 
     &:hover {
@@ -192,7 +192,7 @@
   color: var(--text-strong);
   text-align: left;
   padding: 0.8rem;
-  border-radius: 1rem;
+  border-radius: var(--radius-sm);
   display: grid;
   gap: 0.18rem;
   transition:

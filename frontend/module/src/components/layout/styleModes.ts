@@ -19,6 +19,11 @@ export const styleModeOptions = [
     label: "Lil' WUDD Mauve",
     description: "Quiet planner workspace",
   },
+  {
+    value: "style6-minimal-square",
+    label: "Minimal Square",
+    description: "Quiet, flat, and architectural",
+  },
 ] as const;
 
 export type StyleMode = (typeof styleModeOptions)[number]["value"];

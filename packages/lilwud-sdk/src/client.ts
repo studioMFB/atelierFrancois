@@ -194,7 +194,7 @@ export function createEmptyPlannerScene(
   return {
     version: 1,
     moodLighting: "evening",
-    surfaceTheme: "moss",
+    surfaceTheme: "sand",
     width: 8,
     depth: 8,
     items: [],
@@ -211,7 +211,7 @@ export function parsePlannerScene(sceneJson: string): PlannerScene {
 
   return createEmptyPlannerScene({
     moodLighting: parsePlannerMoodLighting(parsed.moodLighting),
-    surfaceTheme: parsed.surfaceTheme ?? "moss",
+    surfaceTheme: parsed.surfaceTheme ?? "sand",
     width: parsed.width ?? 8,
     depth: parsed.depth ?? 8,
     items: parsed.items ?? [],

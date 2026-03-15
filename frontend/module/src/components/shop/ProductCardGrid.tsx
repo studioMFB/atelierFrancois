@@ -9,7 +9,7 @@ interface ProductCardGridProps {
   onAddToCart: (productId: number) => void;
   placeholderCount?: number;
   emptyState?: ReactNode;
-  variant?: "full" | "short";
+  variant?: "full" | "short" | "home";
 }
 
 export function ProductCardGrid({
@@ -24,7 +24,7 @@ export function ProductCardGrid({
     return (
       <div className="product-grid">
         {Array.from({ length: placeholderCount }).map((_, index) => (
-          <div className="product-card product-card--placeholder" key={index} />
+          <div className={`product-card product-card--placeholder product-card--placeholder-${variant}`} key={index} />
         ))}
       </div>
     );

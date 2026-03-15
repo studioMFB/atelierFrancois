@@ -6,11 +6,28 @@ import { ProductViewer } from "@/components/shop/ProductViewer";
 interface ProductCardProps {
   product: Product;
   onAddToCart: (productId: number) => void;
-  variant?: "full" | "short";
+  variant?: "full" | "short" | "home";
 }
 
 export function ProductCard({ product, onAddToCart, variant = "full" }: ProductCardProps) {
   const isShortCard = variant === "short";
+  const isHomeCard = variant === "home";
+
+  if (isHomeCard) {
+    return (
+      <article className="product-card product-card--home">
+        <Link className={`product-card__art product-card__art--${product.imageKey}`} to={`/shop/${product.slug}`}>
+          <ProductViewer assetKey={product.plannerAssetKey} compact preset="garden" />
+        </Link>
+        <div className="product-card__home-meta">
+          <h3>
+            <Link to={`/shop/${product.slug}`}>{product.name}</Link>
+          </h3>
+          <strong>£{product.price.toFixed(0)}</strong>
+        </div>
+      </article>
+    );
+  }
 
   return (
     <article className={`product-card product-card--${variant}`}>

@@ -1,3 +1,5 @@
+import { CustomSelect } from "@/components/ui/CustomSelect";
+
 interface ShopFilterBarProps {
   search: string;
   category: string;
@@ -26,13 +28,15 @@ export function ShopFilterBar({
       </label>
       <label className="field">
         <span className="visually-hidden">Category</span>
-        <select onChange={(event) => onCategoryChange(event.target.value)} value={category}>
-          {categories.map((entry) => (
-            <option key={entry} value={entry}>
-              {entry}
-            </option>
-          ))}
-        </select>
+        <CustomSelect
+          ariaLabel="Category"
+          onChange={onCategoryChange}
+          options={categories.map((entry) => ({
+            label: entry,
+            value: entry,
+          }))}
+          value={category}
+        />
       </label>
     </section>
   );

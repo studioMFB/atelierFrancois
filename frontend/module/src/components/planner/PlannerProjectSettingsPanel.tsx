@@ -2,6 +2,7 @@ import type { PlannerMoodLighting, PlannerSurfaceTheme } from '@atelierfrancois/
 
 import { plannerThemes } from '@/data/brand'
 import { PlannerSectionPanel } from '@/components/planner/PlannerSectionPanel'
+import { CustomSelect } from '@/components/ui/CustomSelect'
 
 interface PlannerProjectSettingsPanelProps {
   depth: number
@@ -79,29 +80,21 @@ export function PlannerProjectSettingsPanel({
       </div>
       <label className="field">
         <span>Surface theme</span>
-        <select
-          onChange={(event) => onThemeChange(event.target.value as PlannerSurfaceTheme)}
+        <CustomSelect
+          ariaLabel="Surface theme"
+          onChange={onThemeChange}
+          options={plannerThemes}
           value={surfaceTheme}
-        >
-          {plannerThemes.map((theme) => (
-            <option key={theme.value} value={theme.value}>
-              {theme.label}
-            </option>
-          ))}
-        </select>
+        />
       </label>
       <label className="field">
         <span>Mood lighting</span>
-        <select
-          onChange={(event) => onMoodLightingChange(event.target.value as PlannerMoodLighting)}
+        <CustomSelect
+          ariaLabel="Mood lighting"
+          onChange={onMoodLightingChange}
+          options={moodLightingOptions}
           value={moodLighting}
-        >
-          {moodLightingOptions.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
+        />
       </label>
     </PlannerSectionPanel>
   )

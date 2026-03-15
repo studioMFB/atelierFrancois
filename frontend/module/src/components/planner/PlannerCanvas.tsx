@@ -44,8 +44,16 @@ export function PlannerCanvas({
 }: PlannerCanvasProps) {
   const groundColor = plannerThemeColors[scene.surfaceTheme];
   const largestDimension = Math.max(scene.width, scene.depth);
-  const moodLighting = plannerMoodLightingPresets[scene.moodLighting];
   const plannerTheme = usePlannerCanvasTheme();
+  const moodLighting = useMemo(
+    () =>
+      resolvePlannerMoodLighting(
+        plannerTheme,
+        plannerMoodLightingPresets[scene.moodLighting],
+        scene.moodLighting,
+      ),
+    [plannerTheme, scene.moodLighting],
+  );
   // Keep the orbit center on the board itself, then bias the framing with the
   // camera position so the scene reads slightly left against the right dock.
   const cameraTarget: [number, number, number] = [0, 0.02, 0];
@@ -198,69 +206,164 @@ interface PlannerMoodLightingPreset {
 }
 
 interface PlannerCanvasTheme {
+  ambientColor: string;
+  directionalColor: string;
   gridColor: string;
   gridSoftColor: string;
+  hemisphereColor: string;
+  hemisphereGroundColor: string;
+  sceneBackground: string;
+  sceneFog: string;
 }
 
 const defaultPlannerCanvasTheme: PlannerCanvasTheme = {
+  ambientColor: "",
+  directionalColor: "",
   gridColor: "#73777d",
   gridSoftColor: "#b8b7b2",
+  hemisphereColor: "",
+  hemisphereGroundColor: "",
+  sceneBackground: "",
+  sceneFog: "",
 };
 
 const plannerMoodLightingPresets: Record<PlannerMoodLighting, PlannerMoodLightingPreset> = {
   evening: {
     ambientColor: "#ffffff",
-    ambientIntensity: 0.92,
+    ambientIntensity: 1.02,
     background: "#d8ccd4",
     directionalColor: "#fff7ef",
-    directionalIntensity: 1.25,
+    directionalIntensity: 1.4,
     fog: "#ddd5da",
     fogFarMultiplier: 3.6,
     fogNearMultiplier: 1.2,
     hemisphereColor: "#fff7ef",
     hemisphereGroundColor: "#d8d5cf",
-    hemisphereIntensity: 0.72,
+    hemisphereIntensity: 0.8,
   },
   dawn: {
     ambientColor: "#f9faf6",
-    ambientIntensity: 0.88,
+    ambientIntensity: 0.98,
     background: "#e2e8df",
     directionalColor: "#fff8f0",
-    directionalIntensity: 1.12,
+    directionalIntensity: 1.24,
     fog: "#edf2eb",
     fogFarMultiplier: 3.85,
     fogNearMultiplier: 1.35,
     hemisphereColor: "#f7fbf3",
     hemisphereGroundColor: "#d6ddd3",
-    hemisphereIntensity: 0.66,
+    hemisphereIntensity: 0.74,
   },
   morning: {
     ambientColor: "#fff7e8",
-    ambientIntensity: 0.88,
+    ambientIntensity: 1,
     background: "#ecd8af",
     directionalColor: "#ffe6b8",
-    directionalIntensity: 1.02,
+    directionalIntensity: 1.16,
     fog: "#f2e4bf",
     fogFarMultiplier: 4.05,
     fogNearMultiplier: 1.48,
     hemisphereColor: "#fff1cf",
     hemisphereGroundColor: "#dccba8",
-    hemisphereIntensity: 0.62,
+    hemisphereIntensity: 0.72,
   },
   midday: {
     ambientColor: "#edf2ff",
-    ambientIntensity: 0.76,
+    ambientIntensity: 0.9,
     background: "#cdd7e6",
     directionalColor: "#f7e8df",
-    directionalIntensity: 0.92,
+    directionalIntensity: 1.06,
     fog: "#d8e0ee",
     fogFarMultiplier: 4.1,
     fogNearMultiplier: 1.52,
     hemisphereColor: "#e4edff",
     hemisphereGroundColor: "#bfcad7",
-    hemisphereIntensity: 0.58,
+    hemisphereIntensity: 0.68,
   },
 };
+
+const plannerMoodLightingBlends: Record<
+  PlannerMoodLighting,
+  {
+    ambientBoost: number;
+    backgroundMix: number;
+    directionalBoost: number;
+    fogMix: number;
+    hemisphereBoost: number;
+  }
+> = {
+  dawn: {
+    ambientBoost: 0.06,
+    backgroundMix: 0.46,
+    directionalBoost: 0.08,
+    fogMix: 0.38,
+    hemisphereBoost: 0.06,
+  },
+  evening: {
+    ambientBoost: 0.04,
+    backgroundMix: 0.34,
+    directionalBoost: 0.1,
+    fogMix: 0.3,
+    hemisphereBoost: 0.06,
+  },
+  midday: {
+    ambientBoost: 0.06,
+    backgroundMix: 0.48,
+    directionalBoost: 0.08,
+    fogMix: 0.42,
+    hemisphereBoost: 0.06,
+  },
+  morning: {
+    ambientBoost: 0.08,
+    backgroundMix: 0.52,
+    directionalBoost: 0.1,
+    fogMix: 0.46,
+    hemisphereBoost: 0.08,
+  },
+};
+
+function resolvePlannerMoodLighting(
+  theme: PlannerCanvasTheme,
+  preset: PlannerMoodLightingPreset,
+  moodLighting: PlannerMoodLighting,
+): PlannerMoodLightingPreset {
+  const blend = plannerMoodLightingBlends[moodLighting];
+
+  return {
+    ...preset,
+    ambientColor: mixPlannerColor(theme.ambientColor, preset.ambientColor, blend.backgroundMix),
+    ambientIntensity: preset.ambientIntensity + blend.ambientBoost,
+    background: mixPlannerColor(theme.sceneBackground, preset.background, blend.backgroundMix),
+    directionalColor: mixPlannerColor(
+      theme.directionalColor,
+      preset.directionalColor,
+      blend.backgroundMix,
+    ),
+    directionalIntensity: preset.directionalIntensity + blend.directionalBoost,
+    fog: mixPlannerColor(theme.sceneFog, preset.fog, blend.fogMix),
+    hemisphereColor: mixPlannerColor(
+      theme.hemisphereColor,
+      preset.hemisphereColor,
+      blend.backgroundMix,
+    ),
+    hemisphereGroundColor: mixPlannerColor(
+      theme.hemisphereGroundColor,
+      preset.hemisphereGroundColor,
+      blend.fogMix,
+    ),
+    hemisphereIntensity: preset.hemisphereIntensity + blend.hemisphereBoost,
+  };
+}
+
+function mixPlannerColor(baseColor: string, targetColor: string, amount: number): string {
+  if (!baseColor) {
+    return targetColor;
+  }
+
+  const color = new THREE.Color(baseColor);
+  color.lerp(new THREE.Color(targetColor), amount);
+  return `#${color.getHexString()}`;
+}
 
 function usePlannerCanvasTheme(): PlannerCanvasTheme {
   const [theme, setTheme] = useState<PlannerCanvasTheme>(defaultPlannerCanvasTheme);
@@ -273,10 +376,28 @@ function usePlannerCanvasTheme(): PlannerCanvasTheme {
     const readTheme = () => {
       const styles = window.getComputedStyle(document.documentElement);
       setTheme({
+        ambientColor:
+          styles.getPropertyValue("--planner-scene-ambient").trim() ||
+          defaultPlannerCanvasTheme.ambientColor,
+        directionalColor:
+          styles.getPropertyValue("--planner-scene-directional").trim() ||
+          defaultPlannerCanvasTheme.directionalColor,
         gridColor: styles.getPropertyValue("--planner-grid-color").trim() || defaultPlannerCanvasTheme.gridColor,
         gridSoftColor:
           styles.getPropertyValue("--planner-grid-soft-color").trim() ||
           defaultPlannerCanvasTheme.gridSoftColor,
+        hemisphereColor:
+          styles.getPropertyValue("--planner-scene-hemisphere").trim() ||
+          defaultPlannerCanvasTheme.hemisphereColor,
+        hemisphereGroundColor:
+          styles.getPropertyValue("--planner-scene-hemisphere-ground").trim() ||
+          defaultPlannerCanvasTheme.hemisphereGroundColor,
+        sceneBackground:
+          styles.getPropertyValue("--planner-scene-background").trim() ||
+          defaultPlannerCanvasTheme.sceneBackground,
+        sceneFog:
+          styles.getPropertyValue("--planner-scene-fog").trim() ||
+          defaultPlannerCanvasTheme.sceneFog,
       });
     };
 

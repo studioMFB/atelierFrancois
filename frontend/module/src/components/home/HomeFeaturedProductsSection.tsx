@@ -32,7 +32,7 @@ export function HomeFeaturedProductsSection({
         onAddToCart={onAddToCart}
         placeholderCount={3}
         products={products}
-        variant="short"
+        variant="home"
       />
     </section>
   );

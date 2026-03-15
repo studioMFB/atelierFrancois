@@ -1,4 +1,37 @@
+import { Suspense, useMemo } from "react";
+import { useLoader } from "@react-three/fiber";
+import { BackSide, Box3, Mesh, MeshBasicMaterial, MeshLambertMaterial, Object3D, Vector3 } from "three";
+import { clone } from "three/examples/jsm/utils/SkeletonUtils.js";
+import { GLTFLoader, type GLTF } from "three/examples/jsm/loaders/GLTFLoader.js";
+
+import benchModelUrl from "@/assets/models/furniture/benches/bench_001.glb";
+import tableModelUrl from "@/assets/models/furniture/tables/table_001.glb";
 import { getPlannerAsset } from "@/components/planner/plannerAssets";
+
+interface FurnitureGlbConfig {
+  fillColor: string;
+  modelUrl: string;
+  outlineColor: string;
+  outlineScale: number;
+  scaleBoost: number;
+}
+
+const furnitureGlbAssets: Partial<Record<string, FurnitureGlbConfig>> = {
+  "atelier-table": {
+    fillColor: "#ddd1be",
+    modelUrl: tableModelUrl,
+    outlineColor: "#435a86",
+    outlineScale: 1.032,
+    scaleBoost: 1.95,
+  },
+  "mori-bench": {
+    fillColor: "#e2d7c5",
+    modelUrl: benchModelUrl,
+    outlineColor: "#435a86",
+    outlineScale: 1.034,
+    scaleBoost: 2.15,
+  },
+};
 
 const furnitureHeights: Record<string, number> = {
   "mori-bench": 0.85,
@@ -63,7 +96,28 @@ export function FurnitureModel({
   const palette = getFurniturePalette(assetKey, selected);
   const wood = woodColor ?? palette.wood;
   const accent = accentColor ?? palette.accent;
+  const glbConfig = furnitureGlbAssets[assetKey];
 
+  if (glbConfig) {
+    return (
+      <Suspense fallback={<FurniturePrimitiveModel accent={accent} assetKey={assetKey} wood={wood} />}>
+        <FurnitureGlbModel assetKey={assetKey} config={glbConfig} />
+      </Suspense>
+    );
+  }
+
+  return <FurniturePrimitiveModel accent={accent} assetKey={assetKey} wood={wood} />;
+}
+
+function FurniturePrimitiveModel({
+  assetKey,
+  wood,
+  accent,
+}: {
+  assetKey: string;
+  wood: string;
+  accent: string;
+}) {
   switch (assetKey) {
     case "mori-bench":
       return <Bench wood={wood} accent={accent} />;
@@ -96,6 +150,75 @@ export function FurnitureModel({
     default:
       return <Bench wood={wood} accent={accent} />;
   }
+}
+
+function FurnitureGlbModel({
+  assetKey,
+  config,
+}: {
+  assetKey: string;
+  config: FurnitureGlbConfig;
+}) {
+  const gltf = useLoader(GLTFLoader, config.modelUrl) as GLTF;
+  const stage = getFurnitureStage(assetKey);
+  const { fillScene, outlineScene } = useMemo(() => {
+    const fill = clone(gltf.scene);
+    const outline = clone(gltf.scene);
+    const box = new Box3().setFromObject(fill);
+    const size = box.getSize(new Vector3());
+    const center = box.getCenter(new Vector3());
+    const targetWidth = stage.footprint[0];
+    const targetDepth = stage.footprint[1];
+    const targetHeight = stage.height;
+    const scale =
+      Math.min(
+      targetWidth / Math.max(size.x, 0.001),
+      targetHeight / Math.max(size.y, 0.001),
+      targetDepth / Math.max(size.z, 0.001),
+    ) * config.scaleBoost;
+
+    applyGlbTransform(fill, box, center, scale);
+    applyGlbTransform(outline, box, center, scale * config.outlineScale);
+
+    fill.traverse((child) => {
+      if (child instanceof Mesh) {
+        child.material = new MeshLambertMaterial({
+          color: config.fillColor,
+        });
+        child.castShadow = true;
+        child.receiveShadow = true;
+      }
+    });
+
+    outline.traverse((child) => {
+      if (child instanceof Mesh) {
+        child.material = new MeshBasicMaterial({
+          color: config.outlineColor,
+          side: BackSide,
+          toneMapped: false,
+        });
+        child.castShadow = false;
+        child.receiveShadow = false;
+      }
+    });
+
+    return {
+      fillScene: fill,
+      outlineScene: outline,
+    };
+  }, [config.fillColor, config.outlineColor, config.outlineScale, config.scaleBoost, gltf.scene, stage.footprint, stage.height]);
+
+  return (
+    <group>
+      <primitive object={outlineScene} />
+      <primitive object={fillScene} />
+    </group>
+  );
+}
+
+function applyGlbTransform(scene: Object3D, box: Box3, center: Vector3, scale: number) {
+  scene.scale.setScalar(scale);
+  scene.position.set(-center.x * scale, -box.min.y * scale, -center.z * scale);
 }
 
 function Bench({ wood, accent }: { wood: string; accent: string }) {

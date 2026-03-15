@@ -65,10 +65,20 @@
 
   .product-grid {
     align-items: start;
+    gap: 1.35rem;
   }
 
-  .product-card {
-    --product-card-art-height: 23.5rem;
+  .product-card--home {
+    --product-card-art-height: clamp(17.5rem, 28vw, 21rem);
+    border-radius: calc(var(--card-radius) + 4px);
+  }
+
+  .product-card--home .product-card__art {
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28);
+  }
+
+  .product-card--home .product-card__home-meta {
+    min-height: 6.4rem;
   }
 }
 
@@ -89,8 +99,8 @@
     align-items: start;
   }
 
-  .home-featured .product-card {
-    --product-card-art-height: 20.5rem;
+  .home-featured .product-card--home {
+    --product-card-art-height: 18rem;
   }
 }
 
