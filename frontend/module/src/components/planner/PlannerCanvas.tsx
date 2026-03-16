@@ -63,6 +63,7 @@ export function PlannerCanvas({
     largestDimension * 1.04,
   ];
   const cameraFilmOffset = 5;
+  const fogDistanceScale = 1.4;
   const [orbitEnabled, setOrbitEnabled] = useState(true);
   const [hoveredItemId, setHoveredItemId] = useState<string | null>(null);
   const selectedItem = scene.items.find((item) => item.id === selectedItemId) ?? null;
@@ -82,8 +83,8 @@ export function PlannerCanvas({
         <fog
           args={[
             moodLighting.fog,
-            largestDimension * moodLighting.fogNearMultiplier,
-            largestDimension * moodLighting.fogFarMultiplier,
+            largestDimension * moodLighting.fogNearMultiplier * fogDistanceScale,
+            largestDimension * moodLighting.fogFarMultiplier * fogDistanceScale,
           ]}
           attach="fog"
         />
