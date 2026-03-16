@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
 import { AccountScreen } from "@/screens/AccountScreen";
@@ -11,21 +12,52 @@ const Tab = createBottomTabNavigator();
 export function RootNavigator() {
   return (
     <Tab.Navigator
-      screenOptions={{
+      screenOptions={({ route }) => ({
+        headerShadowVisible: false,
         headerStyle: {
           backgroundColor: colors.paperStrong,
         },
         headerTitleStyle: {
-          color: colors.ink,
-          fontWeight: "700",
+          color: colors.heading,
+          fontWeight: "800",
+          fontSize: 28,
         },
-        tabBarActiveTintColor: colors.coral,
+        tabBarActiveTintColor: colors.heading,
         tabBarInactiveTintColor: colors.sage,
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: "700",
+          marginBottom: 4,
+        },
         tabBarStyle: {
           backgroundColor: colors.paperStrong,
-          borderTopColor: "rgba(36,57,51,0.08)",
+          borderTopColor: colors.line,
+          borderTopWidth: 1,
+          height: 74,
+          paddingTop: 6,
+          paddingBottom: 8,
         },
-      }}
+        tabBarIcon: ({ color, focused, size }) => {
+          const iconName =
+            route.name === "Home"
+              ? focused
+                ? "home"
+                : "home-outline"
+              : route.name === "Shop"
+                ? focused
+                  ? "bag"
+                  : "bag-outline"
+                : route.name === "Saved"
+                  ? focused
+                    ? "bookmark"
+                    : "bookmark-outline"
+                  : focused
+                    ? "person-circle"
+                    : "person-circle-outline";
+
+          return <Ionicons color={color} name={iconName} size={size ?? 22} />;
+        },
+      })}
     >
       <Tab.Screen component={HomeScreen} name="Home" />
       <Tab.Screen component={ShopScreen} name="Shop" />

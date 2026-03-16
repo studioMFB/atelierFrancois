@@ -10,7 +10,7 @@ import {
 } from "react-native";
 
 import { useAuth } from "@/hooks/useAuth";
-import { colors } from "@/theme";
+import { colors, radii, shadows } from "@/theme";
 
 export function AccountScreen() {
   const { status, user, login, logout, register } = useAuth();
@@ -131,13 +131,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: colors.paper,
+    backgroundColor: colors.appBg,
   },
   card: {
     backgroundColor: colors.paperStrong,
     padding: 18,
-    borderRadius: 24,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    borderColor: colors.line,
     gap: 12,
+    ...shadows.card,
   },
   eyebrow: {
     color: colors.coral,
@@ -149,15 +152,17 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 26,
     fontWeight: "700",
-    color: colors.ink,
+    color: colors.heading,
   },
   body: {
     color: colors.ink,
     fontSize: 16,
   },
   input: {
-    backgroundColor: colors.paper,
-    borderRadius: 16,
+    backgroundColor: colors.surfaceMuted,
+    borderRadius: radii.sm,
+    borderWidth: 1,
+    borderColor: colors.line,
     paddingHorizontal: 14,
     paddingVertical: 12,
     color: colors.ink,
@@ -169,12 +174,12 @@ const styles = StyleSheet.create({
   toggleButton: {
     flex: 1,
     paddingVertical: 12,
-    borderRadius: 999,
-    backgroundColor: colors.paper,
+    borderRadius: radii.pill,
+    backgroundColor: colors.surfaceMuted,
     alignItems: "center",
   },
   toggleButtonActive: {
-    backgroundColor: colors.ink,
+    backgroundColor: colors.heading,
   },
   toggleText: {
     color: colors.ink,
@@ -186,7 +191,7 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: colors.coral,
-    borderRadius: 999,
+    borderRadius: radii.pill,
     paddingVertical: 14,
     alignItems: "center",
   },

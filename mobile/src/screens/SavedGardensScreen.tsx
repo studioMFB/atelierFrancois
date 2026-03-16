@@ -4,7 +4,7 @@ import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-nati
 
 import { apiClient } from "@/api/client";
 import { useAuth } from "@/hooks/useAuth";
-import { colors } from "@/theme";
+import { colors, radii, shadows } from "@/theme";
 
 export function SavedGardensScreen() {
   const { status } = useAuth();
@@ -72,13 +72,16 @@ const styles = StyleSheet.create({
   container: {
     padding: 16,
     gap: 16,
-    backgroundColor: colors.paper,
+    backgroundColor: colors.appBg,
   },
   card: {
     backgroundColor: colors.paperStrong,
     padding: 18,
-    borderRadius: 24,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    borderColor: colors.line,
     gap: 10,
+    ...shadows.card,
   },
   eyebrow: {
     color: colors.coral,
@@ -90,7 +93,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: "700",
-    color: colors.ink,
+    color: colors.heading,
   },
   body: {
     fontSize: 15,

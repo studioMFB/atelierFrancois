@@ -16,11 +16,11 @@ const navigationTheme = {
   ...DefaultTheme,
   colors: {
     ...DefaultTheme.colors,
-    background: colors.paper,
+    background: colors.appBg,
     card: colors.paperStrong,
     primary: colors.coral,
     text: colors.ink,
-    border: "rgba(36,57,51,0.08)",
+    border: colors.line,
   },
 };
 

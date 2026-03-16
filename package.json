@@ -14,5 +14,11 @@
     "build:web": "npm run build:sdk && npm run build --workspace @atelierfrancois/web",
     "dev:mobile": "npm run build:sdk && npm run dev --workspace @atelierfrancois/mobile",
     "build:sdk": "npm run build --workspace @atelierfrancois/lilwud-sdk"
+  },
+  "devDependencies": {
+    "@react-native/js-polyfills": "^0.76.9",
+    "hermes-parser": "^0.25.1",
+    "metro-runtime": "^0.81.5",
+    "metro-source-map": "^0.81.5"
   }
 }
