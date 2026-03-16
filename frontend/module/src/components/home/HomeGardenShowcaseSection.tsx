@@ -145,6 +145,8 @@ export function HomeGardenShowcaseSection({
   const [entered, setEntered] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [previewLayout, setPreviewLayout] = useState<HomeGardenPreviewLayout | null>(null);
+  const introCopyRef = useRef<HTMLDivElement | null>(null);
+  const introCueRef = useRef<HTMLSpanElement | null>(null);
   const sceneProducts = useMemo(() => buildHomeSceneProducts(products), [products]);
   const selectedItem = useMemo(
     () => buildHomeGardenFocusItems(sceneProducts).find((entry) => entry.id === selectedId) ?? null,
@@ -164,6 +166,24 @@ export function HomeGardenShowcaseSection({
     }
   }, [selectedId]);
 
+  const updateEnterCuePosition = (clientX: number, clientY: number) => {
+    const container = introCopyRef.current;
+    const cue = introCueRef.current;
+
+    if (!container || !cue) {
+      return;
+    }
+
+    const bounds = container.getBoundingClientRect();
+    const cueWidth = cue.offsetWidth || 220;
+    const cueHeight = cue.offsetHeight || 64;
+    const nextX = clamp(clientX - bounds.left + 24, 16, bounds.width - cueWidth - 16);
+    const nextY = clamp(clientY - bounds.top + 18, 16, bounds.height - cueHeight - 16);
+
+    container.style.setProperty("--enter-cue-x", `${nextX}px`);
+    container.style.setProperty("--enter-cue-y", `${nextY}px`);
+  };
+
   return (
     <section className={`home-garden ${entered ? "home-garden--entered" : ""}`}>
       <div className="home-garden__canvas-shell">
@@ -181,7 +201,25 @@ export function HomeGardenShowcaseSection({
         <div
           aria-hidden={entered}
           className={`home-garden__copy ${entered ? "home-garden__copy--hidden" : ""}`}
+          ref={introCopyRef}
         >
+          <button
+            aria-label="Enter the garden"
+            className="home-garden__copy-hitarea"
+            onClick={() => setEntered(true)}
+            onPointerEnter={(event) => {
+              if (event.pointerType !== "touch") {
+                updateEnterCuePosition(event.clientX, event.clientY);
+              }
+            }}
+            onPointerMove={(event) => {
+              if (event.pointerType !== "touch") {
+                updateEnterCuePosition(event.clientX, event.clientY);
+              }
+            }}
+            tabIndex={entered ? -1 : 0}
+            type="button"
+          />
           <p className="eyebrow">Lil&apos; Wud makes handmade outdoor furniture for children</p>
 
           <header className="home-garden__copy-text">
@@ -198,19 +236,12 @@ export function HomeGardenShowcaseSection({
           </header>
 
           <div className="home-garden__copy-actions">
-            <div className="button-row">
-              <button
-                className="primary-button"
-                onClick={() => setEntered(true)}
-                tabIndex={entered ? -1 : undefined}
-                type="button"
-              >
-                Enter the garden
-              </button>
-            </div>
-
             {error ? <p className="muted-copy">{error}</p> : null}
           </div>
+
+          <span aria-hidden className="home-garden__enter-cue" ref={introCueRef}>
+            Enter the garden
+          </span>
         </div>
 
         {entered ? (

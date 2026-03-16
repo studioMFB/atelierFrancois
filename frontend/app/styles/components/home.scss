@@ -35,6 +35,9 @@
 }
 
 .home-garden__copy {
+  --enter-cue-x: 1.75rem;
+  --enter-cue-y: calc(100% - 6.4rem);
+
   inset: 0;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;
@@ -44,6 +47,22 @@
   transition:
     opacity 560ms cubic-bezier(0.2, 0.82, 0.2, 1),
     filter 980ms cubic-bezier(0.18, 0.88, 0.22, 1);
+
+  .home-garden__copy-hitarea {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    padding: 0;
+    border: 0;
+    border-radius: inherit;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .home-garden__copy-hitarea:focus-visible {
+    outline: none;
+    box-shadow: inset 0 0 0 2px rgba(98, 105, 249, 0.55);
+  }
 
   .eyebrow,
   .home-garden__copy-actions,
@@ -62,6 +81,9 @@
     align-self: start;
     max-width: 24rem;
     margin: 0;
+    position: relative;
+    z-index: 1;
+    pointer-events: none;
     text-shadow: 0 10px 28px rgba(255, 255, 255, 0.42);
   }
 
@@ -73,6 +95,9 @@
     max-width: min(72rem, calc(100% - 1rem));
     min-height: 0;
     padding: clamp(1rem, 5vh, 3rem) 0;
+    position: relative;
+    z-index: 1;
+    pointer-events: none;
   }
 
   .home-garden__title {
@@ -112,10 +137,51 @@
     gap: 0.75rem;
     position: relative;
     z-index: 1;
+    pointer-events: none;
   }
 
-  .button-row {
-    max-width: 20rem;
+  .home-garden__enter-cue {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2;
+    width: 12rem;
+    display: grid;
+    align-items: center;
+    justify-items: center;
+    gap: 1rem;
+    padding: 1.35rem 1.45rem 1.4rem;
+    border: 1px solid var(--line-soft);
+    border-radius: calc(var(--card-radius) - 0.15rem);
+    color: var(--nav-link-active-bg);
+    background: var(--coral-tint-soft);
+    box-shadow: var(--shadow-pop);
+    backdrop-filter: blur(18px);
+    opacity: 0;
+    pointer-events: none;
+    transform: translate3d(var(--enter-cue-x), var(--enter-cue-y), 0) scale(0.92);
+    transition:
+      opacity 180ms ease,
+      transform 240ms cubic-bezier(0.18, 0.88, 0.22, 1);
+  }
+
+  &:hover .home-garden__enter-cue,
+  .home-garden__copy-hitarea:focus-visible~.home-garden__enter-cue {
+    opacity: 1;
+    transform: translate3d(var(--enter-cue-x), var(--enter-cue-y), 0) scale(1);
+  }
+}
+
+@media (hover: none),
+(pointer: coarse) {
+  .home-garden__copy {
+    --enter-cue-x: 1.25rem;
+    --enter-cue-y: calc(100% - 5.9rem);
+
+    .home-garden__enter-cue {
+      opacity: 1;
+      transform: translate3d(var(--enter-cue-x), var(--enter-cue-y), 0) scale(1);
+    }
   }
 }
 
@@ -280,11 +346,11 @@
     margin-bottom: 0.35rem;
   }
 
-  .section-header > header {
+  .section-header>header {
     max-width: 34rem;
   }
 
-  .section-header > aside {
+  .section-header>aside {
     min-height: 3.5rem;
     align-self: end;
   }
