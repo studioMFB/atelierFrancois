@@ -9,27 +9,24 @@ import tableModelUrl from "@/assets/models/furniture/tables/table_001.glb";
 import { getPlannerAsset } from "@/components/planner/plannerAssets";
 
 interface FurnitureGlbConfig {
-  frameColor: string;
+  fillColor: string;
   modelUrl: string;
   outlineColor: string;
-  plankColor: string;
   scaleBoost: number;
   verticalScale?: number;
 }
 
 const furnitureGlbAssets: Partial<Record<string, FurnitureGlbConfig>> = {
   "atelier-table": {
-    frameColor: "#f2ebdf",
+    fillColor: "#f2ebdf",
     modelUrl: tableModelUrl,
     outlineColor: "#5d729d",
-    plankColor: "#d7be97",
     scaleBoost: 1.95,
   },
   "mori-bench": {
-    frameColor: "#eee5d7",
+    fillColor: "#eee5d7",
     modelUrl: benchModelUrl,
     outlineColor: "#5d729d",
-    plankColor: "#d3b28b",
     scaleBoost: 2.15,
     verticalScale: 1.12,
   },
@@ -190,7 +187,6 @@ function FurnitureGlbModel({
         const isOutline =
           lowerName.includes("outline") ||
           materialNames.some((name) => name.toLowerCase().includes("outline"));
-        const isTopPlank = lowerName.startsWith("34x6");
 
         child.material = isOutline
           ? new MeshBasicMaterial({
@@ -198,7 +194,7 @@ function FurnitureGlbModel({
               toneMapped: false,
             })
           : new MeshLambertMaterial({
-              color: isTopPlank ? config.plankColor : config.frameColor,
+              color: config.fillColor,
             });
         child.castShadow = true;
         child.receiveShadow = true;
@@ -207,10 +203,9 @@ function FurnitureGlbModel({
 
     return model;
   }, [
-    config.frameColor,
+    config.fillColor,
     config.modelUrl,
     config.outlineColor,
-    config.plankColor,
     config.scaleBoost,
     config.verticalScale,
     gltf.scene,
