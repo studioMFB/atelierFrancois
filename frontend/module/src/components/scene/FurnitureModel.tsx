@@ -1,6 +1,6 @@
 import { Suspense, useMemo } from "react";
 import { useLoader } from "@react-three/fiber";
-import { BackSide, Box3, Mesh, MeshBasicMaterial, MeshLambertMaterial, Object3D, Vector3 } from "three";
+import { Box3, Mesh, MeshBasicMaterial, MeshLambertMaterial, Object3D, Vector3 } from "three";
 import { clone } from "three/examples/jsm/utils/SkeletonUtils.js";
 import { GLTFLoader, type GLTF } from "three/examples/jsm/loaders/GLTFLoader.js";
 
@@ -9,27 +9,29 @@ import tableModelUrl from "@/assets/models/furniture/tables/table_001.glb";
 import { getPlannerAsset } from "@/components/planner/plannerAssets";
 
 interface FurnitureGlbConfig {
-  fillColor: string;
+  frameColor: string;
   modelUrl: string;
   outlineColor: string;
-  outlineScale: number;
+  plankColor: string;
   scaleBoost: number;
+  verticalScale?: number;
 }
 
 const furnitureGlbAssets: Partial<Record<string, FurnitureGlbConfig>> = {
   "atelier-table": {
-    fillColor: "#ddd1be",
+    frameColor: "#f2ebdf",
     modelUrl: tableModelUrl,
-    outlineColor: "#435a86",
-    outlineScale: 1.032,
+    outlineColor: "#5d729d",
+    plankColor: "#d7be97",
     scaleBoost: 1.95,
   },
   "mori-bench": {
-    fillColor: "#e2d7c5",
+    frameColor: "#eee5d7",
     modelUrl: benchModelUrl,
-    outlineColor: "#435a86",
-    outlineScale: 1.034,
+    outlineColor: "#5d729d",
+    plankColor: "#d3b28b",
     scaleBoost: 2.15,
+    verticalScale: 1.12,
   },
 };
 
@@ -161,10 +163,9 @@ function FurnitureGlbModel({
 }) {
   const gltf = useLoader(GLTFLoader, config.modelUrl) as GLTF;
   const stage = getFurnitureStage(assetKey);
-  const { fillScene, outlineScene } = useMemo(() => {
-    const fill = clone(gltf.scene);
-    const outline = clone(gltf.scene);
-    const box = new Box3().setFromObject(fill);
+  const scene = useMemo(() => {
+    const model = clone(gltf.scene);
+    const box = new Box3().setFromObject(model);
     const size = box.getSize(new Vector3());
     const center = box.getCenter(new Vector3());
     const targetWidth = stage.footprint[0];
@@ -172,53 +173,57 @@ function FurnitureGlbModel({
     const targetHeight = stage.height;
     const scale =
       Math.min(
-      targetWidth / Math.max(size.x, 0.001),
-      targetHeight / Math.max(size.y, 0.001),
-      targetDepth / Math.max(size.z, 0.001),
-    ) * config.scaleBoost;
+        targetWidth / Math.max(size.x, 0.001),
+        targetHeight / Math.max(size.y, 0.001),
+        targetDepth / Math.max(size.z, 0.001),
+      ) * config.scaleBoost;
+    const scaleVector = new Vector3(scale, scale * (config.verticalScale ?? 1), scale);
 
-    applyGlbTransform(fill, box, center, scale);
-    applyGlbTransform(outline, box, center, scale * config.outlineScale);
+    applyGlbTransform(model, box, center, scaleVector);
 
-    fill.traverse((child) => {
+    model.traverse((child) => {
       if (child instanceof Mesh) {
-        child.material = new MeshLambertMaterial({
-          color: config.fillColor,
-        });
+        const materialNames = Array.isArray(child.material)
+          ? child.material.map((material) => material?.name ?? "")
+          : [child.material?.name ?? ""];
+        const lowerName = child.name.toLowerCase();
+        const isOutline =
+          lowerName.includes("outline") ||
+          materialNames.some((name) => name.toLowerCase().includes("outline"));
+        const isTopPlank = lowerName.startsWith("34x6");
+
+        child.material = isOutline
+          ? new MeshBasicMaterial({
+              color: config.outlineColor,
+              toneMapped: false,
+            })
+          : new MeshLambertMaterial({
+              color: isTopPlank ? config.plankColor : config.frameColor,
+            });
         child.castShadow = true;
         child.receiveShadow = true;
       }
     });
 
-    outline.traverse((child) => {
-      if (child instanceof Mesh) {
-        child.material = new MeshBasicMaterial({
-          color: config.outlineColor,
-          side: BackSide,
-          toneMapped: false,
-        });
-        child.castShadow = false;
-        child.receiveShadow = false;
-      }
-    });
+    return model;
+  }, [
+    config.frameColor,
+    config.modelUrl,
+    config.outlineColor,
+    config.plankColor,
+    config.scaleBoost,
+    config.verticalScale,
+    gltf.scene,
+    stage.footprint,
+    stage.height,
+  ]);
 
-    return {
-      fillScene: fill,
-      outlineScene: outline,
-    };
-  }, [config.fillColor, config.outlineColor, config.outlineScale, config.scaleBoost, gltf.scene, stage.footprint, stage.height]);
-
-  return (
-    <group>
-      <primitive object={outlineScene} />
-      <primitive object={fillScene} />
-    </group>
-  );
+  return <primitive object={scene} />;
 }
 
-function applyGlbTransform(scene: Object3D, box: Box3, center: Vector3, scale: number) {
-  scene.scale.setScalar(scale);
-  scene.position.set(-center.x * scale, -box.min.y * scale, -center.z * scale);
+function applyGlbTransform(scene: Object3D, box: Box3, center: Vector3, scale: Vector3) {
+  scene.scale.copy(scale);
+  scene.position.set(-center.x * scale.x, -box.min.y * scale.y, -center.z * scale.z);
 }
 
 function Bench({ wood, accent }: { wood: string; accent: string }) {
