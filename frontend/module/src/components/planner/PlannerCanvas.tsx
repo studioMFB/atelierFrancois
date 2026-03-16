@@ -54,14 +54,15 @@ export function PlannerCanvas({
       ),
     [plannerTheme, scene.moodLighting],
   );
-  // Keep the orbit center on the board itself, then bias the framing with the
-  // camera position so the scene reads slightly left against the right dock.
+  // Keep the orbit center on the board itself, then bias the framing with a
+  // projection offset so the stage sits further left against the right dock.
   const cameraTarget: [number, number, number] = [0, 0.02, 0];
   const cameraPosition: [number, number, number] = [
     largestDimension * 0.68,
     Math.max(5.2, largestDimension * 0.68),
     largestDimension * 1.04,
   ];
+  const cameraFilmOffset = 5;
   const [orbitEnabled, setOrbitEnabled] = useState(true);
   const [hoveredItemId, setHoveredItemId] = useState<string | null>(null);
   const selectedItem = scene.items.find((item) => item.id === selectedItemId) ?? null;
@@ -69,7 +70,7 @@ export function PlannerCanvas({
   return (
     <div className="planner-stage">
       <Canvas
-        camera={{ position: cameraPosition, fov: 40 }}
+        camera={{ position: cameraPosition, fov: 40, filmOffset: cameraFilmOffset }}
         onPointerMissed={() => {
           setOrbitEnabled(true);
           setHoveredItemId(null);
